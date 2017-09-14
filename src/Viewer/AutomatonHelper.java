@@ -8,7 +8,7 @@ public abstract class AutomatonHelper
 {
     public static final Color defaultUnselectedStateColor = Color.WHITE;
     
-    public static final Color defaultSelectedStateColor = Color.ORANGE;
+    public static final Color defaultSelectedStateColor = new Color(96, 128, 255);
     
     public static final char[] TRANSITIONS_LETTERS =
     {
