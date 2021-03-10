@@ -1,11 +1,12 @@
 
 package AutomatonAlgorithms;
 
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+
+import AutomatonModels.Automaton;
+import AutomatonModels.InverseAutomaton;
 
 
 public abstract class ShortestExtendingWord

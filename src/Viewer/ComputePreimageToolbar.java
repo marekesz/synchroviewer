@@ -1,8 +1,6 @@
 
 package Viewer;
 
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
@@ -29,6 +28,9 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+
+import AutomatonModels.Automaton;
+import AutomatonModels.InverseAutomaton;
 
 
 public class ComputePreimageToolbar extends DockToolbar

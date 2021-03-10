@@ -1,15 +1,17 @@
 
 package Viewer;
 
+import java.awt.BorderLayout;
+import java.awt.Font;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import AutomatonAlgorithms.Connectivity;
 import AutomatonAlgorithms.Synchronizability;
 import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
-import java.awt.BorderLayout;
-import java.awt.Font;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class BasicPropertiesToolbar extends DockToolbar
 {

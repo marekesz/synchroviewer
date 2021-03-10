@@ -1,12 +1,6 @@
 
 package Viewer;
 
-import AutomatonAlgorithms.ShortestCompressingWord;
-import AutomatonAlgorithms.ShortestExtendingWord;
-import AutomatonAlgorithms.ShortestResetWord;
-import AutomatonAlgorithms.WordNotFoundException;
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,6 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -34,6 +29,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import AutomatonAlgorithms.ShortestCompressingWord;
+import AutomatonAlgorithms.ShortestExtendingWord;
+import AutomatonAlgorithms.ShortestResetWord;
+import AutomatonAlgorithms.WordNotFoundException;
+import AutomatonModels.Automaton;
+import AutomatonModels.InverseAutomaton;
 
 
 public class ShortestWordForSubsetToolbar extends DockToolbar

@@ -1,7 +1,6 @@
 
 package Viewer;
 
-import AutomatonModels.Automaton;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,8 +18,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import AutomatonModels.Automaton;
 
 public class PaintPanel extends JPanel implements MouseListener, MouseMotionListener
 {

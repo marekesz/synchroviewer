@@ -1,9 +1,6 @@
 
 package Viewer;
 
-import AutomatonAlgorithms.ShortestResetWord;
-import AutomatonAlgorithms.WordNotFoundException;
-import AutomatonModels.Automaton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -25,6 +23,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import AutomatonAlgorithms.ShortestResetWord;
+import AutomatonAlgorithms.WordNotFoundException;
+import AutomatonModels.Automaton;
 
 
 public class ShortestResetWordToolbar extends DockToolbar

@@ -1,7 +1,6 @@
 
 package Viewer;
 
-import AutomatonModels.Automaton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -11,10 +10,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+
+import AutomatonModels.Automaton;
 
 
 public class SplitPane extends JSplitPane

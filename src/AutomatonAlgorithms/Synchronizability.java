@@ -1,9 +1,10 @@
 
 package AutomatonAlgorithms;
 
+import java.util.Arrays;
+
 import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
-import java.util.Arrays;
 
 
 public abstract class Synchronizability
