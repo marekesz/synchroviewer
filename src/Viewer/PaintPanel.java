@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
     private Automaton automaton;
     private Color[] colors;
-    private Point[] vertices;
+    private Point2D.Double[] vertices;
     private int[] orders;
     private int highlighted;
     
@@ -141,7 +142,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 int width = PaintPanel.this.getSize().width;
                 int height = PaintPanel.this.getSize().height;
                 
-                for (Point vertex : vertices)
+                for (Point2D.Double vertex : vertices)
                 {
                     if (vertex.x + VERTEX_RADIUS > width)
                         vertex.x = width - VERTEX_RADIUS;
@@ -270,7 +271,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         this.automaton = automaton;
         int N = getN();
         
-        this.vertices = new Point[N];
+        this.vertices = new Point2D.Double[N];
         this.orders = new int[N];
         this.colors = new Color[N];
         this.highlighted = -1;
@@ -291,7 +292,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     public void updateAutomatonData()
     {
         int N = getN();
-        this.vertices = new Point[N];
+        this.vertices = new Point2D.Double[N];
         this.orders = new int[N];
         this.colors = new Color[N];
         this.highlighted = -1;
@@ -318,9 +319,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         int N = getN();
         for (int n = 0; n < N; n++)
         {
-            vertices[n] = new Point(
-                    (int) (Math.sin(angle) * r + cx),
-                    (int) (-Math.cos(angle) * r + cy));
+            vertices[n] = new Point2D.Double(
+                    (Math.sin(angle) * r + cx),
+                    (-Math.cos(angle) * r + cy));
             angle += 2 * Math.PI / N;
         }
         repaint();
@@ -390,9 +391,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 temp[N-1] = unselectedStateColor;
                 this.colors = temp;
 
-                Point[] temp2 = new Point[N];
+                Point2D.Double[] temp2 = new Point2D.Double[N];
                 System.arraycopy(this.vertices, 0, temp2, 0, N - 1);
-                temp2[N-1] = ev.getPoint();
+                temp2[N-1] = new Point2D.Double(ev.getPoint().getX(), ev.getPoint().getY());
                 this.vertices = temp2;    
             }
             else if (highlighted >= 0 && operation == Operation.REMOVE_STATES)
@@ -403,7 +404,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                     this.orders[n] = n;
 
                 Color[] temp = new Color[N - 1];
-                Point[] temp2 = new Point[N - 1];
+                Point2D.Double[] temp2 = new Point2D.Double[N - 1];
                 for (int n = 0; n < N - 1; n++)
                 {
                     if (n < highlighted)
@@ -431,8 +432,8 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 automaton.selectState(highlighted);
             else if (highlighted >= 0)
             {         
-                grabShiftX = (vertices[highlighted].x - grabX);
-                grabShiftY = (vertices[highlighted].y - grabY);
+                grabShiftX = (int)(vertices[highlighted].x - grabX);
+                grabShiftY = (int)(vertices[highlighted].y - grabY);
                 grabbed = highlighted;
                 int N = getN();
                 int i = N - 1;
@@ -474,7 +475,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             if (swapStatesFirstState >= 0 && highlighted >= 0 && swapStatesFirstState != highlighted)
             {
                 automaton.replaceStates(swapStatesFirstState, highlighted);
-                Point temp = vertices[highlighted];
+                Point2D.Double temp = vertices[highlighted];
                 vertices[highlighted] = vertices[swapStatesFirstState];
                 vertices[swapStatesFirstState] = temp;
                 int temp2 = orders[highlighted];
@@ -554,13 +555,13 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 g.setColor(selectedStateColor);
                 if (highlighted != -1 && highlighted == n)
                     g.setColor(g.getColor().brighter());
-                g.drawOval(vertices[n].x - VERTEX_RADIUS - 3, vertices[n].y - VERTEX_RADIUS - 3, (VERTEX_RADIUS * 2) + 6, (VERTEX_RADIUS * 2) + 6);
+                g.drawOval((int)vertices[n].x - VERTEX_RADIUS - 3, (int)vertices[n].y - VERTEX_RADIUS - 3, (VERTEX_RADIUS * 2) + 6, (VERTEX_RADIUS * 2) + 6);
                 g.setStroke(new BasicStroke());
                 if (highlighted != -1 && highlighted == n)
                     g.setColor(Color.LIGHT_GRAY);
                 else
                     g.setColor(Color.BLACK);
-                g.drawOval(vertices[n].x - VERTEX_RADIUS - 4, vertices[n].y - VERTEX_RADIUS - 4, (VERTEX_RADIUS * 2) + 8, (VERTEX_RADIUS * 2) + 8);
+                g.drawOval((int)vertices[n].x - VERTEX_RADIUS - 4, (int)vertices[n].y - VERTEX_RADIUS - 4, (VERTEX_RADIUS * 2) + 8, (VERTEX_RADIUS * 2) + 8);
             }
         }
         
@@ -612,9 +613,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                         g.setStroke(new BasicStroke());
                         g.setColor(AutomatonHelper.TRANSITIONS_COLORS[trans.k % AutomatonHelper.TRANSITIONS_COLORS.length]);
                     }
-                    drawEdge(g, vertices[trans.stateOut].x, vertices[trans.stateOut].y,
-                        vertices[trans.stateIn].x,
-                        vertices[trans.stateIn].y, j, transNumber, trans.inverse, false, false);
+                    drawEdge(g, (int)vertices[trans.stateOut].x, (int)vertices[trans.stateOut].y,
+                    		(int)vertices[trans.stateIn].x,
+                    		(int)vertices[trans.stateIn].y, j, transNumber, trans.inverse, false, false);
                 }
             }
         }
@@ -623,7 +624,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         if (addTransFirstState >= 0 && operation == Operation.ADD_TRANS && K > 0)
         {
             g.setColor(AutomatonHelper.TRANSITIONS_COLORS[selectedTransition]);
-            drawEdge(g, vertices[addTransFirstState].x, vertices[addTransFirstState].y,
+            drawEdge(g, (int)vertices[addTransFirstState].x, (int)vertices[addTransFirstState].y,
                 grabX,
                 grabY, 0, 1, false, true, true);
         }
@@ -631,7 +632,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         {
             g.setColor(new Color(0, 0, 0, 0.1f));
             g.setStroke(new BasicStroke(2));
-            drawEdge(g, vertices[swapStatesFirstState].x, vertices[swapStatesFirstState].y,
+            drawEdge(g, (int)vertices[swapStatesFirstState].x, (int)vertices[swapStatesFirstState].y,
                 grabX,
                 grabY, 0, 1, true, false, true);
         }     
@@ -651,7 +652,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             if (highlighted != -1 && highlighted == n)
                 g.setColor(g.getColor().brighter());
             
-            g.fillOval(vertices[n].x - VERTEX_RADIUS, vertices[n].y - VERTEX_RADIUS, VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
+            g.fillOval((int)(vertices[n].x - VERTEX_RADIUS), (int)(vertices[n].y - VERTEX_RADIUS), VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
                      
             g.setColor(Color.BLACK);
             if (highlighted != -1 && highlighted == n)
@@ -663,11 +664,11 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 g.setStroke(new BasicStroke(4));
             }
  
-            g.drawOval(vertices[n].x - VERTEX_RADIUS, vertices[n].y - VERTEX_RADIUS, VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);           
+            g.drawOval((int)(vertices[n].x - VERTEX_RADIUS), (int)(vertices[n].y - VERTEX_RADIUS), VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);           
             g.setStroke(new BasicStroke());
             g.setColor(Color.BLACK);
             String label = Integer.toString(n);
-            g.drawString(label, vertices[n].x - g.getFontMetrics().stringWidth(label) / 2, vertices[n].y + 5);
+            g.drawString(label, (int)(vertices[n].x - g.getFontMetrics().stringWidth(label) / 2), (int)(vertices[n].y + 5));
         }
     }
 
