@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -94,7 +93,8 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
     private int grabbed;
     private int grabX, grabY, grabShiftX, grabShiftY;
-
+    private int oldWidth;
+    private int oldHeight;
   // ************************************************************************
     // Initialization
     public PaintPanel(Automaton automaton)
@@ -108,7 +108,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         this.operation = Operation.MOVE_STATES;
         this.unselectedStateColor = AutomatonHelper.defaultUnselectedStateColor;
         this.selectedStateColor = AutomatonHelper.defaultSelectedStateColor;
-        
+        this.oldWidth = 0;
+        this.oldHeight = 0;
+
         showRange = false;
         showAction = false;
         
@@ -141,15 +143,31 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             {
                 int width = PaintPanel.this.getSize().width;
                 int height = PaintPanel.this.getSize().height;
-                
+                    
                 for (Point2D.Double vertex : vertices)
                 {
-                    if (vertex.x + VERTEX_RADIUS > width)
+                    if(PaintPanel.this.oldWidth != 0) 
+                    {
+                        vertex.x = (int)(vertex.x * (double)width/(double)PaintPanel.this.oldWidth);
+                        vertex.y = (int)(vertex.y * (double)height/(double)PaintPanel.this.oldHeight);
+                    }
+
+                    if (vertex.x + VERTEX_RADIUS > width) 
                         vertex.x = width - VERTEX_RADIUS;
-                    if (vertex.y + VERTEX_RADIUS > height)
+                    
+                    if (vertex.y + VERTEX_RADIUS > height) 
                         vertex.y = height - VERTEX_RADIUS;
+                    
+                    if (vertex.x - VERTEX_RADIUS < 0) 
+                        vertex.x = VERTEX_RADIUS;
+                    
+                    if (vertex.y - VERTEX_RADIUS < 0) 
+                        vertex.y = VERTEX_RADIUS;
+                    
                 }
                 
+                PaintPanel.this.oldWidth = width;
+                PaintPanel.this.oldHeight = height;
                 repaint();
             }
         });
