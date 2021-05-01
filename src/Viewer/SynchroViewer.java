@@ -22,6 +22,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.Box;
@@ -322,7 +325,6 @@ public class SynchroViewer
         
         addTransButton.addActionListener(new ActionListener()
         {
-
             @Override
             public void actionPerformed(ActionEvent ev)
             {

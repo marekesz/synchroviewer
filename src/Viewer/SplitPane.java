@@ -54,7 +54,8 @@ public class SplitPane extends JSplitPane
         ComputeImageToolbar computeImageToolbar = new ComputeImageToolbar("Compute image", true, automaton);
         ComputePreimageToolbar computePreimageToolbar = new ComputePreimageToolbar("Compute preimage", false, automaton);
         ShortestResetWordToolbar resetWordToolbar = new ShortestResetWordToolbar("Shortest reset word", true, automaton);   
-        ShortestWordForSubsetToolbar shortestWordSubsetToolbar = new ShortestWordForSubsetToolbar("Shortest word for subset", true, automaton);      
+        ShortestWordForSubsetToolbar shortestWordSubsetToolbar = new ShortestWordForSubsetToolbar("Shortest word for subset", true, automaton);
+        DimensionsForSubsetToolbar dimensionsForSubsetToolbar = new DimensionsForSubsetToolbar("Dimensions for subset", false, automaton);      
         BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false, automaton);
         
         addToolbar(codeToolbar, innerPanel);
@@ -62,6 +63,7 @@ public class SplitPane extends JSplitPane
         addToolbar(computePreimageToolbar, innerPanel);
         addToolbar(resetWordToolbar, innerPanel);
         addToolbar(shortestWordSubsetToolbar, innerPanel);
+        addToolbar(dimensionsForSubsetToolbar, innerPanel);
         addToolbar(basicPropertiesToolbar, innerPanel);
         
         updateToolbars();
