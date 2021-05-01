@@ -121,7 +121,7 @@ public class ShortestWordForSubsetToolbar extends DockToolbar
             }
         });
         resetButton.addItemListener(new ItemListener() {
-
+            
             @Override
             public void itemStateChanged(ItemEvent ev)
             {
