@@ -9,29 +9,71 @@ public class AlgebraicModule
 {
     private static BigInteger ZERO = new BigInteger("0");
 
+    private static void printMatrix(int[][] matrix) {
+        System.out.println("");
+        for(int i = 0;i<matrix.length;i++) { 
+            for(int j =0;j<matrix[0].length;j++) { 
+                System.out.print(matrix[i][j]);
+            }
+            System.out.println("");
+        }
+        System.out.println("");
+    }
+    
+    private static void printArray(int[] vector) {
+        System.out.println("");
+        for(int i = 0;i<vector.length;i++) { 
+                System.out.print(vector[i]+" ");
+        }
+        System.out.println("");
+    }
+
+    private static void printBase(ArrayList<int[]> base) {
+        System.out.println("base: ");
+        base.forEach(v -> printArray(v));
+        System.out.println("------");
+    }
+
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
-    public static ArrayList<Integer> DimensionsForSubset(Automaton automaton, int [] subset) 
-    {
+    public static ArrayList<Integer> DimensionsForSubset(Automaton automaton) 
+    {   
+        int [] subset = automaton.getSelectedStates();
         ArrayList<Integer> result = new ArrayList<>();
         ArrayList<int []> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
+        System.out.println("Adding vector from word: ");
+                        printArray(matMul(subset, wordToMatrix(automaton, "")));
+                        System.out.println("to base: ");
+                        printBase(base);
+                        
         candidates.add("");
+        base.add(matMul(subset, wordToMatrix(automaton, "")));
         ArrayList<String> newCandidates = new ArrayList<>();
         while (candidates.size() > 0) 
         {
             for (String x : candidates) 
             {
-                for (int k = 0;k<automaton.getK();k++) {
+                for (int k = 0;k<automaton.getK();k++) 
+                {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
                     int [] vec = matMul(subset, wordToMatrix(automaton,x+a));
+                    System.out.println("checking vector for word: "+x+a);
+                    printArray(subset);
+                    System.out.println(" X Matrix:");
+                    printMatrix(wordToMatrix(automaton,x+a));
+                    printArray(vec);
                     if( !dependentFromBase(base, vec) )
                     {
+                        System.out.println("Adding vector from word: "+x+a);
+                        printArray(vec);
+                        System.out.println("to base: ");
+                        printBase(base);
                         base.add(vec);
                         newCandidates.add(x+a);
                     }
                 }
             }
-            if(result.size() == 0 ||  base.size() > result.get(result.size()-1))
+            if(result.size() == 0 || base.size() > result.get(result.size()-1))
                 result.add(base.size());
             moveArrayList(newCandidates, candidates);
             newCandidates.clear();
