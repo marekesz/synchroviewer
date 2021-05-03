@@ -10,28 +10,35 @@ public class AlgebraicModule
     private static BigInteger ZERO = new BigInteger("0");
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
-    public static ArrayList<Integer> DimensionsForSubset(Automaton automaton, int [] subset) 
-    {
+    public static ArrayList<Integer> DimensionsForSubset(Automaton automaton) 
+    {   
+        int [] subset = automaton.getSelectedStates();
         ArrayList<Integer> result = new ArrayList<>();
         ArrayList<int []> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
+                
         candidates.add("");
+        base.add(matMul(subset, wordToMatrix(automaton, "")));
+        System.out.println("words per dimensions: ");
+        System.out.println("0: ");
         ArrayList<String> newCandidates = new ArrayList<>();
         while (candidates.size() > 0) 
         {
             for (String x : candidates) 
             {
-                for (int k = 0;k<automaton.getK();k++) {
+                for (int k = 0;k<automaton.getK();k++) 
+                {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
                     int [] vec = matMul(subset, wordToMatrix(automaton,x+a));
                     if( !dependentFromBase(base, vec) )
                     {
                         base.add(vec);
                         newCandidates.add(x+a);
+                        System.out.println((x+a).length() + ": "+ x+a);
                     }
                 }
             }
-            if(result.size() == 0 ||  base.size() > result.get(result.size()-1))
+            if(result.size() == 0 || base.size() > result.get(result.size()-1))
                 result.add(base.size());
             moveArrayList(newCandidates, candidates);
             newCandidates.clear();

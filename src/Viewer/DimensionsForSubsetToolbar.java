@@ -99,8 +99,7 @@ public class DimensionsForSubsetToolbar extends DockToolbar
 
     private void recalculate()
     {
-        int[] subset = getAutomaton().getSelectedStates();
-        ArrayList<Integer> dimensions = AlgebraicModule.DimensionsForSubset(getAutomaton(), subset);
+        ArrayList<Integer> dimensions = AlgebraicModule.DimensionsForSubset(getAutomaton());
         String text = "";
         for (int i=0;i<dimensions.size();i++)
             text += " "+Integer.toString(dimensions.get(i));
