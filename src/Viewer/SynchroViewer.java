@@ -46,45 +46,40 @@ import javax.swing.JPopupMenu.Separator;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 
+public class SynchroViewer {
 
-public class SynchroViewer
-{
-    
     private final JFrame frame;
-    
+
     private final SplitPane splitPane;
     private final PaintPanel paintPanel;
-    
+
     private JToolBar toolbar;
-    private final String[] iconFiles = { 
-        "icons/move_states.png", "icons/add_states.png", "icons/remove_states.png",
-        "icons/swap_states.png", "icons/add_transitions.png"
-    };
-    private final String[] buttonLabels = { "Move states", "Add states", "Remove states", "Swap states (drag one state to another)", "Add/Remove transitions", "Select states" };
+    private final String[] iconFiles = { "icons/move_states.png", "icons/add_states.png", "icons/remove_states.png",
+            "icons/swap_states.png", "icons/add_transitions.png" };
+    private final String[] buttonLabels = { "Move states", "Add states", "Remove states",
+            "Swap states (drag one state to another)", "Add/Remove transitions", "Select states" };
     private final JButton[] toolBarButtons = new JButton[buttonLabels.length];
     private JButton selectedColorsButton;
-    
+
     private JButton addTransButton;
     private JButton removeTransButton;
     private JComboBox<String> transitions;
 
-    public SynchroViewer(JFrame frame) 
-    {
+    public SynchroViewer(JFrame frame) {
         this.frame = frame;
         splitPane = new SplitPane();
         paintPanel = splitPane.getPaintPanel();
-        
+
         PropertyChangeListener pcl = new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
+            public void propertyChange(PropertyChangeEvent ev) {
                 updateTransitionsComboBox();
             }
         };
         splitPane.getCodeToolbar().addPropertyChangeListener("updateTransitions", pcl);
         paintPanel.addPropertyChangeListener("updateTransitions", pcl);
-        
+
         createMenuBar();
         createToolBar();
 
@@ -94,80 +89,72 @@ public class SynchroViewer
         container.add(splitPane, BorderLayout.CENTER);
     }
 
-    private void createMenuBar()
-    {
+    private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-        
+
         JMenu automatonMenu = new JMenu("Automaton");
         menuBar.add(automatonMenu);
-        
+
         JFileChooser fileChooser = new JFileChooser();
         JMenuItem saveMenuItem = new JMenuItem("Save Image... ");
         saveMenuItem.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
+            public void actionPerformed(ActionEvent ev) {
                 int option = fileChooser.showSaveDialog(automatonMenu);
-                if (option == JFileChooser.APPROVE_OPTION)
-                {
+                if (option == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
                     String path = file.getPath();
                     String name = file.getName();
-                    
-                    BufferedImage img = new BufferedImage(paintPanel.getWidth(),paintPanel.getHeight(),BufferedImage.TYPE_INT_RGB);
+
+                    BufferedImage img = new BufferedImage(paintPanel.getWidth(), paintPanel.getHeight(),
+                            BufferedImage.TYPE_INT_RGB);
                     Graphics g = img.getGraphics();
                     paintPanel.paint(g);
                     g.dispose();
                     try {
-                        if (name.lastIndexOf(".") != -1 && name.lastIndexOf(".") != 0)
-                        {
+                        if (name.lastIndexOf(".") != -1 && name.lastIndexOf(".") != 0) {
                             String ext = name.substring(name.lastIndexOf(".") + 1);
                             if (!ext.equals("png"))
                                 JOptionPane.showMessageDialog(frame, "Invalid file extension (.png expected)");
                             else
                                 ImageIO.write(img, ext, fileChooser.getSelectedFile());
-                        }
-                        else
+                        } else
                             ImageIO.write(img, "png", new File(path + ".png"));
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-            }   
+            }
         });
-        
+
         JMenuItem realignMenuItem = new JMenuItem("Realign");
         realignMenuItem.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
+            public void actionPerformed(ActionEvent ev) {
                 splitPane.realign();
             }
         });
-        
+
         JMenuItem resetMenuItem = new JMenuItem("Reset");
         resetMenuItem.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
+            public void actionPerformed(ActionEvent ev) {
                 splitPane.getAutomaton().reset();
             }
         });
-        
+
         JMenuItem exitMenuItem = new JMenuItem("Exit");
         exitMenuItem.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
+            public void actionPerformed(ActionEvent ev) {
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
             }
         });
-        
+
         automatonMenu.add(saveMenuItem);
         automatonMenu.addSeparator();
         automatonMenu.add(realignMenuItem);
@@ -175,10 +162,9 @@ public class SynchroViewer
         automatonMenu.addSeparator();
         automatonMenu.add(exitMenuItem);
         menuBar.add(automatonMenu);
-        
+
         JMenu toolbarsMenu = new JMenu("Toolbars");
-        for (DockToolbar dockToolbar : splitPane.getDockToolbars())
-        {
+        for (DockToolbar dockToolbar : splitPane.getDockToolbars()) {
             JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(dockToolbar.getName());
             menuItem.setSelected(dockToolbar.isVisibleOnStart());
             dockToolbar.setVisible(dockToolbar.isVisibleOnStart());
@@ -186,49 +172,41 @@ public class SynchroViewer
             menuItem.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent ev)
-                {
+                public void actionPerformed(ActionEvent ev) {
                     dockToolbar.Dock();
                     dockToolbar.setVisible(menuItem.isSelected());
                 }
             });
         }
         menuBar.add(toolbarsMenu);
-        
+
         JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutMenuItem = new JMenuItem("About");
         aboutMenuItem.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
+            public void actionPerformed(ActionEvent ev) {
                 JFrame aboutFrame = new JFrame("About");
                 aboutFrame.setLayout(new GridLayout());
-                
+
                 JPanel panel = new JPanel();
                 panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-                
-                String[] strings = {
-                    "<html>Synchro Viewer version 1.0<br><br></html>",
-                    "<html>Synchro Viewer is a graphical application for</html>",
-                    "<html>analyzing synchronizing automata.<br><br></html>",
-                    "<html>Authors:</html>",
-                    "<html>Tomasz Jurkiewicz<br></html>",
-                    "<html>Marek Szykuła<br><br></html>",
-                    "<html>University of Wrocław<br></html>",
-                    "<html>Institute of Computer Science<br><br></html>",
-                    "<html>Copyright © 2016</html>"
-                };
-                
+
+                String[] strings = { "<html>Synchro Viewer version 1.0<br><br></html>",
+                        "<html>Synchro Viewer is a graphical application for</html>",
+                        "<html>analyzing synchronizing automata.<br><br></html>", "<html>Authors:</html>",
+                        "<html>Tomasz Jurkiewicz<br></html>", "<html>Marek Szykuła<br><br></html>",
+                        "<html>University of Wrocław<br></html>", "<html>Institute of Computer Science<br><br></html>",
+                        "<html>Copyright © 2016</html>" };
+
                 panel.add(new Separator());
-                for (String str : strings)
-                {
+                for (String str : strings) {
                     JLabel label = new JLabel(str, JLabel.CENTER);
                     label.setFont(new Font("Arial", Font.ITALIC + Font.BOLD, 14));
                     panel.add(label);
                 }
                 panel.add(new Separator());
-                
+
                 aboutFrame.add(panel);
                 aboutFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 aboutFrame.setSize(350, 265);
@@ -239,49 +217,40 @@ public class SynchroViewer
         });
         helpMenu.add(aboutMenuItem);
         menuBar.add(helpMenu);
-        
+
         frame.setJMenuBar(menuBar);
     }
-    
-    private void createToolBar()
-    {
+
+    private void createToolBar() {
         toolbar = new JToolBar("Toolbar");
         toolbar.setFloatable(false);
         toolbar.setBackground(new Color(195, 195, 195));
-        
+
         Color noBackground = (new JButton()).getBackground();
         Color selectedButtonColor = Color.CYAN;
-        ActionListener actionListener = new ActionListener()
-        {
+        ActionListener actionListener = new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
-                for (PaintPanel.Operation op : PaintPanel.Operation.values())
-                {
+            public void actionPerformed(ActionEvent ev) {
+                for (PaintPanel.Operation op : PaintPanel.Operation.values()) {
                     int i = op.getValue();
-                    if (ev.getSource() == toolBarButtons[i])
-                    {
-                        if (paintPanel.getOperation() != i)
-                        {
+                    if (ev.getSource() == toolBarButtons[i]) {
+                        if (paintPanel.getOperation() != i) {
                             toolBarButtons[paintPanel.getOperation()].setBackground(noBackground);
                             paintPanel.setOperation(op);
                             paintPanel.repaint();
                             toolBarButtons[i].setBackground(selectedButtonColor);
                         }
 
-                        if (paintPanel.getOperation() == PaintPanel.Operation.ADD_TRANS.getValue())
-                        {
+                        if (paintPanel.getOperation() == PaintPanel.Operation.ADD_TRANS.getValue()) {
                             addTransButton.setVisible(true);
                             removeTransButton.setVisible(true);
                             transitions.setVisible(true);
-                        }
-                        else
-                        {
+                        } else {
                             addTransButton.setVisible(false);
                             removeTransButton.setVisible(false);
                             transitions.setVisible(false);
                         }
-                        
+
                         if (paintPanel.getOperation() != PaintPanel.Operation.SWAP_STATES.getValue())
                             paintPanel.resetReplaceStatesFirstState();
 
@@ -290,31 +259,28 @@ public class SynchroViewer
                 }
             }
         };
-        
-        for (int i = 0; i < buttonLabels.length; i++) 
-        {
-            if (i != PaintPanel.Operation.SELECT_STATES.getValue())
-            {
+
+        for (int i = 0; i < buttonLabels.length; i++) {
+            if (i != PaintPanel.Operation.SELECT_STATES.getValue()) {
                 ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource(iconFiles[i]));
-                Image image = icon.getImage();  
-                Image newimage = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);  
+                Image image = icon.getImage();
+                Image newimage = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
                 icon = new ImageIcon(newimage);
                 toolBarButtons[i] = new JButton(icon);
-            }
-            else
-            {
+            } else {
                 toolBarButtons[i] = new JButton();
                 selectedColorsButton = toolBarButtons[i];
-                selectedColorsButton.setIcon(createSelectedColorsIcon(paintPanel.getSelectedStateColor(), paintPanel.getUnselectedStateColor(), 40, 40));
+                selectedColorsButton.setIcon(createSelectedColorsIcon(paintPanel.getSelectedStateColor(),
+                        paintPanel.getUnselectedStateColor(), 40, 40));
             }
             if (i != 0)
                 toolbar.addSeparator();
             toolbar.add(toolBarButtons[i]);
             toolBarButtons[i].setToolTipText(buttonLabels[i]);
             toolBarButtons[i].addActionListener(actionListener);
-        }     
+        }
         toolBarButtons[paintPanel.getOperation()].setBackground(selectedButtonColor);
-        
+
         toolbar.addSeparator(new Dimension(50, 0));
         addTransButton = new JButton("Add");
         removeTransButton = new JButton("Remove");
@@ -322,44 +288,37 @@ public class SynchroViewer
         removeTransButton.setToolTipText("Remove last transition");
         addTransButton.setVisible(false);
         removeTransButton.setVisible(false);
-        
-        addTransButton.addActionListener(new ActionListener()
-        {
+
+        addTransButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
-                if (splitPane.getAutomatonK() < AutomatonHelper.TRANSITIONS_LETTERS.length)
-                {
+            public void actionPerformed(ActionEvent ev) {
+                if (splitPane.getAutomatonK() < AutomatonHelper.TRANSITIONS_LETTERS.length) {
                     splitPane.getAutomaton().createNewTransition();
                     updateTransitionsComboBox();
                 }
             }
         });
-        removeTransButton.addActionListener(new ActionListener()
-        {
+        removeTransButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent ev)
-            {
-                if (splitPane.getAutomatonK() > 0)
-                {
+            public void actionPerformed(ActionEvent ev) {
+                if (splitPane.getAutomatonK() > 0) {
                     splitPane.getAutomaton().removeTransition();
                     updateTransitionsComboBox();
                 }
             }
-        });     
+        });
         toolbar.add(addTransButton);
         toolbar.addSeparator();
         toolbar.add(removeTransButton);
         toolbar.addSeparator();
-        
+
         transitions = new JComboBox<>();
         transitions.setMaximumSize(new Dimension(100, 30));
         transitions.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 paintPanel.setSelectedTransition(transitions.getSelectedIndex());
             }
         });
@@ -369,56 +328,51 @@ public class SynchroViewer
         transitions.setRenderer(renderer);
         updateTransitionsComboBox();
         toolbar.add(transitions);
-        
+
         toolbar.add(Box.createHorizontalGlue());
-        
+
         JLabel label = new JLabel("Selected states:  ");
         JLabel selectedStatesLabel = new JLabel(Integer.toString(splitPane.getSelectedStatesNumber()));
         Font font = label.getFont().deriveFont(Font.PLAIN, 20);
         label.setFont(font);
         selectedStatesLabel.setFont(font);
         splitPane.getAutomaton().addPropertyChangeListener("automatonChanged", new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
+            public void propertyChange(PropertyChangeEvent ev) {
                 int selectedStatesNumber = splitPane.getSelectedStatesNumber();
                 selectedStatesLabel.setText(Integer.toString(selectedStatesNumber));
             }
         });
         toolbar.add(label);
-        toolbar.add(selectedStatesLabel);   
+        toolbar.add(selectedStatesLabel);
         toolbar.addSeparator(new Dimension(toolbar.getPreferredSize().height, 0));
-        
+
         int cols = 5;
         int rows = PaintPanel.STATES_COLORS.length / cols;
         if (PaintPanel.STATES_COLORS.length % cols != 0)
             rows++;
-        
+
         JPanel colorChoosersPanel = new JPanel(new GridLayout(rows, cols));
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < cols; j++)
-            {
-                if (i*cols + j < PaintPanel.STATES_COLORS.length)
-                {
-                    Color stateColor = PaintPanel.STATES_COLORS[i*cols + j];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (i * cols + j < PaintPanel.STATES_COLORS.length) {
+                    Color stateColor = PaintPanel.STATES_COLORS[i * cols + j];
                     JButton chooseColorButton = new JButton(createIcon(stateColor, 15, 15));
-                    chooseColorButton.addMouseListener(new MouseAdapter()
-                    {
+                    chooseColorButton.addMouseListener(new MouseAdapter() {
 
                         @Override
-                        public void mousePressed(MouseEvent ev)
-                        {
-                            if (ev.getButton() == MouseEvent.BUTTON1)
-                            {
+                        public void mousePressed(MouseEvent ev) {
+                            if (ev.getButton() == MouseEvent.BUTTON1) {
                                 paintPanel.setSelectedStateColor(stateColor);
-                                selectedColorsButton.setIcon(createSelectedColorsIcon(paintPanel.getSelectedStateColor(), paintPanel.getUnselectedStateColor(), 40, 40));
-                            }
-                            else if (ev.getButton() == MouseEvent.BUTTON3)
-                            {
+                                selectedColorsButton
+                                        .setIcon(createSelectedColorsIcon(paintPanel.getSelectedStateColor(),
+                                                paintPanel.getUnselectedStateColor(), 40, 40));
+                            } else if (ev.getButton() == MouseEvent.BUTTON3) {
                                 paintPanel.setUnselectedStateColor(stateColor);
-                                selectedColorsButton.setIcon(createSelectedColorsIcon(paintPanel.getSelectedStateColor(), paintPanel.getUnselectedStateColor(), 40, 40));
+                                selectedColorsButton
+                                        .setIcon(createSelectedColorsIcon(paintPanel.getSelectedStateColor(),
+                                                paintPanel.getUnselectedStateColor(), 40, 40));
                             }
                         }
                     });
@@ -429,12 +383,11 @@ public class SynchroViewer
         toolbar.add(colorChoosersPanel);
         Dimension dim = new Dimension(toolbar.getPreferredSize().width / 3, toolbar.getPreferredSize().height);
         colorChoosersPanel.setMaximumSize(dim);
-        
+
         toolbar.addSeparator();
     }
-    
-    private ImageIcon createIcon(Color color, int width, int height) 
-    {
+
+    private ImageIcon createIcon(Color color, int width, int height) {
         BufferedImage image = new BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
         graphics.setColor(color);
@@ -445,56 +398,48 @@ public class SynchroViewer
         ImageIcon icon = new ImageIcon(image);
         return icon;
     }
-    
-    private ImageIcon createSelectedColorsIcon(Color selected, Color unselected, int width, int height) 
-    {
+
+    private ImageIcon createSelectedColorsIcon(Color selected, Color unselected, int width, int height) {
         BufferedImage image = new BufferedImage(width, height, java.awt.image.BufferedImage.TRANSLUCENT);
         Graphics2D graphics = image.createGraphics();
         graphics.setColor(unselected);
-        graphics.fillRect(width/3, height/3, 2*width/3, 2*height/3);
+        graphics.fillRect(width / 3, height / 3, 2 * width / 3, 2 * height / 3);
         graphics.setStroke(new BasicStroke(2));
         graphics.setColor(Color.BLACK);
-        graphics.drawRect(width/3, height/3, 2*width/3, 2*height/3);
+        graphics.drawRect(width / 3, height / 3, 2 * width / 3, 2 * height / 3);
         graphics.setColor(selected);
-        graphics.fillRect(0, 0, 2*width/3, 2*height/3);
+        graphics.fillRect(0, 0, 2 * width / 3, 2 * height / 3);
         graphics.setStroke(new BasicStroke(2));
         graphics.setColor(Color.BLACK);
-        graphics.drawRect(0, 0, 2*width/3, 2*height/3);
+        graphics.drawRect(0, 0, 2 * width / 3, 2 * height / 3);
         image.flush();
         ImageIcon icon = new ImageIcon(image);
         return icon;
     }
-    
-    private void updateTransitionsComboBox()
-    {
+
+    private void updateTransitionsComboBox() {
         int K = splitPane.getAutomatonK();
-        if (transitions.getItemCount() == K - 1)
-        {
+        if (transitions.getItemCount() == K - 1) {
             transitions.addItem(Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[K - 1]));
             transitions.setSelectedIndex(K - 1);
-        }
-        else if (transitions.getItemCount() == K + 1)
+        } else if (transitions.getItemCount() == K + 1)
             transitions.removeItemAt(K);
-        else if (transitions.getItemCount() != K)
-        {
+        else if (transitions.getItemCount() != K) {
             transitions.removeAllItems();
             for (int i = 0; i < K; i++)
                 transitions.addItem(Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[i]));
         }
     }
-    
-    public void repaint()
-    {
+
+    public void repaint() {
         paintPanel.repaintCenterAutomaton();
     }
-    
-    private class ComboBoxRenderer extends JPanel implements ListCellRenderer
-    {
+
+    private class ComboBoxRenderer extends JPanel implements ListCellRenderer {
         JPanel textPanel;
         JLabel text;
 
-        public ComboBoxRenderer(JComboBox combo) 
-        {
+        public ComboBoxRenderer(JComboBox combo) {
             textPanel = new JPanel();
             text = new JLabel();
             text.setOpaque(true);
@@ -502,11 +447,11 @@ public class SynchroViewer
         }
 
         @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) 
-        {
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+                boolean cellHasFocus) {
             if (value == null)
                 return text;
-            
+
             if (isSelected)
                 setBackground(list.getSelectionBackground());
             else
@@ -517,7 +462,7 @@ public class SynchroViewer
             text.setText(value.toString());
             if (index > -1)
                 text.setForeground(AutomatonHelper.TRANSITIONS_COLORS[index]);
-            
+
             return text;
         }
     }

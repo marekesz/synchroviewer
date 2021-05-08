@@ -18,128 +18,122 @@ import javax.swing.JSplitPane;
 
 import AutomatonModels.Automaton;
 
-
-public class SplitPane extends JSplitPane
-{
+public class SplitPane extends JSplitPane {
     private final Automaton automaton;
-    
+
     private PaintPanel paintPanel;
-    
+
     private final AutomatonCodeToolbar codeToolbar;
-    
+
     private ArrayList<DockToolbar> dockToolbars = new ArrayList<>();
-    
+
     private final int MIN_WIDTH = 375;
-    
-    public SplitPane()
-    {
+
+    public SplitPane() {
         super(JSplitPane.HORIZONTAL_SPLIT);
-        
+
         setBackground(new Color(224, 224, 224));
-        
-        automaton = new Automaton("2 5 1 0 2 1 3 2 4 3 0 0");
+
+        automaton = new Automaton("2 5 1 0 2 1 3 2 4 3 0 0");// "2 9 8 0 0 2 3 3 4 4 5 5 6 6 7 7 2 8 0 1");
         paintPanel = new PaintPanel(automaton);
         setTopComponent(paintPanel);
-        
+
         JPanel rightPanel = new JPanel(new BorderLayout());
         JPanel innerPanel = new JPanel();
         innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
-        rightPanel.add(new JScrollPane(innerPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        rightPanel.add(new JScrollPane(innerPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
         Dimension rightPanelMinimumSize = new Dimension(MIN_WIDTH, 0);
         rightPanel.setMinimumSize(rightPanelMinimumSize);
         setBottomComponent(rightPanel);
         setResizeWeight(1.0);
-            
+
         codeToolbar = new AutomatonCodeToolbar("Automaton code", true, automaton);
         ComputeImageToolbar computeImageToolbar = new ComputeImageToolbar("Compute image", true, automaton);
-        ComputePreimageToolbar computePreimageToolbar = new ComputePreimageToolbar("Compute preimage", false, automaton);
-        ShortestResetWordToolbar resetWordToolbar = new ShortestResetWordToolbar("Shortest reset word", true, automaton);   
-        ShortestWordForSubsetToolbar shortestWordSubsetToolbar = new ShortestWordForSubsetToolbar("Shortest word for subset", true, automaton);
-        DimensionsForSubsetToolbar dimensionsForSubsetToolbar = new DimensionsForSubsetToolbar("Dimensions for subset", false, automaton);      
-        BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false, automaton);
-        
+        ComputePreimageToolbar computePreimageToolbar = new ComputePreimageToolbar("Compute preimage", false,
+                automaton);
+        ShortestResetWordToolbar resetWordToolbar = new ShortestResetWordToolbar("Shortest reset word", true,
+                automaton);
+        ShortestWordForSubsetToolbar shortestWordSubsetToolbar = new ShortestWordForSubsetToolbar(
+                "Shortest word for subset", true, automaton);
+        AlgebraicChainForSubsetToolbar algebraicChainForSubsetToolbar = new AlgebraicChainForSubsetToolbar(
+                "Linear-algebraic ascending chain for subset", false, automaton);
+        BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false,
+                automaton);
+
         addToolbar(codeToolbar, innerPanel);
         addToolbar(computeImageToolbar, innerPanel);
         addToolbar(computePreimageToolbar, innerPanel);
         addToolbar(resetWordToolbar, innerPanel);
         addToolbar(shortestWordSubsetToolbar, innerPanel);
-        addToolbar(dimensionsForSubsetToolbar, innerPanel);
+        addToolbar(algebraicChainForSubsetToolbar, innerPanel);
         addToolbar(basicPropertiesToolbar, innerPanel);
-        
+
         updateToolbars();
-        
+
         codeToolbar.addPropertyChangeListener("repaintCenterAutomaton", new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
+            public void propertyChange(PropertyChangeEvent ev) {
                 paintPanel.repaintCenterAutomaton();
             }
         });
-        
+
         codeToolbar.addPropertyChangeListener("updateAndRepaintCenterAutomaton", new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
+            public void propertyChange(PropertyChangeEvent ev) {
                 paintPanel.updateAutomatonData();
                 paintPanel.repaintCenterAutomaton();
             }
         });
-        
+
         PropertyChangeListener showRangeListener = new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
-                if (ev.getOldValue() == null)
-                {
+            public void propertyChange(PropertyChangeEvent ev) {
+                if (ev.getOldValue() == null) {
                     if (ev.getSource().equals(computeImageToolbar))
                         computePreimageToolbar.rangeCheckBoxSetSelected(false);
                     else
                         computeImageToolbar.rangeCheckBoxSetSelected(false);
-                    
+
                     int[] states = (int[]) ev.getNewValue();
                     paintPanel.showRange(states);
-                }
-                else
+                } else
                     paintPanel.setShowRange(false);
             }
         };
-        
+
         computeImageToolbar.addPropertyChangeListener("showRange", showRangeListener);
         computePreimageToolbar.addPropertyChangeListener("showRange", showRangeListener);
-        
+
         PropertyChangeListener showActionListener = new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
-                if (ev.getOldValue() == null)
-                {
+            public void propertyChange(PropertyChangeEvent ev) {
+                if (ev.getOldValue() == null) {
                     if (ev.getSource().equals(computeImageToolbar))
                         computePreimageToolbar.actionCheckBoxSetSelected(false);
                     else
                         computeImageToolbar.actionCheckBoxSetSelected(false);
-                    
-                    HashMap<Integer, ArrayList<Integer>> actions = (HashMap<Integer, ArrayList<Integer>>) ev.getNewValue();
+
+                    HashMap<Integer, ArrayList<Integer>> actions = (HashMap<Integer, ArrayList<Integer>>) ev
+                            .getNewValue();
                     paintPanel.showAction(actions);
-                }
-                else
+                } else
                     paintPanel.setShowAction(false);
             }
         };
-        
+
         computeImageToolbar.addPropertyChangeListener("showAction", showActionListener);
         computePreimageToolbar.addPropertyChangeListener("showAction", showActionListener);
-        
+
         innerPanel.addContainerListener(new ContainerListener() {
 
             @Override
-            public void componentAdded(ContainerEvent e)
-            {
-                if (innerPanel.getComponents().length == 1)
-                {
+            public void componentAdded(ContainerEvent e) {
+                if (innerPanel.getComponents().length == 1) {
                     rightPanel.setMinimumSize(rightPanelMinimumSize);
                     SplitPane.this.setDividerLocation(-1);
                     SplitPane.this.setEnabled(true);
@@ -147,97 +141,79 @@ public class SplitPane extends JSplitPane
             }
 
             @Override
-            public void componentRemoved(ContainerEvent e)
-            {
-                if (innerPanel.getComponents().length == 0)
-                {
+            public void componentRemoved(ContainerEvent e) {
+                if (innerPanel.getComponents().length == 0) {
                     rightPanel.setMinimumSize(new Dimension(0, 0));
                     SplitPane.this.setDividerLocation(1.0);
-                    SplitPane.this.setEnabled(false);                   
+                    SplitPane.this.setEnabled(false);
                 }
             }
         });
-        
-        for (DockToolbar dockToolbar : dockToolbars)
-        {
+
+        for (DockToolbar dockToolbar : dockToolbars) {
             dockToolbar.addPropertyChangeListener("setVisible", new PropertyChangeListener() {
-            
+
                 @Override
-                public void propertyChange(PropertyChangeEvent ev)
-                {
+                public void propertyChange(PropertyChangeEvent ev) {
                     int visibleToolbars = 0;
-                    for (DockToolbar dt : dockToolbars)
-                    {
+                    for (DockToolbar dt : dockToolbars) {
                         if (dt.isVisible())
                             visibleToolbars++;
                     }
-                    
-                    if (visibleToolbars == 0)
-                    {
+
+                    if (visibleToolbars == 0) {
                         rightPanel.setMinimumSize(new Dimension(0, 0));
                         SplitPane.this.setDividerLocation(1.0);
-                        SplitPane.this.setEnabled(false);                
-                    }
-                    else if (visibleToolbars == 1 && (boolean) ev.getNewValue())
-                    {
+                        SplitPane.this.setEnabled(false);
+                    } else if (visibleToolbars == 1 && (boolean) ev.getNewValue()) {
                         rightPanel.setMinimumSize(rightPanelMinimumSize);
                         SplitPane.this.setDividerLocation(-1);
-                        SplitPane.this.setEnabled(true);                        
+                        SplitPane.this.setEnabled(true);
                     }
                 }
             });
         }
     }
-    
-    private void addToolbar(DockToolbar toolbar, JPanel panel)
-    {
+
+    private void addToolbar(DockToolbar toolbar, JPanel panel) {
         panel.add(toolbar);
         dockToolbars.add(toolbar);
     }
-    
-    private void updateToolbars()
-    { 
+
+    private void updateToolbars() {
         for (DockToolbar dockToolbar : dockToolbars)
             dockToolbar.updateToolbar();
     }
-    
-    public Automaton getAutomaton()
-    {
+
+    public Automaton getAutomaton() {
         return automaton;
     }
-    
-    public int getAutomatonK()
-    {
+
+    public int getAutomatonK() {
         return automaton.getK();
     }
-    
-    public String getAutomatonString()
-    {
+
+    public String getAutomatonString() {
         return automaton.toString();
     }
-    
-    public int getSelectedStatesNumber()
-    {
+
+    public int getSelectedStatesNumber() {
         return automaton.getSelectedStatesNumber();
     }
-    
-    public PaintPanel getPaintPanel()
-    {
+
+    public PaintPanel getPaintPanel() {
         return paintPanel;
     }
-    
-    public AutomatonCodeToolbar getCodeToolbar()
-    {
+
+    public AutomatonCodeToolbar getCodeToolbar() {
         return codeToolbar;
     }
-    
-    public ArrayList<DockToolbar> getDockToolbars()
-    {
+
+    public ArrayList<DockToolbar> getDockToolbars() {
         return dockToolbars;
     }
-    
-    public void realign()
-    {
+
+    public void realign() {
         codeToolbar.realign();
     }
 }
