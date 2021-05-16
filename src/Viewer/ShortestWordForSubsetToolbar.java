@@ -60,10 +60,10 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
         Font font = lengthLabel.getFont().deriveFont((float) getDeafultFont().getSize());
         lengthLabel.setFont(font);
         JPanel labelPanel = new JPanel();
-        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
-        labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        labelPanel.add(lengthLabel);
-        panel.add(labelPanel, BorderLayout.NORTH);
+        // labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
+        // labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        // labelPanel.add(lengthLabel);
+        // panel.add(labelPanel, BorderLayout.NORTH);
 
         textPane = new JTextPane();
         textPane.setEditable(false);
@@ -194,11 +194,13 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
                 Color color = AutomatonHelper.TRANSITIONS_COLORS[trans];
                 insertStringToTextPane(Character.toString(letter), color);
             }
-            lengthLabel.setText(String.format("%nLength: %d", transitions.size()));
+            super.setTitle(this.getName() + String.format(" - %nlength: %d", transitions.size()));
+            // lengthLabel.setText(String.format("%nLength: %d", transitions.size()));
         } catch (WordNotFoundException ex) {
             textPane.setText("");
             insertStringToTextPane("Word not found", Color.BLACK);
-            lengthLabel.setText("Length: -");
+            // lengthLabel.setText("Length: -");
+            super.setTitle(this.getName() + String.format(" - length: -"));
         }
     }
 

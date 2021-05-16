@@ -17,6 +17,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
@@ -31,6 +32,7 @@ public abstract class DockToolbar extends JToolBar {
     private boolean floating;
     private Dimension dockSize;
     private Dimension floatSize;
+    private TitledBorder titledBorder;
 
     DockToolbar(String name, boolean visibleOnStart, Automaton automaton) {
         super(name);
@@ -41,8 +43,9 @@ public abstract class DockToolbar extends JToolBar {
         setLayout(new BorderLayout());
         setOrientation(javax.swing.SwingConstants.HORIZONTAL);
 
+        this.titledBorder = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK, 1), name);
         panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK, 1), name));
+        panel.setBorder(titledBorder);
         add(panel);
 
         addAncestorListener(new AncestorListener() {
@@ -100,6 +103,12 @@ public abstract class DockToolbar extends JToolBar {
 
     protected JPanel getPanel() {
         return panel;
+    }
+
+    public void setTitle(String title) {
+        this.titledBorder.setTitle(title);
+        panel.setBorder(this.titledBorder);
+        repaint();
     }
 
     @Override

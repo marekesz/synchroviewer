@@ -3,13 +3,11 @@ package Viewer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -98,6 +96,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
             text += words.get(i) + '\n';
         }
+
+        super.setTitle(
+                "Linear-algebraic ascending chain for subset - dimensions: " + Integer.toString(dimensions.size()));
         String description = Integer.toString(dimensions.size()) + " dimensions: ";
         for (int i = 0; i < dimensions.size(); i++)
             description += Integer.toString(dimensions.get(i)) + " ";
