@@ -24,66 +24,58 @@ import javax.swing.JPanel;
 
 import AutomatonModels.Automaton;
 
-public class PaintPanel extends JPanel implements MouseListener, MouseMotionListener
-{
+public class PaintPanel extends JPanel implements MouseListener, MouseMotionListener {
 
     private static final long serialVersionUID = 1L;
-  // ************************************************************************
+    // ************************************************************************
     // Content
 
     private static final int VERTEX_RADIUS = 25;
     private static final int ARR_SIZE = 10;
-    
+
     private boolean showRange;
     private boolean showAction;
     private int[] rangeStates;
     private HashMap<Integer, ArrayList<Integer>> actionStates;
-    
-    private class Transition
-    {
+
+    private class Transition {
         public int stateOut;
         public int stateIn;
         public int k;
         boolean inverse;
-        
-        public Transition(int stateOut, int stateIn, int k, boolean inverse)
-        {
+
+        public Transition(int stateOut, int stateIn, int k, boolean inverse) {
             this.stateOut = stateOut;
             this.stateIn = stateIn;
             this.k = k;
             this.inverse = inverse;
         }
     }
-    
-    public static enum Operation
-    {
+
+    public static enum Operation {
         MOVE_STATES(0), ADD_STATES(1), REMOVE_STATES(2), SWAP_STATES(3), ADD_TRANS(4), SELECT_STATES(5);
-        
+
         private final int value;
-        
+
         private Operation(int value) {
             this.value = value;
         }
-        
+
         public int getValue() {
             return value;
         }
     }
 
-    public static final Color[] STATES_COLORS =
-    {
-        Color.WHITE,
-        new Color(96, 128, 255), new Color(255, 128, 96), new Color(96, 255, 96),
-        new Color(255, 255, 96), new Color(96, 255, 255), new Color(255, 96, 255),
-        Color.ORANGE, new Color(160, 0, 210), new Color(219, 112, 147)
-    };
+    public static final Color[] STATES_COLORS = { Color.WHITE, new Color(96, 128, 255), new Color(255, 128, 96),
+            new Color(96, 255, 96), new Color(255, 255, 96), new Color(96, 255, 255), new Color(255, 96, 255),
+            Color.ORANGE, new Color(160, 0, 210), new Color(219, 112, 147) };
 
     private Automaton automaton;
     private Color[] colors;
     private Point2D.Double[] vertices;
     private int[] orders;
     private int highlighted;
-    
+
     private Operation operation;
     private Color unselectedStateColor;
     private Color selectedStateColor;
@@ -95,12 +87,12 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     private int grabX, grabY, grabShiftX, grabShiftY;
     private int oldWidth;
     private int oldHeight;
-  // ************************************************************************
+
+    // ************************************************************************
     // Initialization
-    public PaintPanel(Automaton automaton)
-    {
+    public PaintPanel(Automaton automaton) {
         setMinimumSize(new Dimension(550, 400));
-        
+
         this.grabbed = -1;
         this.highlighted = -1;
         this.addMouseListener(this);
@@ -113,182 +105,154 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
         showRange = false;
         showAction = false;
-        
+
         setAutomaton(automaton);
-        
+
         automaton.addPropertyChangeListener("automatonReset", new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
+            public void propertyChange(PropertyChangeEvent ev) {
                 updateAutomatonData();
                 repaintCenterAutomaton();
                 firePropertyChange("updateTransitions", false, true);
             }
         });
-        
+
         automaton.addPropertyChangeListener("automatonChanged", new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev)
-            {
+            public void propertyChange(PropertyChangeEvent ev) {
                 repaint();
             }
         });
-        
-        addComponentListener(new ComponentAdapter()
-        {
+
+        addComponentListener(new ComponentAdapter() {
             @Override
-            public void componentResized(ComponentEvent ev) 
-            {
+            public void componentResized(ComponentEvent ev) {
                 int width = PaintPanel.this.getSize().width;
                 int height = PaintPanel.this.getSize().height;
-                    
-                for (Point2D.Double vertex : vertices)
-                {
-                    if(PaintPanel.this.oldWidth != 0) 
-                    {
-                        vertex.x = (int)(vertex.x * (double)width/(double)PaintPanel.this.oldWidth);
-                        vertex.y = (int)(vertex.y * (double)height/(double)PaintPanel.this.oldHeight);
+
+                for (Point2D.Double vertex : vertices) {
+                    if (PaintPanel.this.oldWidth != 0) {
+                        vertex.x = (int) (vertex.x * (double) width / (double) PaintPanel.this.oldWidth);
+                        vertex.y = (int) (vertex.y * (double) height / (double) PaintPanel.this.oldHeight);
                     }
 
-                    if (vertex.x + VERTEX_RADIUS > width) 
+                    if (vertex.x + VERTEX_RADIUS > width)
                         vertex.x = width - VERTEX_RADIUS;
-                    
-                    if (vertex.y + VERTEX_RADIUS > height) 
+
+                    if (vertex.y + VERTEX_RADIUS > height)
                         vertex.y = height - VERTEX_RADIUS;
-                    
-                    if (vertex.x - VERTEX_RADIUS < 0) 
+
+                    if (vertex.x - VERTEX_RADIUS < 0)
                         vertex.x = VERTEX_RADIUS;
-                    
-                    if (vertex.y - VERTEX_RADIUS < 0) 
+
+                    if (vertex.y - VERTEX_RADIUS < 0)
                         vertex.y = VERTEX_RADIUS;
-                    
+
                 }
-                
+
                 PaintPanel.this.oldWidth = width;
                 PaintPanel.this.oldHeight = height;
                 repaint();
             }
         });
     }
-    
-    private int getN()
-    {
+
+    private int getN() {
         return automaton.getN();
     }
-    
-    private int getK()
-    {
+
+    private int getK() {
         return automaton.getK();
     }
-    
-    public int getOperation()
-    {
+
+    public int getOperation() {
         return this.operation.getValue();
     }
-    
-    public void setOperation(Operation operation)
-    {
+
+    public void setOperation(Operation operation) {
         this.operation = operation;
     }
-    
-    public Color getSelectedStateColor()
-    {
+
+    public Color getSelectedStateColor() {
         return selectedStateColor;
     }
-    
-    public void setSelectedStateColor(Color color)
-    {
-        if (color.equals(unselectedStateColor))
-        {
+
+    public void setSelectedStateColor(Color color) {
+        if (color.equals(unselectedStateColor)) {
             JOptionPane.showMessageDialog(this, "Color 1 and Color 2 must be different.");
             return;
         }
-        
-        if (!color.equals(selectedStateColor))
-        {
+
+        if (!color.equals(selectedStateColor)) {
             int[] selectedStates = automaton.getSelectedStates();
-            for (int i = 0; i < selectedStates.length; i++)
-            {
-                if (selectedStates[i] == 1)
-                {
+            for (int i = 0; i < selectedStates.length; i++) {
+                if (selectedStates[i] == 1) {
                     automaton.unselectState(i);
                     colors[i] = selectedStateColor;
                 }
             }
-            
-            for (int i = 0; i < colors.length; i++)
-            {
-                if (colors[i].equals(color))
-                {
+
+            for (int i = 0; i < colors.length; i++) {
+                if (colors[i].equals(color)) {
                     automaton.selectState(i);
                     colors[i] = unselectedStateColor;
                 }
             }
-            
+
             selectedStateColor = color;
             repaint();
         }
     }
-    
-    public Color getUnselectedStateColor()
-    {
+
+    public Color getUnselectedStateColor() {
         return unselectedStateColor;
     }
-    
-    public void setUnselectedStateColor(Color color)
-    {
+
+    public void setUnselectedStateColor(Color color) {
         if (color.equals(selectedStateColor))
             JOptionPane.showMessageDialog(this, "Color 1 and Color 2 must be different.");
-        else
-        {
+        else {
             unselectedStateColor = color;
             repaint();
         }
     }
-    
-    public void setSelectedTransition(int trans)
-    {
+
+    public void setSelectedTransition(int trans) {
         selectedTransition = trans;
     }
-    
-    public void resetReplaceStatesFirstState()
-    {
+
+    public void resetReplaceStatesFirstState() {
         swapStatesFirstState = -1;
     }
-    
-    public void setShowRange(boolean showRange)
-    {
+
+    public void setShowRange(boolean showRange) {
         this.showRange = showRange;
         repaint();
     }
-    
-    public void setShowAction(boolean showAction)
-    {
+
+    public void setShowAction(boolean showAction) {
         this.showAction = showAction;
         repaint();
     }
-    
-    public void showRange(int[] states)
-    {
+
+    public void showRange(int[] states) {
         showRange = true;
         rangeStates = states;
         repaint();
     }
-    
-    public void showAction(HashMap<Integer, ArrayList<Integer>> actionStates)
-    {
+
+    public void showAction(HashMap<Integer, ArrayList<Integer>> actionStates) {
         showAction = true;
         this.actionStates = actionStates;
         repaint();
     }
 
-    private void setAutomaton(Automaton automaton)
-    {
+    private void setAutomaton(Automaton automaton) {
         this.automaton = automaton;
         int N = getN();
-        
+
         this.vertices = new Point2D.Double[N];
         this.orders = new int[N];
         this.colors = new Color[N];
@@ -296,19 +260,17 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         this.addTransFirstState = -1;
         this.swapStatesFirstState = -1;
         int[] selectedStates = new int[N];
-        for (int n = 0; n < N; n++)
-        {
+        for (int n = 0; n < N; n++) {
             orders[n] = n;
             colors[n] = unselectedStateColor;
             selectedStates[n] = 1;
         }
-        
+
         automaton.selectStates(selectedStates);
         repaintCenterAutomaton();
     }
-    
-    public void updateAutomatonData()
-    {
+
+    public void updateAutomatonData() {
         int N = getN();
         this.vertices = new Point2D.Double[N];
         this.orders = new int[N];
@@ -316,18 +278,16 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         this.highlighted = -1;
         this.addTransFirstState = -1;
         this.swapStatesFirstState = -1;
-        for (int n = 0; n < N; n++)
-        {
+        for (int n = 0; n < N; n++) {
             orders[n] = n;
             colors[n] = unselectedStateColor;
         }
-        
+
         automaton.clearSelectedStates();
     }
-    
+
     // repaint automaton with states moved to center
-    public void repaintCenterAutomaton()
-    {   
+    public void repaintCenterAutomaton() {
         int width = this.getWidth();
         int height = this.getHeight();
         int r = ((width < height ? width : height) - VERTEX_RADIUS * 3) / 2;
@@ -335,30 +295,25 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         int cy = height / 2;
         double angle = 0.0;
         int N = getN();
-        for (int n = 0; n < N; n++)
-        {
-            vertices[n] = new Point2D.Double(
-                    (Math.sin(angle) * r + cx),
-                    (-Math.cos(angle) * r + cy));
+        for (int n = 0; n < N; n++) {
+            vertices[n] = new Point2D.Double((Math.sin(angle) * r + cx), (-Math.cos(angle) * r + cy));
             angle += 2 * Math.PI / N;
         }
         repaint();
     }
 
-  // ************************************************************************
+    // ************************************************************************
     // Interface
     @Override
-    public void mouseMoved(MouseEvent ev)
-    {
+    public void mouseMoved(MouseEvent ev) {
         grabX = (ev.getX() >= 0 && ev.getX() <= this.getSize().width) ? ev.getX() : grabX;
         grabY = (ev.getY() >= 0 && ev.getY() <= this.getSize().height) ? ev.getY() : grabY;
         highlighted = -1;
-        for (int i = getN() - 1; i >= 0; i--)
-        {
+        for (int i = getN() - 1; i >= 0; i--) {
             int v = orders[i];
-            double d = (grabX - vertices[v].x) * (grabX - vertices[v].x) + (grabY - vertices[v].y) * (grabY - vertices[v].y);
-            if (d <= VERTEX_RADIUS * VERTEX_RADIUS)
-            {
+            double d = (grabX - vertices[v].x) * (grabX - vertices[v].x)
+                    + (grabY - vertices[v].y) * (grabY - vertices[v].y);
+            if (d <= VERTEX_RADIUS * VERTEX_RADIUS) {
                 highlighted = v;
                 break;
             }
@@ -367,17 +322,15 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     }
 
     @Override
-    public void mouseDragged(MouseEvent ev)
-    {
+    public void mouseDragged(MouseEvent ev) {
         grabX = (ev.getX() >= 0 && ev.getX() <= this.getSize().width) ? ev.getX() : grabX;
         grabY = (ev.getY() >= 0 && ev.getY() <= this.getSize().height) ? ev.getY() : grabY;
         mouseMoved(ev);
-        
+
         if (grabbed == -1)
             return;
-        
-        if (operation == Operation.MOVE_STATES)
-        {
+
+        if (operation == Operation.MOVE_STATES) {
             if (grabX + grabShiftX >= VERTEX_RADIUS && grabX + grabShiftX <= this.getSize().width - VERTEX_RADIUS)
                 vertices[grabbed].x = grabX + grabShiftX;
             if (grabY + grabShiftY >= VERTEX_RADIUS && grabY + grabShiftY <= this.getSize().height - VERTEX_RADIUS)
@@ -387,16 +340,13 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     }
 
     @Override
-    public void mousePressed(MouseEvent ev)
-    { 
+    public void mousePressed(MouseEvent ev) {
         if (grabbed != -1)
             return;
-        
+
         mouseMoved(ev);
-        if (ev.getButton() == MouseEvent.BUTTON1)
-        {
-            if (operation == Operation.ADD_STATES)
-            {
+        if (ev.getButton() == MouseEvent.BUTTON1) {
+            if (operation == Operation.ADD_STATES) {
                 automaton.addState();
                 int N = getN();
 
@@ -406,16 +356,14 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
                 Color[] temp = new Color[N];
                 System.arraycopy(this.colors, 0, temp, 0, N - 1);
-                temp[N-1] = unselectedStateColor;
+                temp[N - 1] = unselectedStateColor;
                 this.colors = temp;
 
                 Point2D.Double[] temp2 = new Point2D.Double[N];
                 System.arraycopy(this.vertices, 0, temp2, 0, N - 1);
-                temp2[N-1] = new Point2D.Double(ev.getPoint().getX(), ev.getPoint().getY());
-                this.vertices = temp2;    
-            }
-            else if (highlighted >= 0 && operation == Operation.REMOVE_STATES)
-            {   
+                temp2[N - 1] = new Point2D.Double(ev.getPoint().getX(), ev.getPoint().getY());
+                this.vertices = temp2;
+            } else if (highlighted >= 0 && operation == Operation.REMOVE_STATES) {
                 int N = getN();
                 this.orders = new int[N - 1];
                 for (int n = 0; n < N - 1; n++)
@@ -423,17 +371,13 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
                 Color[] temp = new Color[N - 1];
                 Point2D.Double[] temp2 = new Point2D.Double[N - 1];
-                for (int n = 0; n < N - 1; n++)
-                {
-                    if (n < highlighted)
-                    {
+                for (int n = 0; n < N - 1; n++) {
+                    if (n < highlighted) {
                         temp[n] = this.colors[n];
                         temp2[n] = this.vertices[n];
-                    }
-                    else
-                    {
-                        temp[n] = this.colors[n+1];
-                        temp2[n] = this.vertices[n+1];
+                    } else {
+                        temp[n] = this.colors[n + 1];
+                        temp2[n] = this.vertices[n + 1];
                     }
                 }
                 this.colors = temp;
@@ -441,57 +385,46 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
                 automaton.removeState(highlighted);
                 highlighted = -1;
-            }
-            else if (highlighted >= 0 && operation == Operation.SWAP_STATES)
+            } else if (highlighted >= 0 && operation == Operation.SWAP_STATES)
                 swapStatesFirstState = highlighted;
             else if (highlighted >= 0 && operation == Operation.ADD_TRANS)
                 addTransFirstState = highlighted;
             else if (highlighted >= 0 && operation == Operation.SELECT_STATES)
                 automaton.selectState(highlighted);
-            else if (highlighted >= 0)
-            {         
-                grabShiftX = (int)(vertices[highlighted].x - grabX);
-                grabShiftY = (int)(vertices[highlighted].y - grabY);
+            else if (highlighted >= 0) {
+                grabShiftX = (int) (vertices[highlighted].x - grabX);
+                grabShiftY = (int) (vertices[highlighted].y - grabY);
                 grabbed = highlighted;
                 int N = getN();
                 int i = N - 1;
                 while (orders[i] != highlighted)
                     i--;
-                
+
                 for (int j = i; j < N - 1; j++)
                     orders[j] = orders[j + 1];
 
                 orders[N - 1] = highlighted;
             }
-        }
-        else if (ev.getButton() == MouseEvent.BUTTON3)
-        {
-            if (highlighted >= 0 && operation == Operation.SELECT_STATES)
-            {
+        } else if (ev.getButton() == MouseEvent.BUTTON3) {
+            if (highlighted >= 0 && operation == Operation.SELECT_STATES) {
                 automaton.unselectState(highlighted);
                 colors[highlighted] = unselectedStateColor;
             }
         }
-        
+
         repaint();
     }
 
     @Override
-    public void mouseReleased(MouseEvent ev)
-    {
-        if (operation == Operation.ADD_TRANS)
-        {
-            if (addTransFirstState >= 0 && highlighted >= 0 && getK() > 0)
-            {
+    public void mouseReleased(MouseEvent ev) {
+        if (operation == Operation.ADD_TRANS) {
+            if (addTransFirstState >= 0 && highlighted >= 0 && getK() > 0) {
                 automaton.addTransition(addTransFirstState, highlighted, selectedTransition);
                 firePropertyChange("updateTransitions", false, true);
-            }   
+            }
             addTransFirstState = -1;
-        }
-        else if (operation == Operation.SWAP_STATES)
-        {
-            if (swapStatesFirstState >= 0 && highlighted >= 0 && swapStatesFirstState != highlighted)
-            {
+        } else if (operation == Operation.SWAP_STATES) {
+            if (swapStatesFirstState >= 0 && highlighted >= 0 && swapStatesFirstState != highlighted) {
                 automaton.replaceStates(swapStatesFirstState, highlighted);
                 Point2D.Double temp = vertices[highlighted];
                 vertices[highlighted] = vertices[swapStatesFirstState];
@@ -499,22 +432,20 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 int temp2 = orders[highlighted];
                 orders[highlighted] = orders[swapStatesFirstState];
                 orders[swapStatesFirstState] = temp2;
-            }   
+            }
             swapStatesFirstState = -1;
-        }
-        else
-        {
+        } else {
             grabbed = -1;
             mouseMoved(ev);
         }
-        
+
         repaint();
     }
 
-  // ************************************************************************
+    // ************************************************************************
     // Drawing
-    void drawEdge(Graphics2D g, int x1, int y1, int x2, int y2, int k, int transQuantity, boolean inverse, boolean marked, boolean centered)
-    {
+    void drawEdge(Graphics2D g, int x1, int y1, int x2, int y2, int k, int transQuantity, boolean inverse,
+            boolean marked, boolean centered) {
         final double K_SHIFT = (VERTEX_RADIUS * 2) / (transQuantity + 1);
         AffineTransform oldTransform = g.getTransform();
         double dx = x2 - x1, dy = y2 - y1;
@@ -526,31 +457,25 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         g.setTransform(at);
 
         int yshift = (int) ((k - transQuantity * 0.5) * K_SHIFT + K_SHIFT / 2);
-        if (marked)
-        {
+        if (marked) {
             float dash1[] = { 8.0f, 14.0f };
-            final BasicStroke dashed = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
+            final BasicStroke dashed = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1,
+                    0.0f);
             g.setStroke(dashed);
         }
         g.drawLine(0, yshift, len, yshift);
         g.setStroke(new BasicStroke());
-        g.fillPolygon(
-            new int[] { len, len - ARR_SIZE, len - ARR_SIZE },
-            new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 
-            3);
-        if (inverse)
-        {
-            g.fillPolygon(
-            new int[] { VERTEX_RADIUS, VERTEX_RADIUS + ARR_SIZE, VERTEX_RADIUS + ARR_SIZE },
-            new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 
-            3);
+        g.fillPolygon(new int[] { len, len - ARR_SIZE, len - ARR_SIZE },
+                new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 3);
+        if (inverse) {
+            g.fillPolygon(new int[] { VERTEX_RADIUS, VERTEX_RADIUS + ARR_SIZE, VERTEX_RADIUS + ARR_SIZE },
+                    new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 3);
         }
         g.setTransform(oldTransform);
     }
 
     @Override
-    public void paint(Graphics graphics)
-    {
+    public void paint(Graphics graphics) {
         Graphics2D g = (Graphics2D) graphics;
         int width = this.getWidth();
         int height = this.getHeight();
@@ -562,140 +487,127 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         int[][] matrix = automaton.getMatrix();
         int N = getN();
         int K = getK();
-        
+
         // draw oval of range states at the beginning
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             int n = orders[i];
-            if (showRange && rangeStates[n] == 1)
-            {
+            if (showRange && rangeStates[n] == 1) {
                 g.setStroke(new BasicStroke(5));
                 g.setColor(selectedStateColor);
                 if (highlighted != -1 && highlighted == n)
                     g.setColor(g.getColor().brighter());
-                g.drawOval((int)vertices[n].x - VERTEX_RADIUS - 3, (int)vertices[n].y - VERTEX_RADIUS - 3, (VERTEX_RADIUS * 2) + 6, (VERTEX_RADIUS * 2) + 6);
+                g.drawOval((int) vertices[n].x - VERTEX_RADIUS - 3, (int) vertices[n].y - VERTEX_RADIUS - 3,
+                        (VERTEX_RADIUS * 2) + 6, (VERTEX_RADIUS * 2) + 6);
                 g.setStroke(new BasicStroke());
                 if (highlighted != -1 && highlighted == n)
                     g.setColor(Color.LIGHT_GRAY);
                 else
                     g.setColor(Color.BLACK);
-                g.drawOval((int)vertices[n].x - VERTEX_RADIUS - 4, (int)vertices[n].y - VERTEX_RADIUS - 4, (VERTEX_RADIUS * 2) + 8, (VERTEX_RADIUS * 2) + 8);
+                g.drawOval((int) vertices[n].x - VERTEX_RADIUS - 4, (int) vertices[n].y - VERTEX_RADIUS - 4,
+                        (VERTEX_RADIUS * 2) + 8, (VERTEX_RADIUS * 2) + 8);
             }
         }
-        
+
         g.setColor(Color.BLACK);
         g.setStroke(new BasicStroke());
-        
+
         // draw transitions
-        for (int n = 0; n < N; n++)
-        {
-            for (int n2 = n + 1; n2 < N; n2++)
-            {
+        for (int n = 0; n < N; n++) {
+            for (int n2 = n + 1; n2 < N; n2++) {
                 ArrayList<Transition> transitions = new ArrayList<>();
-                for (int k = 0; k < K; k++)
-                {
+                for (int k = 0; k < K; k++) {
                     if (matrix[n][k] == n2)
                         transitions.add(new Transition(n, n2, k, matrix[n2][k] == n));
                 }
-                for (int k = 0; k < K; k++)
-                {
+                for (int k = 0; k < K; k++) {
                     if (matrix[n2][k] == n && matrix[n][k] != n2)
                         transitions.add(new Transition(n2, n, k, false));
                 }
-                
-                if (showAction)
-                {
-                    if (actionStates.getOrDefault(n, new ArrayList<>()).contains(n2))
-                    {
+
+                if (showAction) {
+                    if (actionStates.getOrDefault(n, new ArrayList<>()).contains(n2)) {
                         if (actionStates.getOrDefault(n2, new ArrayList<>()).contains(n))
                             transitions.add(new Transition(n, n2, -1, true));
                         else
                             transitions.add(new Transition(n, n2, -1, false));
-                    }
-                    else if (actionStates.getOrDefault(n2, new ArrayList<>()).contains(n))
+                    } else if (actionStates.getOrDefault(n2, new ArrayList<>()).contains(n))
                         transitions.add(new Transition(n2, n, -1, false));
                 }
 
                 int transNumber = transitions.size();
-                for (int i = 0; i < transNumber; i++)
-                {
+                for (int i = 0; i < transNumber; i++) {
                     Transition trans = transitions.get(i);
                     int j = (trans.stateOut == n) ? i : transNumber - i - 1;
-                    if (trans.k == -1)
-                    {
+                    if (trans.k == -1) {
                         g.setStroke(new BasicStroke(2));
                         g.setColor(Color.BLACK);
-                    }
-                    else
-                    {
+                    } else {
                         g.setStroke(new BasicStroke());
-                        g.setColor(AutomatonHelper.TRANSITIONS_COLORS[trans.k % AutomatonHelper.TRANSITIONS_COLORS.length]);
+                        g.setColor(AutomatonHelper.TRANSITIONS_COLORS[trans.k
+                                % AutomatonHelper.TRANSITIONS_COLORS.length]);
                     }
-                    drawEdge(g, (int)vertices[trans.stateOut].x, (int)vertices[trans.stateOut].y,
-                    		(int)vertices[trans.stateIn].x,
-                    		(int)vertices[trans.stateIn].y, j, transNumber, trans.inverse, false, false);
+                    drawEdge(g, (int) vertices[trans.stateOut].x, (int) vertices[trans.stateOut].y,
+                            (int) vertices[trans.stateIn].x, (int) vertices[trans.stateIn].y, j, transNumber,
+                            trans.inverse, false, false);
                 }
             }
         }
-        
+
         // draw new transition when you are in ADD_TRANS mode
-        if (addTransFirstState >= 0 && operation == Operation.ADD_TRANS && K > 0)
-        {
+        if (addTransFirstState >= 0 && operation == Operation.ADD_TRANS && K > 0) {
             g.setColor(AutomatonHelper.TRANSITIONS_COLORS[selectedTransition]);
-            drawEdge(g, (int)vertices[addTransFirstState].x, (int)vertices[addTransFirstState].y,
-                grabX,
-                grabY, 0, 1, false, true, true);
-        }
-        else if (swapStatesFirstState >= 0 && operation == Operation.SWAP_STATES)
-        {
+            drawEdge(g, (int) vertices[addTransFirstState].x, (int) vertices[addTransFirstState].y, grabX, grabY, 0, 1,
+                    false, true, true);
+        } else if (swapStatesFirstState >= 0 && operation == Operation.SWAP_STATES) {
             g.setColor(new Color(0, 0, 0, 0.1f));
             g.setStroke(new BasicStroke(2));
-            drawEdge(g, (int)vertices[swapStatesFirstState].x, (int)vertices[swapStatesFirstState].y,
-                grabX,
-                grabY, 0, 1, true, false, true);
-        }     
-        
+            drawEdge(g, (int) vertices[swapStatesFirstState].x, (int) vertices[swapStatesFirstState].y, grabX, grabY, 0,
+                    1, true, false, true);
+        }
+
         // draw states
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             int n = orders[i];
-            if (automaton.isSelected(n))
-            {
+            if (automaton.isSelected(n)) {
                 g.setColor(selectedStateColor);
                 colors[n] = unselectedStateColor;
-            }
-            else
+            } else
                 g.setColor(colors[n]);
-            
+
             if (highlighted != -1 && highlighted == n)
                 g.setColor(g.getColor().brighter());
-            
-            g.fillOval((int)(vertices[n].x - VERTEX_RADIUS), (int)(vertices[n].y - VERTEX_RADIUS), VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
-                     
+
+            g.fillOval((int) (vertices[n].x - VERTEX_RADIUS), (int) (vertices[n].y - VERTEX_RADIUS), VERTEX_RADIUS * 2,
+                    VERTEX_RADIUS * 2);
+
             g.setColor(Color.BLACK);
             if (highlighted != -1 && highlighted == n)
                 g.setColor(Color.LIGHT_GRAY);
-            
-            if (operation == Operation.SWAP_STATES && swapStatesFirstState == n)
-            {
+
+            if (operation == Operation.SWAP_STATES && swapStatesFirstState == n) {
                 g.setColor(Color.RED.darker());
                 g.setStroke(new BasicStroke(4));
             }
- 
-            g.drawOval((int)(vertices[n].x - VERTEX_RADIUS), (int)(vertices[n].y - VERTEX_RADIUS), VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);           
+
+            g.drawOval((int) (vertices[n].x - VERTEX_RADIUS), (int) (vertices[n].y - VERTEX_RADIUS), VERTEX_RADIUS * 2,
+                    VERTEX_RADIUS * 2);
             g.setStroke(new BasicStroke());
             g.setColor(Color.BLACK);
             String label = Integer.toString(n);
-            g.drawString(label, (int)(vertices[n].x - g.getFontMetrics().stringWidth(label) / 2), (int)(vertices[n].y + 5));
+            g.drawString(label, (int) (vertices[n].x - g.getFontMetrics().stringWidth(label) / 2),
+                    (int) (vertices[n].y + 5));
         }
     }
 
     @Override
-    public void mouseClicked(MouseEvent ev) {}
+    public void mouseClicked(MouseEvent ev) {
+    }
 
     @Override
-    public void mouseEntered(MouseEvent ev) {}
+    public void mouseEntered(MouseEvent ev) {
+    }
 
     @Override
-    public void mouseExited(MouseEvent ev) {}
+    public void mouseExited(MouseEvent ev) {
+    }
 }

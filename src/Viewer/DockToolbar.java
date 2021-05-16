@@ -22,20 +22,17 @@ import javax.swing.event.AncestorListener;
 
 import AutomatonModels.Automaton;
 
-
-public abstract class DockToolbar extends JToolBar
-{
+public abstract class DockToolbar extends JToolBar {
     private JPanel panel; // content panel
     private final String name;
     private final boolean visibleOnStart;
     private Automaton automaton;
-    
+
     private boolean floating;
     private Dimension dockSize;
     private Dimension floatSize;
-    
-    DockToolbar(String name, boolean visibleOnStart, Automaton automaton)
-    {
+
+    DockToolbar(String name, boolean visibleOnStart, Automaton automaton) {
         super(name);
         this.name = name;
         this.visibleOnStart = visibleOnStart;
@@ -43,18 +40,16 @@ public abstract class DockToolbar extends JToolBar
         floating = false;
         setLayout(new BorderLayout());
         setOrientation(javax.swing.SwingConstants.HORIZONTAL);
-        
+
         panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK, 1), name));
         add(panel);
-        
+
         addAncestorListener(new AncestorListener() {
-            
+
             @Override
-            public void ancestorAdded(AncestorEvent event)
-            {
-                if (SwingUtilities.getWindowAncestor(DockToolbar.this) instanceof JDialog) 
-                {
+            public void ancestorAdded(AncestorEvent event) {
+                if (SwingUtilities.getWindowAncestor(DockToolbar.this) instanceof JDialog) {
                     floating = true;
                     JDialog toolBarDialog = (JDialog) SwingUtilities.getWindowAncestor(DockToolbar.this);
                     toolBarDialog.setResizable(true);
@@ -64,19 +59,16 @@ public abstract class DockToolbar extends JToolBar
                     DockToolbar.this.setVisible(false);
                     DockToolbar.this.remove(panel);
                     toolBarDialog.add(panel);
-                    toolBarDialog.addComponentListener(new ComponentAdapter()
-                    {
+                    toolBarDialog.addComponentListener(new ComponentAdapter() {
                         @Override
-                        public void componentResized(ComponentEvent ev) 
-                        {
+                        public void componentResized(ComponentEvent ev) {
                             toolBarDialog.setPreferredSize(toolBarDialog.getSize());
                         }
                     });
                     toolBarDialog.addWindowListener(new WindowAdapter() {
 
                         @Override
-                        public void windowClosing(WindowEvent e) 
-                        {
+                        public void windowClosing(WindowEvent e) {
                             floating = false;
                             toolBarDialog.remove(panel);
                             DockToolbar.this.setVisible(true);
@@ -89,81 +81,71 @@ public abstract class DockToolbar extends JToolBar
             }
 
             @Override
-            public void ancestorRemoved(AncestorEvent event) {}
+            public void ancestorRemoved(AncestorEvent event) {
+            }
 
             @Override
-            public void ancestorMoved(AncestorEvent event) {}
+            public void ancestorMoved(AncestorEvent event) {
+            }
         });
-        
+
         automaton.addPropertyChangeListener("automatonChanged", new PropertyChangeListener() {
-            
+
             @Override
-            public void propertyChange(PropertyChangeEvent ev
-            )
-            {
+            public void propertyChange(PropertyChangeEvent ev) {
                 updateToolbar();
             }
         });
     }
-    
-    protected JPanel getPanel()
-    {
+
+    protected JPanel getPanel() {
         return panel;
     }
-    
+
     @Override
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
-    
-    public Automaton getAutomaton()
-    {
+
+    public Automaton getAutomaton() {
         return automaton;
     }
-    
-    public void setAutomaton(Automaton automaton)
-    {
+
+    public void setAutomaton(Automaton automaton) {
         this.automaton = automaton;
     }
-    
+
     @Override
-    public void setVisible(boolean b)
-    {
+    public void setVisible(boolean b) {
         boolean oldValue = isVisible();
         super.setVisible(b);
-        
+
         if (isVisible())
             update();
-        
+
         firePropertyChange("setVisible", oldValue, b);
     }
-    
-    public void Dock()
-    {
-        if (floating)
-        {
+
+    public void Dock() {
+        if (floating) {
             JDialog toolBarDialog = (JDialog) SwingUtilities.getWindowAncestor(this);
             toolBarDialog.dispatchEvent(new WindowEvent(toolBarDialog, WindowEvent.WINDOW_CLOSING));
         }
     }
-    
-    public Font getDeafultFont()
-    {
+
+    public Font getDeafultFont() {
         return new Font("Arial", Font.ITALIC + Font.BOLD, 14);
     }
-    
-    public boolean isVisibleOnStart()
-    {
+
+    public boolean isVisibleOnStart() {
         return visibleOnStart;
     }
-    
+
     // updates toolbar only if it is visible
-    public void updateToolbar()
-    {
+    public void updateToolbar() {
         if (isVisible() || (floating && panel.isVisible()))
             update();
     }
-    
+
     protected abstract void update();
 }
