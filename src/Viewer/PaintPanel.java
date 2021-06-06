@@ -442,9 +442,17 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         repaint();
     }
 
+    private static void drawRotatedString(Graphics2D g2d, double x, double y, double angle, String text) {
+        g2d.translate((float) x, (float) y);
+        g2d.rotate(angle);
+        g2d.drawString(text, 0, 0);
+        g2d.rotate(-angle);
+        g2d.translate(-(float) x, -(float) y);
+    }
+
     // ************************************************************************
     // Drawing
-    void drawEdge(Graphics2D g, int x1, int y1, int x2, int y2, int k, int transQuantity, boolean inverse,
+    void drawEdge(Graphics2D g, int x1, int y1, int x2, int y2, int letterId, int k, int transQuantity, boolean inverse,
             boolean marked, boolean centered) {
         final double K_SHIFT = (VERTEX_RADIUS * 2) / (transQuantity + 1);
         AffineTransform oldTransform = g.getTransform();
@@ -464,6 +472,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             g.setStroke(dashed);
         }
         g.drawLine(0, yshift, len, yshift);
+        drawRotatedString(g, (double) (0 + len) / (double) 2 - 10, (double) yshift - 10, -angle,
+                Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
+
         g.setStroke(new BasicStroke());
         g.fillPolygon(new int[] { len, len - ARR_SIZE, len - ARR_SIZE },
                 new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 3);
@@ -547,7 +558,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                                 % AutomatonHelper.TRANSITIONS_COLORS.length]);
                     }
                     drawEdge(g, (int) vertices[trans.stateOut].x, (int) vertices[trans.stateOut].y,
-                            (int) vertices[trans.stateIn].x, (int) vertices[trans.stateIn].y, j, transNumber,
+                            (int) vertices[trans.stateIn].x, (int) vertices[trans.stateIn].y, trans.k, j, transNumber,
                             trans.inverse, false, false);
                 }
             }
@@ -556,13 +567,13 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         // draw new transition when you are in ADD_TRANS mode
         if (addTransFirstState >= 0 && operation == Operation.ADD_TRANS && K > 0) {
             g.setColor(AutomatonHelper.TRANSITIONS_COLORS[selectedTransition]);
-            drawEdge(g, (int) vertices[addTransFirstState].x, (int) vertices[addTransFirstState].y, grabX, grabY, 0, 1,
-                    false, true, true);
+            drawEdge(g, (int) vertices[addTransFirstState].x, (int) vertices[addTransFirstState].y, grabX, grabY,
+                    selectedTransition, 0, 1, false, true, true);
         } else if (swapStatesFirstState >= 0 && operation == Operation.SWAP_STATES) {
             g.setColor(new Color(0, 0, 0, 0.1f));
             g.setStroke(new BasicStroke(2));
-            drawEdge(g, (int) vertices[swapStatesFirstState].x, (int) vertices[swapStatesFirstState].y, grabX, grabY, 0,
-                    1, true, false, true);
+            drawEdge(g, (int) vertices[swapStatesFirstState].x, (int) vertices[swapStatesFirstState].y, grabX, grabY,
+                    selectedTransition, 0, 1, true, false, true);
         }
 
         // draw states
