@@ -89,6 +89,8 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     private int oldWidth;
     private int oldHeight;
 
+    private boolean loopEdgesVisible;
+
     // ************************************************************************
     // Initialization
     public PaintPanel(Automaton automaton) {
@@ -103,6 +105,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         this.selectedStateColor = AutomatonHelper.defaultSelectedStateColor;
         this.oldWidth = 0;
         this.oldHeight = 0;
+        this.loopEdgesVisible = false;
 
         showRange = false;
         showAction = false;
@@ -247,6 +250,15 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     public void showAction(HashMap<Integer, ArrayList<Integer>> actionStates) {
         showAction = true;
         this.actionStates = actionStates;
+        repaint();
+    }
+
+    public boolean getLoopEdgesVisible() {
+        return this.loopEdgesVisible;
+    }
+
+    public void setLoopEdgesVisible(boolean visible) {
+        this.loopEdgesVisible = visible;
         repaint();
     }
 
@@ -608,7 +620,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
         // draw transitions
         for (int n = 0; n < N; n++) {
-            for (int n2 = n; n2 < N; n2++) {
+            for (int n2 = n + ((this.loopEdgesVisible) ? 0 : 1); n2 < N; n2++) {
                 ArrayList<Transition> transitions = new ArrayList<>();
                 for (int k = 0; k < K; k++) {
                     if (matrix[n][k] == n2)

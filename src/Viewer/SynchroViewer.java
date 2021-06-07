@@ -177,6 +177,18 @@ public class SynchroViewer {
         }
         menuBar.add(toolbarsMenu);
 
+        JCheckBoxMenuItem loopItem = new JCheckBoxMenuItem("Show loop edges");
+        loopItem.setVisible(true);
+        loopItem.setSelected(paintPanel.getLoopEdgesVisible());
+        loopItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ev) {
+                paintPanel.setLoopEdgesVisible(!paintPanel.getLoopEdgesVisible());
+            }
+        });
+        menuBar.add(loopItem);
+
         JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutMenuItem = new JMenuItem("About");
         aboutMenuItem.addActionListener(new ActionListener() {
