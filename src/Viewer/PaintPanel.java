@@ -17,6 +17,7 @@ import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import javax.swing.JOptionPane;
@@ -442,7 +443,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         repaint();
     }
 
-    private static void drawRotatedString(Graphics2D g2d, double x, double y, double angle, String text) {
+    private void drawRotatedString(Graphics2D g2d, double x, double y, double angle, String text) {
         g2d.translate((float) x, (float) y);
         g2d.rotate(angle);
         g2d.drawString(text, 0, 0);
@@ -450,14 +451,60 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         g2d.translate(-(float) x, -(float) y);
     }
 
+    private void drawRotatedOval(Graphics2D g2d, double x, double y, double angle) {
+        int height = 30;
+        int width = 60;
+        g2d.translate((float) x, (float) y);
+        g2d.rotate(angle);
+        g2d.drawOval(0, -height / 2, width, height);
+        g2d.rotate(-angle);
+        g2d.translate(-(float) x, -(float) y);
+    }
+
+    private double getNewFarAngle(ArrayList<Double> angles) {
+        if (angles.size() == 0)
+            return 0;
+        Collections.sort(angles);
+        int id = 0;
+        double biggestDist = 0;
+        for (int i = 0; i < angles.size() - 1; i++) {
+            if (angles.get(i + 1) - angles.get(i) > biggestDist) {
+                id = i;
+                biggestDist = angles.get(i + 1) - angles.get(i);
+            }
+        }
+
+        if (2 * Math.PI - (angles.get(angles.size() - 1) - angles.get(0)) > biggestDist) {
+            id = angles.size() - 1;
+            biggestDist = 2 * Math.PI - (angles.get(angles.size() - 1) - angles.get(0));
+        }
+
+        double result;
+        if (id == angles.size() - 1) {
+            result = (angles.get(id) + angles.get(0)) / 2 + Math.PI;
+        } else
+            result = (angles.get(id) + angles.get(id + 1)) / 2;
+
+        if (result > Math.PI) {
+            result -= 2 * Math.PI;
+        }
+        return result;
+    }
+
+    private double getAngle(int x1, int y1, int x2, int y2) {
+        double dx = x2 - x1, dy = y2 - y1;
+        double angle = Math.atan2(dy, dx);
+        return angle;
+    }
+
     // ************************************************************************
     // Drawing
-    void drawEdge(Graphics2D g, int x1, int y1, int x2, int y2, int letterId, int k, int transQuantity, boolean inverse,
-            boolean marked, boolean centered) {
+    void drawEdge(Graphics2D g, int x1, int y1, int x2, int y2, int letterId, int k, int transQuantity,
+            double inverseAngle, boolean inverse, boolean marked, boolean centered) {
         final double K_SHIFT = (VERTEX_RADIUS * 2) / (transQuantity + 1);
         AffineTransform oldTransform = g.getTransform();
         double dx = x2 - x1, dy = y2 - y1;
-        double angle = Math.atan2(dy, dx);
+        double angle = (inverse) ? inverseAngle : Math.atan2(dy, dx);
         int len = (centered) ? (int) Math.sqrt(dx * dx + dy * dy) : (int) Math.sqrt(dx * dx + dy * dy) - VERTEX_RADIUS;
         AffineTransform at = new AffineTransform(oldTransform);
         at.translate(x1, y1);
@@ -471,16 +518,23 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                     0.0f);
             g.setStroke(dashed);
         }
-        g.drawLine(0, yshift, len, yshift);
-        drawRotatedString(g, (double) (0 + len) / (double) 2 - 10, (double) yshift - 10, -angle,
-                Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
-
-        g.setStroke(new BasicStroke());
-        g.fillPolygon(new int[] { len, len - ARR_SIZE, len - ARR_SIZE },
-                new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 3);
         if (inverse) {
-            g.fillPolygon(new int[] { VERTEX_RADIUS, VERTEX_RADIUS + ARR_SIZE, VERTEX_RADIUS + ARR_SIZE },
+            drawRotatedOval(g, 0, 0, 0);
+            drawRotatedString(g, VERTEX_RADIUS + 50, 0, -angle,
+                    Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
+
+            // g.fillPolygon(new int[] { VERTEX_RADIUS, VERTEX_RADIUS + ARR_SIZE,
+            // VERTEX_RADIUS + ARR_SIZE },
+            // new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 3);
+        } else {
+            g.drawLine(0, yshift, len, yshift);
+            drawRotatedString(g, (double) (0 + len) / (double) 2 - 10, (double) yshift - 10, -angle,
+                    Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
+
+            g.setStroke(new BasicStroke());
+            g.fillPolygon(new int[] { len, len - ARR_SIZE, len - ARR_SIZE },
                     new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 3);
+
         }
         g.setTransform(oldTransform);
     }
@@ -500,7 +554,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         int K = getK();
 
         // draw oval of range states at the beginning
+        ArrayList<ArrayList<Double>> anglesPerNode = new ArrayList();
         for (int i = 0; i < N; i++) {
+            anglesPerNode.add(new ArrayList<>());
             int n = orders[i];
             if (showRange && rangeStates[n] == 1) {
                 g.setStroke(new BasicStroke(5));
@@ -522,9 +578,28 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         g.setColor(Color.BLACK);
         g.setStroke(new BasicStroke());
 
+        // prepare angles for non-inverse transitions
+
+        double angle = 0;
+        for (int n1 = 0; n1 < N; n1++) {
+            for (int n2 = n1 + 1; n2 < N; n2++) {
+                for (int k = 0; k < K; k++) {
+                    if (matrix[n1][k] == n2) {
+                        angle = getAngle((int) vertices[n1].x, (int) vertices[n1].y, (int) vertices[n2].x,
+                                (int) vertices[n2].y);
+                        anglesPerNode.get(n1).add(angle);
+                        angle = getAngle((int) vertices[n2].x, (int) vertices[n2].y, (int) vertices[n1].x,
+                                (int) vertices[n1].y);
+                        anglesPerNode.get(n2).add(angle);
+                        break;
+                    }
+                }
+            }
+        }
+
         // draw transitions
         for (int n = 0; n < N; n++) {
-            for (int n2 = n + 1; n2 < N; n2++) {
+            for (int n2 = n; n2 < N; n2++) {
                 ArrayList<Transition> transitions = new ArrayList<>();
                 for (int k = 0; k < K; k++) {
                     if (matrix[n][k] == n2)
@@ -557,9 +632,14 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                         g.setColor(AutomatonHelper.TRANSITIONS_COLORS[trans.k
                                 % AutomatonHelper.TRANSITIONS_COLORS.length]);
                     }
+                    if (trans.inverse) {
+                        angle = getNewFarAngle(anglesPerNode.get(trans.stateOut));
+                        anglesPerNode.get(trans.stateOut).add(angle);
+                    }
+
                     drawEdge(g, (int) vertices[trans.stateOut].x, (int) vertices[trans.stateOut].y,
                             (int) vertices[trans.stateIn].x, (int) vertices[trans.stateIn].y, trans.k, j, transNumber,
-                            trans.inverse, false, false);
+                            angle, trans.inverse, false, false);
                 }
             }
         }
@@ -568,12 +648,12 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         if (addTransFirstState >= 0 && operation == Operation.ADD_TRANS && K > 0) {
             g.setColor(AutomatonHelper.TRANSITIONS_COLORS[selectedTransition]);
             drawEdge(g, (int) vertices[addTransFirstState].x, (int) vertices[addTransFirstState].y, grabX, grabY,
-                    selectedTransition, 0, 1, false, true, true);
+                    selectedTransition, 0, 1, 0, false, true, true);
         } else if (swapStatesFirstState >= 0 && operation == Operation.SWAP_STATES) {
             g.setColor(new Color(0, 0, 0, 0.1f));
             g.setStroke(new BasicStroke(2));
             drawEdge(g, (int) vertices[swapStatesFirstState].x, (int) vertices[swapStatesFirstState].y, grabX, grabY,
-                    selectedTransition, 0, 1, true, false, true);
+                    selectedTransition, 0, 1, 0, true, false, true);
         }
 
         // draw states
