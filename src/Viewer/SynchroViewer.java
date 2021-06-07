@@ -160,7 +160,7 @@ public class SynchroViewer {
         automatonMenu.add(exitMenuItem);
         menuBar.add(automatonMenu);
 
-        JMenu toolbarsMenu = new JMenu("Toolbars");
+        JMenu toolbarsMenu = new JMenu("View");
         for (DockToolbar dockToolbar : splitPane.getDockToolbars()) {
             JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(dockToolbar.getName());
             menuItem.setSelected(dockToolbar.isVisibleOnStart());
@@ -175,7 +175,6 @@ public class SynchroViewer {
                 }
             });
         }
-        menuBar.add(toolbarsMenu);
 
         JCheckBoxMenuItem loopItem = new JCheckBoxMenuItem("Show loop edges");
         loopItem.setVisible(true);
@@ -187,7 +186,8 @@ public class SynchroViewer {
                 paintPanel.setLoopEdgesVisible(!paintPanel.getLoopEdgesVisible());
             }
         });
-        menuBar.add(loopItem);
+        toolbarsMenu.add(loopItem);
+        menuBar.add(toolbarsMenu);
 
         JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutMenuItem = new JMenuItem("About");
