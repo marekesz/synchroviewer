@@ -520,9 +520,17 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         }
         if (loop) {
             drawRotatedOval(g, 0, 0, 0);
-            drawRotatedString(g, VERTEX_RADIUS + 50, 0, -angle,
+            drawRotatedString(g, VERTEX_RADIUS + 45, 0, -angle,
                     Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
-
+            double theta1 = Math.PI / (double) 5;
+            g.rotate(theta1);
+            g.translate(VERTEX_RADIUS, 0);
+            double theta2 = Math.PI / (double) 5;
+            g.rotate(-theta2);
+            g.fillPolygon(new int[] { 0, 0 + ARR_SIZE, 0 + ARR_SIZE }, new int[] { 0, -ARR_SIZE / 2, ARR_SIZE / 2 }, 3);
+            g.rotate(theta2);
+            g.translate(-VERTEX_RADIUS, 0);
+            g.rotate(-theta1);
         } else {
             g.drawLine(0, yshift, len, yshift);
             drawRotatedString(g, (double) (0 + len) / (double) 2 - 10, (double) yshift - 10, -angle,
