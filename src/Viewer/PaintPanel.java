@@ -4,6 +4,7 @@ package Viewer;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -14,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.FontMetrics;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -455,10 +457,17 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         repaint();
     }
 
+    private void drawCenteredString(Graphics g, String text, int x, int y) {
+        FontMetrics metrics = g.getFontMetrics();
+        x = x - metrics.stringWidth(text) / 2;
+        y = y + metrics.getAscent() / 2;
+        g.drawString(text, x, y);
+    }
+
     private void drawRotatedString(Graphics2D g2d, double x, double y, double angle, String text) {
         g2d.translate((float) x, (float) y);
         g2d.rotate(angle);
-        g2d.drawString(text, 0, 0);
+        drawCenteredString(g2d, text, 0, 0);
         g2d.rotate(-angle);
         g2d.translate(-(float) x, -(float) y);
     }
@@ -545,7 +554,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             g.rotate(-theta1);
         } else {
             g.drawLine(0, yshift, len, yshift);
-            drawRotatedString(g, (double) (0 + len) / (double) 2 - 10, (double) yshift - 10, -angle,
+            drawRotatedString(g, (double) (len + VERTEX_RADIUS) / (double) 2 - 10, (double) yshift - 10, -angle,
                     Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
 
             g.setStroke(new BasicStroke());
@@ -569,7 +578,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         g.fillRect(0, 0, width, height);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-
+        g.setFont(new Font("sans", Font.PLAIN, 14));
         int[][] matrix = automaton.getMatrix();
         int N = getN();
         int K = getK();
