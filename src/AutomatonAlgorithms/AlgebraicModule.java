@@ -44,7 +44,8 @@ public class AlgebraicModule {
         return result;
     }
 
-    // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
+    // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i})) for
+    // Inverse Automata
     public static ArrayList<String> wordsForSubset(InverseAutomaton inverseAutomaton) {
         if (inverseAutomaton.getN() == 0)
             return new ArrayList<String>();

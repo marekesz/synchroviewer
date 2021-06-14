@@ -205,7 +205,7 @@ public class Automaton {
     }
 
     public int[] getSelectedStates() {
-        return selectedStates.clone();
+        return selectedStates;
     }
 
     public void automatonChanged() {

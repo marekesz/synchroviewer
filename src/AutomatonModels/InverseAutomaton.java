@@ -34,7 +34,7 @@ public class InverseAutomaton {
     }
 
     public int[] getSelectedStates() {
-        return selectedStates.clone();
+        return selectedStates;
     }
 
     public int getK() {
