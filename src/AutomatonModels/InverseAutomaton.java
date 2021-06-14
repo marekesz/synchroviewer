@@ -2,11 +2,15 @@
 package AutomatonModels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import Viewer.AutomatonHelper;
 
 public class InverseAutomaton {
 
     private int K, N;
     private int[][][] matrix; // matrix[state][transition] - array of states
+    private int[] selectedStates;
 
     public InverseAutomaton(Automaton automaton) {
         K = automaton.getK();
@@ -25,6 +29,20 @@ public class InverseAutomaton {
                     matrix[n][k][i] = arrayList.get(i);
             }
         }
+        selectedStates = new int[N];
+        selectedStates = automaton.getSelectedStates();
+    }
+
+    public int[] getSelectedStates() {
+        return selectedStates.clone();
+    }
+
+    public int getK() {
+        return K;
+    }
+
+    public int getN() {
+        return N;
     }
 
     public int[][][] getMatrix() {

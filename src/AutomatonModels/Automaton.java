@@ -5,6 +5,8 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
 
+import Viewer.AutomatonHelper;
+
 public class Automaton {
 
     private int K, N; // max number of out edges for one state / number of states
@@ -203,7 +205,7 @@ public class Automaton {
     }
 
     public int[] getSelectedStates() {
-        return selectedStates;
+        return selectedStates.clone();
     }
 
     public void automatonChanged() {

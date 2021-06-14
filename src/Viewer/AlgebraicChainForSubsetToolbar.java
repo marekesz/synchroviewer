@@ -20,7 +20,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import AutomatonAlgorithms.AlgebraicModule;
+
 import AutomatonModels.Automaton;
+import AutomatonModels.InverseAutomaton;
 
 public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private final int MAX_STATES = 25; // max number of states in automaton
@@ -29,7 +31,19 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private final JScrollPane scrollPane;
     private final JLabel lengthLabel;
 
-    public AlgebraicChainForSubsetToolbar(String name, boolean visibleOnStart, Automaton automaton) {
+    class Pair<U, V> {
+        public final U first;
+        public final V second;
+
+        public Pair(U first, V second) {
+            this.first = first;
+            this.second = second;
+        }
+
+    }
+
+    public AlgebraicChainForSubsetToolbar(String name, boolean visibleOnStart, Automaton automaton,
+            InverseAutomaton inverseAutomaton) {
         super(name, visibleOnStart, automaton);
 
         JPanel panel = getPanel();
@@ -40,7 +54,6 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         textPane.setEditable(false);
         textPane.setFont(getDeafultFont());
         // textPane.setPreferredSize(new Dimension(0, 60));
-
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem menuItemCopy;
         menuItemCopy = new JMenuItem("Copy");
@@ -82,8 +95,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         }
     }
 
-    private void recalculate() {
-        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton());
+    private Pair<Integer, String> getChainDescription(ArrayList<String> words) {
+        if (words.size() == 0)
+            return new Pair<Integer, String>(0, "");
         String text = "";
         int dimCnt = 0;
         ArrayList<Integer> dimensions = new ArrayList<Integer>();
@@ -97,14 +111,26 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             text += words.get(i) + '\n';
         }
 
-        super.setTitle(
-                "Linear-algebraic ascending chain for subset - dimensions: " + Integer.toString(dimensions.size()));
         String description = Integer.toString(dimensions.size()) + " dimensions: ";
         for (int i = 0; i < dimensions.size(); i++)
             description += Integer.toString(dimensions.get(i)) + " ";
 
         text = description + "\n \n" + text;
-        textPane.setText(text);
+        return new Pair<Integer, String>(dimensions.size(), text);
+
+    }
+
+    private void recalculate() {
+        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton());
+        ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()));
+        Pair<Integer, String> chainDescription = getChainDescription(words);
+        Pair<Integer, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
+        super.setTitle("Linear-algebraic ascending chain for subset - dimensions: "
+                + Integer.toString(chainDescription.first));
+        if (chainDescription.first > 0 || inverseChainDescription.first > 0)
+            textPane.setText(chainDescription.second + "\ninverse Automaton: " + inverseChainDescription.second);
+        else
+            textPane.setText("");
     }
 
     @Override
@@ -117,5 +143,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         }
 
         recalculate();
+        // AlgebraicModule.testAutomaton(getAutomaton());
+        // AlgebraicModule.testInverseAutomaton(new InverseAutomaton(automaton));
     }
 }

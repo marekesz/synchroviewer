@@ -17,10 +17,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import AutomatonModels.Automaton;
+import AutomatonModels.InverseAutomaton;
+import AutomatonAlgorithms.AlgebraicModule;
 
 public class SplitPane extends JSplitPane {
     private final Automaton automaton;
-
     private PaintPanel paintPanel;
 
     private final AutomatonCodeToolbar codeToolbar;
@@ -57,7 +58,7 @@ public class SplitPane extends JSplitPane {
         ShortestWordForSubsetToolbar shortestWordSubsetToolbar = new ShortestWordForSubsetToolbar(
                 "Shortest word for subset", true, automaton);
         AlgebraicChainForSubsetToolbar algebraicChainForSubsetToolbar = new AlgebraicChainForSubsetToolbar(
-                "Linear-algebraic ascending chain for subset", false, automaton);
+                "Linear-algebraic ascending chain for subset", false, automaton, new InverseAutomaton(automaton));
         BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false,
                 automaton);
 
