@@ -125,8 +125,10 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()));
         Pair<Integer, String> chainDescription = getChainDescription(words);
         Pair<Integer, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
-        super.setTitle("Linear-algebraic ascending chain for subset - dimensions: "
-                + Integer.toString(chainDescription.first));
+        super.setTitle("Ascending chain for subset ("
+                + "length: " + Integer.toString(chainDescription.first) // TODO
+        		+ " dimension: " + Integer.toString(chainDescription.first)
+                + ")");
         if (chainDescription.first > 0 || inverseChainDescription.first > 0)
             textPane.setText(chainDescription.second + "\ninverse Automaton: " + inverseChainDescription.second);
         else

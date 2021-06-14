@@ -103,7 +103,7 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
         compressingButton = new JRadioButton("Compressing");
         resetButton = new JRadioButton("Reset");
         extendingButton = new JRadioButton("Extending");
-        fullyExtendingButton = new JRadioButton("Fully extending");
+        fullyExtendingButton = new JRadioButton("Totally extending");
         compressingButton.addItemListener(new ItemListener() {
 
             @Override
@@ -194,13 +194,13 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
                 Color color = AutomatonHelper.TRANSITIONS_COLORS[trans];
                 insertStringToTextPane(Character.toString(letter), color);
             }
-            super.setTitle(this.getName() + String.format(" - %nlength: %d", transitions.size()));
+            super.setTitle(this.getName() + String.format(" (length: %d)", transitions.size()));
             // lengthLabel.setText(String.format("%nLength: %d", transitions.size()));
         } catch (WordNotFoundException ex) {
             textPane.setText("");
             insertStringToTextPane("Word not found", Color.BLACK);
             // lengthLabel.setText("Length: -");
-            super.setTitle(this.getName() + String.format(" - length: -"));
+            super.setTitle(this.getName() + String.format(" (length: --)"));
         }
     }
 

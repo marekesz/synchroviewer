@@ -114,11 +114,11 @@ public class ShortestResetWordToolbar extends DockToolbar {
                 Color color = AutomatonHelper.TRANSITIONS_COLORS[trans];
                 insertStringToTextPane(Character.toString(letter), color);
             }
-            lengthLabel.setText(String.format("%nLength: %d", transitions.size()));
+            super.setTitle(this.getName() + String.format(" (length: %d)", transitions.size()));
         } catch (WordNotFoundException ex) {
             textPane.setText("");
             insertStringToTextPane("Word not found", Color.BLACK);
-            lengthLabel.setText("Length: -");
+            super.setTitle(this.getName() + String.format(" (length: --)"));
         }
     }
 }
