@@ -20,6 +20,8 @@ public class AlgebraicModule {
         ArrayList<String> result = new ArrayList<>();
         ArrayList<int[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
+        if (leadingZerosCount(subset) == subset.length)
+            return result;
         result.add("");
         candidates.add("");
         base.add(matMul(subset, wordToMatrix(automaton, "")));
@@ -50,6 +52,8 @@ public class AlgebraicModule {
         ArrayList<String> result = new ArrayList<>();
         ArrayList<int[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
+        if (leadingZerosCount(subset) == subset.length)
+            return result;
 
         result.add("");
         candidates.add("");
