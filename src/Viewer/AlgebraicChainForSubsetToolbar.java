@@ -107,15 +107,18 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                 dimensions.add(dimCnt);
             else
                 dimensions.set(dimensions.size() - 1, dimCnt);
-
-            text += words.get(i) + '\n';
+            if (i > 0 && words.get(i).length() > words.get(i - 1).length())
+                text += "\n";
+            else if (i > 0)
+                text += ", ";
+            text += (words.get(i) == "") ? "." : words.get(i);
         }
 
-        String description = Integer.toString(dimensions.size()) + " dimensions: ";
+        String description = "";// Integer.toString(dimensions.size()) + " dimensions: ";
         for (int i = 0; i < dimensions.size(); i++)
             description += Integer.toString(dimensions.get(i)) + " ";
 
-        text = description + "\n \n" + text;
+        text = description + "\nwords: \n" + text + '\n';
         return new Pair<Integer, String>(dimensions.size(), text);
 
     }
@@ -125,12 +128,11 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()));
         Pair<Integer, String> chainDescription = getChainDescription(words);
         Pair<Integer, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
-        super.setTitle("Ascending chain for subset ("
-                + "length: " + Integer.toString(chainDescription.first) // TODO
-        		+ " dimension: " + Integer.toString(chainDescription.first)
-                + ")");
+        super.setTitle("Linear-algebraic ascending chain for subset - dimensions: "
+                + Integer.toString(chainDescription.first));
         if (chainDescription.first > 0 || inverseChainDescription.first > 0)
-            textPane.setText(chainDescription.second + "\ninverse Automaton: " + inverseChainDescription.second);
+            textPane.setText("Automaton chain dimensions:\n" + chainDescription.second
+                    + "\nInverse Automaton chain dimensions:\n" + inverseChainDescription.second);
         else
             textPane.setText("");
     }
