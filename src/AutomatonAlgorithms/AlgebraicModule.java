@@ -5,15 +5,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+// import AutomatonModels.Automaton;
+// import AutomatonModels.InverseAutomaton;
+import AutomatonModels.AbstractNFA;
 import Viewer.AutomatonHelper;
 
 public class AlgebraicModule {
     private static BigInteger ZERO = new BigInteger("0");
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
-    public static ArrayList<String> wordsForSubset(Automaton automaton) {
+    public static ArrayList<String> wordsForSubset(AbstractNFA automaton) {
         if (automaton.getN() == 0)
             return new ArrayList<String>();
         int[] subset = automaton.getSelectedStates();
@@ -24,48 +25,13 @@ public class AlgebraicModule {
             return result;
         result.add("");
         candidates.add("");
-        base.add(matMul(subset, wordToMatrix(automaton, "")));
+        base.add(matMul(subset, wordToMatrixNFA(automaton, "")));
         ArrayList<String> newCandidates = new ArrayList<>();
         while (candidates.size() > 0) {
             for (String x : candidates) {
                 for (int k = 0; k < automaton.getK(); k++) {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    int[] vec = matMul(subset, wordToMatrix(automaton, x + a));
-                    if (!dependentFromBase(base, vec)) {
-                        base.add(vec);
-                        newCandidates.add(x + a);
-                        result.add(x + a);
-                    }
-                }
-            }
-            moveArrayList(newCandidates, candidates);
-            newCandidates.clear();
-        }
-        return result;
-    }
-
-    // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i})) for
-    // Inverse Automata
-    public static ArrayList<String> wordsForSubset(InverseAutomaton inverseAutomaton) {
-        if (inverseAutomaton.getN() == 0)
-            return new ArrayList<String>();
-        int[] subset = inverseAutomaton.getSelectedStates();
-        ArrayList<String> result = new ArrayList<>();
-        ArrayList<int[]> base = new ArrayList<>();
-        ArrayList<String> candidates = new ArrayList<>();
-        if (leadingZerosCount(subset) == subset.length)
-            return result;
-
-        result.add("");
-        candidates.add("");
-        base.add(matMul(subset, wordToMatrixInverseAutomaton(inverseAutomaton, "")));
-
-        ArrayList<String> newCandidates = new ArrayList<>();
-        while (candidates.size() > 0) {
-            for (String x : candidates) {
-                for (int k = 0; k < inverseAutomaton.getK(); k++) {
-                    char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    int[] vec = matMul(subset, wordToMatrixInverseAutomaton(inverseAutomaton, x + a));
+                    int[] vec = matMul(subset, wordToMatrixNFA(automaton, x + a));
                     if (!dependentFromBase(base, vec)) {
                         base.add(vec);
                         newCandidates.add(x + a);
@@ -234,25 +200,9 @@ public class AlgebraicModule {
         return -1;
     }
 
-    public static int[][] wordToMatrix(Automaton automaton, String word) {
+    public static int[][] wordToMatrixNFA(AbstractNFA automaton, String word) {
         int n = automaton.getN();
         int[][] result = new int[n][n];
-        int[][] matrix = automaton.getMatrix();
-        for (int i = 0; i < n; i++) {
-            int j = i;
-            for (int k = 0; k < word.length(); k++) {
-                int char_id = charArrayIndexOf(AutomatonHelper.TRANSITIONS_LETTERS, word.charAt(k));
-                j = matrix[j][char_id];
-            }
-            result[i][j] = 1;
-        }
-        return result;
-    }
-
-    public static int[][] wordToMatrixInverseAutomaton(InverseAutomaton inverseAutomaton, String word) {
-        int n = inverseAutomaton.getN();
-        int[][] result = new int[n][n];
-        int[][][] matrix = inverseAutomaton.getMatrix();
         for (int i = 0; i < n; i++) {
             HashSet<Integer> phase = new HashSet<>();
             phase.add(i);
@@ -260,7 +210,7 @@ public class AlgebraicModule {
                 int char_id = charArrayIndexOf(AutomatonHelper.TRANSITIONS_LETTERS, word.charAt(k));
                 HashSet<Integer> newPhase = new HashSet<>();
                 phase.forEach(j -> {
-                    for (int l : matrix[j][char_id]) {
+                    for (int l : automaton.getTransitions(j, char_id)) {
                         newPhase.add(l);
                     }
                 });
@@ -312,50 +262,50 @@ public class AlgebraicModule {
         }
     }
 
-    public static void testAutomaton(Automaton automaton) {
+    public static void testAutomaton(AbstractNFA automaton) {
         System.out.println("Automaton tests. N, K = " + automaton.getN() + ", " + automaton.getK());
         System.out.println("word to matrix test:");
         System.out.println("word =  ");
-        printMatrix(wordToMatrix(automaton, ""));
+        printMatrix(wordToMatrixNFA(automaton, ""));
         System.out.println("word = a");
-        printMatrix(wordToMatrix(automaton, "a"));
+        printMatrix(wordToMatrixNFA(automaton, "a"));
         System.out.println("S*[e]=");
-        printArray(matMul(automaton.getSelectedStates(), wordToMatrix(automaton, "")));
+        printArray(matMul(automaton.getSelectedStates(), wordToMatrixNFA(automaton, "")));
         System.out.println("S*[a]=");
-        printArray(matMul(automaton.getSelectedStates(), wordToMatrix(automaton, "a")));
+        printArray(matMul(automaton.getSelectedStates(), wordToMatrixNFA(automaton, "a")));
 
     }
 
-    public static void testInverseAutomaton(InverseAutomaton inverseAutomaton) {
+    public static void testInverseAutomaton(AbstractNFA inverseAutomaton) {
         System.out
                 .println("inverseAutomaton tests. N, K = " + inverseAutomaton.getN() + ", " + inverseAutomaton.getK());
         System.out.println("for inverse automaton:");
         System.out.println("word =  ");
-        printMatrix(wordToMatrixInverseAutomaton(inverseAutomaton, ""));
+        printMatrix(wordToMatrixNFA(inverseAutomaton, ""));
         System.out.println("word = a");
-        printMatrix(wordToMatrixInverseAutomaton(inverseAutomaton, "a"));
+        printMatrix(wordToMatrixNFA(inverseAutomaton, "a"));
         System.out.println("word = b");
-        printMatrix(wordToMatrixInverseAutomaton(inverseAutomaton, "b"));
+        printMatrix(wordToMatrixNFA(inverseAutomaton, "b"));
         System.out.println("word = aa");
-        printMatrix(wordToMatrixInverseAutomaton(inverseAutomaton, "aa"));
+        printMatrix(wordToMatrixNFA(inverseAutomaton, "aa"));
         System.out.println("word = ab");
-        printMatrix(wordToMatrixInverseAutomaton(inverseAutomaton, "ab"));
+        printMatrix(wordToMatrixNFA(inverseAutomaton, "ab"));
         System.out.println("word = ba");
-        printMatrix(wordToMatrixInverseAutomaton(inverseAutomaton, "ba"));
+        printMatrix(wordToMatrixNFA(inverseAutomaton, "ba"));
 
         System.out.println("S*[e]=");
-        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixInverseAutomaton(inverseAutomaton, "")));
+        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixNFA(inverseAutomaton, "")));
         System.out.println("S*[a]=");
-        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixInverseAutomaton(inverseAutomaton, "a")));
+        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixNFA(inverseAutomaton, "a")));
         System.out.println("S*[b]=");
-        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixInverseAutomaton(inverseAutomaton, "b")));
+        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixNFA(inverseAutomaton, "b")));
         System.out.println("S*[ab]=");
-        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixInverseAutomaton(inverseAutomaton, "ab")));
+        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixNFA(inverseAutomaton, "ab")));
         System.out.println("S*[ba]=");
-        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixInverseAutomaton(inverseAutomaton, "ba")));
+        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixNFA(inverseAutomaton, "ba")));
         System.out.println("S*[aa]=");
-        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixInverseAutomaton(inverseAutomaton, "aa")));
+        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixNFA(inverseAutomaton, "aa")));
         System.out.println("S*[bb]=");
-        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixInverseAutomaton(inverseAutomaton, "bb")));
+        printArray(matMul(inverseAutomaton.getSelectedStates(), wordToMatrixNFA(inverseAutomaton, "bb")));
     }
 }

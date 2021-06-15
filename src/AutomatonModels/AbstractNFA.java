@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import Viewer.AutomatonHelper;
 
-public class NondeterministicAutomaton {
+public abstract class AbstractNFA {
     private int K, N; // max number of out edges for one state / number of states
     private int[][][] matrix;
     private int[] selectedStates;

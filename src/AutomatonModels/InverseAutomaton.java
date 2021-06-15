@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import Viewer.AutomatonHelper;
 
-public class InverseAutomaton extends NondeterministicAutomaton {
+public class InverseAutomaton extends AbstractNFA {
 
     private int K, N;
     private int[][][] matrix; // matrix[state][transition] - array of states
