@@ -33,17 +33,14 @@ public class InverseAutomaton extends AbstractNFA {
         selectedStates = automaton.getSelectedStates();
     }
 
-    @Override
     public int[] getSelectedStates() {
         return selectedStates;
     }
 
-    @Override
     public int getK() {
         return K;
     }
 
-    @Override
     public int getN() {
         return N;
     }

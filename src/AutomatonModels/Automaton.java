@@ -44,7 +44,6 @@ public class Automaton extends AbstractNFA {
         selectedStates = new int[N];
     }
 
-    @Override
     public String toString() {
         String str = Integer.toString(K) + " " + Integer.toString(N) + " ";
         for (int n = 0; n < N; n++) {

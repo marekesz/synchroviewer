@@ -8,12 +8,8 @@ import Viewer.AutomatonHelper;
 
 public abstract class AbstractNFA {
     private int K, N; // max number of out edges for one state / number of states
-    private int[][][] matrix;
-    private int[] selectedStates;
 
-    public int[] getSelectedStates() {
-        return selectedStates;
-    }
+    public abstract int[] getSelectedStates();
 
     public int getK() {
         return K;
@@ -23,7 +19,5 @@ public abstract class AbstractNFA {
         return N;
     }
 
-    public int[] getTransitions(int i, int k) {
-        return matrix[i][k];
-    }
+    public abstract int[] getTransitions(int i, int k);
 }

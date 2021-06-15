@@ -4,9 +4,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-
-// import AutomatonModels.Automaton;
-// import AutomatonModels.InverseAutomaton;
 import AutomatonModels.AbstractNFA;
 import Viewer.AutomatonHelper;
 
