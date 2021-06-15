@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import Viewer.AutomatonHelper;
 
-public class InverseAutomaton {
+public class InverseAutomaton extends NondeterministicAutomaton {
 
     private int K, N;
     private int[][][] matrix; // matrix[state][transition] - array of states
@@ -33,19 +33,27 @@ public class InverseAutomaton {
         selectedStates = automaton.getSelectedStates();
     }
 
+    @Override
     public int[] getSelectedStates() {
         return selectedStates;
     }
 
+    @Override
     public int getK() {
         return K;
     }
 
+    @Override
     public int getN() {
         return N;
     }
 
     public int[][][] getMatrix() {
         return matrix;
+    }
+
+    @Override
+    public int[] getTransitions(int i, int k) {
+        return matrix[i][k];
     }
 }

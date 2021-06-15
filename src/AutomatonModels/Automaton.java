@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import Viewer.AutomatonHelper;
 
-public class Automaton {
+public class Automaton extends NondeterministicAutomaton {
 
     private int K, N; // max number of out edges for one state / number of states
     private int[][] matrix;
@@ -65,6 +65,11 @@ public class Automaton {
 
     public int[][] getMatrix() {
         return matrix;
+    }
+
+    @Override
+    public int[] getTransitions(int i, int k) {
+        return new int[] { matrix[i][k] };
     }
 
     public void update(Automaton automaton) {
