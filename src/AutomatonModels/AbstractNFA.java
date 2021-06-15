@@ -9,8 +9,6 @@ import Viewer.AutomatonHelper;
 public abstract class AbstractNFA {
     private int K, N; // max number of out edges for one state / number of states
 
-    public abstract int[] getSelectedStates();
-
     public int getK() {
         return K;
     }

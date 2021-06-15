@@ -11,10 +11,10 @@ public class AlgebraicModule {
     private static BigInteger ZERO = new BigInteger("0");
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
-    public static ArrayList<String> wordsForSubset(AbstractNFA automaton) {
+    public static ArrayList<String> wordsForSubset(AbstractNFA automaton, int[] subset) {
         if (automaton.getN() == 0)
             return new ArrayList<String>();
-        int[] subset = automaton.getSelectedStates();
+        // int[] subset = automaton.getSelectedStates();
         ArrayList<String> result = new ArrayList<>();
         ArrayList<int[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
