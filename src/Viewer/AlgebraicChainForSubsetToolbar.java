@@ -8,16 +8,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import AutomatonAlgorithms.AlgebraicModule;
 
@@ -30,6 +37,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
     private final JLabel lengthLabel;
+
+    private final JRadioButton imageButton;
+    private final JRadioButton preImageButton;
 
     class Pair<U, V> {
         public final U first;
@@ -81,6 +91,41 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         scrollPane = new JScrollPane(textPane);
         scrollPane.setPreferredSize(new Dimension(0, 100));
         panel.add(scrollPane, BorderLayout.CENTER);
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        imageButton = new JRadioButton("Image");
+        preImageButton = new JRadioButton("Preimage");
+        imageButton.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent ev) {
+                if (ev.getStateChange() == ItemEvent.SELECTED)
+                    recalculate();
+            }
+        });
+        preImageButton.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent ev) {
+                if (ev.getStateChange() == ItemEvent.SELECTED)
+                    recalculate();
+            }
+        });
+        imageButton.setSelected(true);
+        buttonGroup.add(imageButton);
+        buttonGroup.add(preImageButton);
+
+        JPanel outerPanel = new JPanel();
+        outerPanel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1.0;
+        c.gridwidth = 1;
+        outerPanel.add(imageButton, c);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        outerPanel.add(preImageButton, c);
+        c.gridwidth = 1;
+        panel.add(outerPanel, BorderLayout.SOUTH);
     }
 
     private void insertStringToTextPane(String text, Color color) {
@@ -95,9 +140,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         }
     }
 
-    private Pair<Integer, String> getChainDescription(ArrayList<String> words) {
+    private Pair<ArrayList<Integer>, String> getChainDescription(ArrayList<String> words) {
         if (words.size() == 0)
-            return new Pair<Integer, String>(0, "");
+            return new Pair<ArrayList<Integer>, String>(new ArrayList<>(), "");
         String text = "";
         int dimCnt = 0;
         ArrayList<Integer> dimensions = new ArrayList<Integer>();
@@ -107,34 +152,44 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                 dimensions.add(dimCnt);
             else
                 dimensions.set(dimensions.size() - 1, dimCnt);
-            if (i > 0 && words.get(i).length() > words.get(i - 1).length())
-                text += "\n";
-            else if (i > 0)
+        }
+        text += "1: ";
+        int dimId = 0;
+        for (int i = 0; i < words.size(); i++) {
+            if (i > 0 && words.get(i).length() > words.get(i - 1).length()) {
+                dimId += 1;
+                text += "\n" + dimensions.get(dimId) + ": ";
+            } else if (i > 0)
                 text += ", ";
             text += (words.get(i) == "") ? "." : words.get(i);
         }
 
-        String description = "";// Integer.toString(dimensions.size()) + " dimensions: ";
-        for (int i = 0; i < dimensions.size(); i++)
-            description += Integer.toString(dimensions.get(i)) + " ";
+        // String description = "";// Integer.toString(dimensions.size()) + "
+        // dimensions: ";
+        // for (int i = 0; i < dimensions.size(); i++)
+        // description += Integer.toString(dimensions.get(i)) + " ";
 
-        text = description + "\nwords: \n" + text + '\n';
-        return new Pair<Integer, String>(dimensions.size(), text);
-
+        text = "\nwords: \n" + text + '\n';
+        return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
     private void recalculate() {
-        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton());
-        ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()));
-        Pair<Integer, String> chainDescription = getChainDescription(words);
-        Pair<Integer, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
-        super.setTitle("Linear-algebraic ascending chain for subset - dimensions: "
-                + Integer.toString(chainDescription.first));
-        if (chainDescription.first > 0 || inverseChainDescription.first > 0)
-            textPane.setText("Automaton chain dimensions:\n" + chainDescription.second
-                    + "\nInverse Automaton chain dimensions:\n" + inverseChainDescription.second);
+        int[] subset = getAutomaton().getSelectedStates();
+        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton(), subset);
+        ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()),
+                subset);
+        Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(words);
+        Pair<ArrayList<Integer>, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
+        ArrayList<Integer> dimensions = (imageButton.isSelected() ? chainDescription.first
+                : inverseChainDescription.first);
+        super.setTitle("Algebraic chain for subset (length: " + Integer.toString(dimensions.size()) + ", dimension: "
+                + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
+        if (imageButton.isSelected() && chainDescription.first.size() > 0)
+            textPane.setText("Automaton chain" + chainDescription.second);
+        else if (preImageButton.isSelected() && inverseChainDescription.first.size() > 0)
+            textPane.setText("Inverse Automaton chain" + inverseChainDescription.second);
         else
-            textPane.setText("");
+            textPane.setText("EMPTY SUBSET");
     }
 
     @Override
