@@ -177,7 +177,7 @@ public class SynchroViewer {
         }
 
         viewMenu.addSeparator();
-        JCheckBoxMenuItem loopItem = new JCheckBoxMenuItem("Show loop edges");
+        JCheckBoxMenuItem loopItem = new JCheckBoxMenuItem("Verbose drawing");
         loopItem.setVisible(true);
         loopItem.setSelected(paintPanel.getLoopEdgesVisible());
         loopItem.addActionListener(new ActionListener() {
@@ -202,16 +202,12 @@ public class SynchroViewer {
                 JPanel panel = new JPanel();
                 panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-                String[] strings = {"<html>SynchroViewer version 1.1<br></html>",
+                String[] strings = { "<html>SynchroViewer version 1.1<br></html>",
                         "<html>A graphical application for analyzing synchronizing automata.<br></html>",
-                        "<html><br></html>",
-                        "<html>Authors (chronological order):</html>",
-                        "<html>Marek Szykuła (chair) 2015--2021<br></html>",
-                        "<html>Tomasz Jurkiewicz 2016<br></html>",
-                        "<html>Grzogorz Klocek 2021<br></html>",
-                        "<html><br>University of Wrocław<br></html>",
-                        "<html>Institute of Computer Science<br><br></html>",
-                        "<html>MIT license<br></html>" };
+                        "<html><br></html>", "<html>Authors (chronological order):</html>",
+                        "<html>Marek Szykuła (chair) 2015--2021<br></html>", "<html>Tomasz Jurkiewicz 2016<br></html>",
+                        "<html>Grzogorz Klocek 2021<br></html>", "<html><br>University of Wrocław<br></html>",
+                        "<html>Institute of Computer Science<br><br></html>", "<html>MIT license<br></html>" };
 
                 panel.add(new Separator());
                 for (String str : strings) {
@@ -223,7 +219,7 @@ public class SynchroViewer {
 
                 aboutFrame.add(panel);
                 aboutFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                //aboutFrame.setSize(350, 265);
+                // aboutFrame.setSize(350, 265);
                 aboutFrame.pack();
                 aboutFrame.setLocationRelativeTo(null);
                 aboutFrame.setResizable(false);

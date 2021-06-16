@@ -169,7 +169,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         // for (int i = 0; i < dimensions.size(); i++)
         // description += Integer.toString(dimensions.get(i)) + " ";
 
-        text = "\nwords: \n" + text + '\n';
+        text = text + '\n';
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
@@ -185,9 +185,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         super.setTitle("Algebraic chain for subset (length: " + Integer.toString(dimensions.size()) + ", dimension: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
         if (imageButton.isSelected() && chainDescription.first.size() > 0)
-            textPane.setText("Automaton chain" + chainDescription.second);
+            textPane.setText(chainDescription.second);
         else if (preImageButton.isSelected() && inverseChainDescription.first.size() > 0)
-            textPane.setText("Inverse Automaton chain" + inverseChainDescription.second);
+            textPane.setText(inverseChainDescription.second);
         else
             textPane.setText("EMPTY SUBSET");
     }

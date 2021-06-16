@@ -91,7 +91,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     private int oldWidth;
     private int oldHeight;
 
-    private boolean loopEdgesVisible;
+    private boolean verboseDrawing;
 
     // ************************************************************************
     // Initialization
@@ -107,7 +107,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         this.selectedStateColor = AutomatonHelper.defaultSelectedStateColor;
         this.oldWidth = 0;
         this.oldHeight = 0;
-        this.loopEdgesVisible = false;
+        this.verboseDrawing = false;
 
         showRange = false;
         showAction = false;
@@ -256,11 +256,11 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     }
 
     public boolean getLoopEdgesVisible() {
-        return this.loopEdgesVisible;
+        return this.verboseDrawing;
     }
 
     public void setLoopEdgesVisible(boolean visible) {
-        this.loopEdgesVisible = visible;
+        this.verboseDrawing = visible;
         repaint();
     }
 
@@ -521,11 +521,12 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     // ************************************************************************
     // Drawing
     void drawEdge(Graphics2D g, int x1, int y1, int x2, int y2, int letterId, int k, int transQuantity,
-            double loopAngle, boolean loop, boolean inverse, boolean marked, boolean centered) {
+            double loopAngle, boolean inverse, boolean marked, boolean centered) {
         final double K_SHIFT = (VERTEX_RADIUS * 2) / (transQuantity + 1);
         AffineTransform oldTransform = g.getTransform();
+        boolean isLoop = (x1 == x2 && y1 == y2);
         double dx = x2 - x1, dy = y2 - y1;
-        double angle = (loop) ? loopAngle : Math.atan2(dy, dx);
+        double angle = (isLoop) ? loopAngle : Math.atan2(dy, dx);
         int len = (centered) ? (int) Math.sqrt(dx * dx + dy * dy) : (int) Math.sqrt(dx * dx + dy * dy) - VERTEX_RADIUS;
         AffineTransform at = new AffineTransform(oldTransform);
         at.translate(x1, y1);
@@ -539,7 +540,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                     0.0f);
             g.setStroke(dashed);
         }
-        if (loop) {
+        if (isLoop && this.verboseDrawing) {
             drawRotatedOval(g, 0, 0, 0);
             drawRotatedString(g, VERTEX_RADIUS + 45, 0, -angle,
                     Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
@@ -552,11 +553,12 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             g.rotate(theta2);
             g.translate(-VERTEX_RADIUS, 0);
             g.rotate(-theta1);
-        } else {
+        } else if (!isLoop) {
             g.drawLine(0, yshift, len, yshift);
-            drawRotatedString(g, (double) (len + VERTEX_RADIUS) / (double) 2 - 10, (double) yshift - 10, -angle,
-                    Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
-
+            if (this.verboseDrawing) {
+                drawRotatedString(g, (double) (len + VERTEX_RADIUS) / (double) 2 - 10, (double) yshift - 10, -angle,
+                        Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[letterId]));
+            }
             g.setStroke(new BasicStroke());
             g.fillPolygon(new int[] { len, len - ARR_SIZE, len - ARR_SIZE },
                     new int[] { yshift, -ARR_SIZE / 2 + yshift, ARR_SIZE / 2 + yshift }, 3);
@@ -629,7 +631,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
         // draw transitions
         for (int n = 0; n < N; n++) {
-            for (int n2 = n + ((this.loopEdgesVisible) ? 0 : 1); n2 < N; n2++) {
+            for (int n2 = n; n2 < N; n2++) {
                 ArrayList<Transition> transitions = new ArrayList<>();
                 for (int k = 0; k < K; k++) {
                     if (matrix[n][k] == n2)
@@ -668,7 +670,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                     }
                     drawEdge(g, (int) vertices[trans.stateOut].x, (int) vertices[trans.stateOut].y,
                             (int) vertices[trans.stateIn].x, (int) vertices[trans.stateIn].y, trans.k, j, transNumber,
-                            angle, trans.stateIn == trans.stateOut, trans.inverse, false, false);
+                            angle, trans.inverse, false, false);
                 }
             }
         }
@@ -677,12 +679,12 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         if (addTransFirstState >= 0 && operation == Operation.ADD_TRANS && K > 0) {
             g.setColor(AutomatonHelper.TRANSITIONS_COLORS[selectedTransition]);
             drawEdge(g, (int) vertices[addTransFirstState].x, (int) vertices[addTransFirstState].y, grabX, grabY,
-                    selectedTransition, 0, 1, 0, false, false, true, true);
+                    selectedTransition, 0, 1, 0, false, true, true);
         } else if (swapStatesFirstState >= 0 && operation == Operation.SWAP_STATES) {
             g.setColor(new Color(0, 0, 0, 0.1f));
             g.setStroke(new BasicStroke(2));
             drawEdge(g, (int) vertices[swapStatesFirstState].x, (int) vertices[swapStatesFirstState].y, grabX, grabY,
-                    selectedTransition, 0, 1, 0, false, true, false, true);
+                    selectedTransition, 0, 1, 0, true, false, true);
         }
 
         // draw states
