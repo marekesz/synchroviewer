@@ -8,7 +8,7 @@ public class Rational {
     private BigInteger denominator;
 
     public Rational() {
-        this(new BigInteger("0"), new BigInteger("1"));
+        this(0, 1);
     }
 
     public Rational(BigInteger nominator) {
@@ -39,7 +39,7 @@ public class Rational {
         this(new BigInteger(Integer.toString(nominator)));
     }
 
-    public void recalcualte() {
+    private void recalcualte() {
         BigInteger gcd = nominator.abs().gcd(denominator.abs());
         this.nominator = nominator.divide(gcd);
         this.denominator = denominator.divide(gcd);

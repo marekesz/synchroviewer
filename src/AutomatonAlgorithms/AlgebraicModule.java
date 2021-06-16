@@ -13,21 +13,21 @@ public class AlgebraicModule {
     public static ArrayList<String> wordsForSubset(AbstractNFA automaton, int[] subset) {
         if (automaton.getN() == 0)
             return new ArrayList<String>();
-        // int[] subset = automaton.getSelectedStates();
+        Rational[] rationalSubset = toRationalArray(subset);
         ArrayList<String> result = new ArrayList<>();
-        ArrayList<int[]> base = new ArrayList<>();
+        ArrayList<Rational[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
-        if (leadingZerosCount(subset) == subset.length)
+        if (leadingZerosCount(rationalSubset) == rationalSubset.length)
             return result;
         result.add("");
         candidates.add("");
-        base.add(matMul(subset, wordToMatrixNFA(automaton, "")));
+        base.add(matMul(rationalSubset, wordToMatrixNFA(automaton, "")));
         ArrayList<String> newCandidates = new ArrayList<>();
         while (candidates.size() > 0) {
             for (String x : candidates) {
                 for (int k = 0; k < automaton.getK(); k++) {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    int[] vec = matMul(subset, wordToMatrixNFA(automaton, x + a));
+                    Rational[] vec = matMul(rationalSubset, wordToMatrixNFA(automaton, x + a));
                     if (!dependentFromBase(base, vec)) {
                         base.add(vec);
                         newCandidates.add(x + a);
@@ -51,14 +51,6 @@ public class AlgebraicModule {
     private static int leadingZerosCount(Rational[] vector) {
         for (int i = 0; i < vector.length; i++) {
             if (!vector[i].equals(ZERO))
-                return i;
-        }
-        return vector.length;
-    }
-
-    private static int leadingZerosCount(int[] vector) {
-        for (int i = 0; i < vector.length; i++) {
-            if (vector[i] != 0)
                 return i;
         }
         return vector.length;
@@ -131,14 +123,14 @@ public class AlgebraicModule {
     }
 
     // checks if vector depenedent from base
-    public static boolean dependentFromBase(ArrayList<int[]> base, int[] vec) {
+    public static boolean dependentFromBase(ArrayList<Rational[]> base, Rational[] vec) {
         if (leadingZerosCount(vec) == vec.length)
             return true;
         if (base.size() == 0)
             return false;
-        ArrayList<int[]> baseCopy = new ArrayList<>();
+        ArrayList<Rational[]> baseCopy = new ArrayList<>();
         base.forEach(e -> {
-            baseCopy.add(e);
+            baseCopy.add(e.clone());
         });
         int before = getSpaceBase(baseCopy).size();
         baseCopy.add(vec);
@@ -155,15 +147,12 @@ public class AlgebraicModule {
     }
 
     // returns linear independent set of vectors reduced from original base
-    public static ArrayList<Rational[]> getSpaceBase(ArrayList<int[]> base) {
-        ArrayList<Rational[]> bigIntBase = new ArrayList<>();
-        for (int i = 0; i < base.size(); i++)
-            bigIntBase.add(toRationalArray(base.get(i)));
-        reduceBase(bigIntBase);
+    public static ArrayList<Rational[]> getSpaceBase(ArrayList<Rational[]> base) {
+        reduceBase(base);
         ArrayList<Rational[]> result = new ArrayList<>();
-        for (int i = 0; i < bigIntBase.size(); i++) {
-            if (!firstNonZeroElement(bigIntBase.get(i)).equals(ZERO))
-                result.add(bigIntBase.get(i));
+        for (int i = 0; i < base.size(); i++) {
+            if (!firstNonZeroElement(base.get(i)).equals(ZERO))
+                result.add(base.get(i));
         }
         return result;
     }
@@ -174,12 +163,12 @@ public class AlgebraicModule {
             to.add(s);
     }
 
-    public static int[] matMul(int[] vector, int[][] matrix) {
-        int[] result = new int[matrix[0].length];
+    public static Rational[] matMul(Rational[] vector, Rational[][] matrix) {
+        Rational[] result = new Rational[matrix[0].length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = 0;
+            result[i] = new Rational(0);
             for (int j = 0; j < vector.length; j++) {
-                result[i] += vector[j] * matrix[j][i];
+                result[i] = result[i].add(vector[j].multiply(matrix[j][i]));
             }
         }
         return result;
@@ -195,9 +184,12 @@ public class AlgebraicModule {
         return -1;
     }
 
-    public static int[][] wordToMatrixNFA(AbstractNFA automaton, String word) {
+    public static Rational[][] wordToMatrixNFA(AbstractNFA automaton, String word) {
         int n = automaton.getN();
-        int[][] result = new int[n][n];
+        Rational[][] result = new Rational[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                result[i][j] = new Rational(0);
         for (int i = 0; i < n; i++) {
             HashSet<Integer> phase = new HashSet<>();
             phase.add(i);
@@ -212,23 +204,15 @@ public class AlgebraicModule {
                 phase = newPhase;
             }
             for (int j : phase)
-                result[i][j] = 1;
+                result[i][j] = new Rational(1);
         }
         return result;
     }
 
-    public static void printArray(ArrayList<Integer> array) {
+    public static void printArray(Rational[] array) {
         System.out.println();
-        for (int e : array) {
-            System.out.print(e + ", ");
-        }
-        System.out.println();
-    }
-
-    public static void printArray(int[] array) {
-        System.out.println();
-        for (int e : array) {
-            System.out.print(e + ", ");
+        for (Rational e : array) {
+            System.out.print(e.toString() + ", ");
         }
         System.out.println();
     }
@@ -245,13 +229,13 @@ public class AlgebraicModule {
         System.out.println();
     }
 
-    public static void printMatrix(int matrix[][]) {
+    public static void printMatrix(Rational matrix[][]) {
         int n = matrix.length;
         int m = matrix[0].length;
         for (int i = 0; i < n; i++) {
             System.out.print("|");
             for (int j = 0; j < m; j++) {
-                System.out.print(matrix[i][j] + " ");
+                System.out.print(matrix[i][j].toString() + " ");
             }
             System.out.println("|");
         }
