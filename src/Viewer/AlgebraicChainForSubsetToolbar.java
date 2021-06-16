@@ -25,7 +25,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import AutomatonAlgorithms.AlgebraicModuleRational;
+import AutomatonAlgorithms.AlgebraicModule;
 
 import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
@@ -169,9 +169,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
-        ArrayList<String> words = AlgebraicModuleRational.wordsForSubset(getAutomaton(), subset);
-        ArrayList<String> inverseAutomatonWords = AlgebraicModuleRational
-                .wordsForSubset(new InverseAutomaton(getAutomaton()), subset);
+        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton(), subset);
+        ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()),
+                subset);
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(words);
         Pair<ArrayList<Integer>, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
         ArrayList<Integer> dimensions = (imageButton.isSelected() ? chainDescription.first

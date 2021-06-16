@@ -1,6 +1,5 @@
 package AutomatonAlgorithms;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,8 +7,7 @@ import AutomatonModels.AbstractNFA;
 import Viewer.AutomatonHelper;
 
 public class AlgebraicModule {
-    private static BigInteger ZERO = new BigInteger("0");
-    private static Rational zeroRational = new Rational(0);
+    private static Rational ZERO = new Rational(0);
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
     public static ArrayList<String> wordsForSubset(AbstractNFA automaton, int[] subset) {
@@ -43,31 +41,16 @@ public class AlgebraicModule {
         return result;
     }
 
-    public static BigInteger firstNonZeroElement(BigInteger[] vector) {
+    public static Rational firstNonZeroElement(Rational[] vector) {
         for (int i = 0; i < vector.length; i++)
             if (!vector[i].equals(ZERO))
                 return vector[i];
         return ZERO;
     }
 
-    public static Rational firstNonZeroElement(Rational[] vector) {
-        for (int i = 0; i < vector.length; i++)
-            if (!vector[i].equals(zeroRational))
-                return vector[i];
-        return zeroRational;
-    }
-
-    private static int leadingZerosCount(BigInteger[] vector) {
-        for (int i = 0; i < vector.length; i++) {
-            if (!vector[i].equals(ZERO))
-                return i;
-        }
-        return vector.length;
-    }
-
     private static int leadingZerosCount(Rational[] vector) {
         for (int i = 0; i < vector.length; i++) {
-            if (!vector[i].equals(zeroRational))
+            if (!vector[i].equals(ZERO))
                 return i;
         }
         return vector.length;
@@ -79,19 +62,6 @@ public class AlgebraicModule {
                 return i;
         }
         return vector.length;
-    }
-
-    // vector greater if one vector is lexicographically with abs values greater
-    public static boolean vectorGreater(BigInteger[] v1, BigInteger[] v2) {
-        int cmp = 0;
-        for (int i = 0; i < v1.length; i++) {
-            cmp = v1[i].abs().compareTo(v2[i].abs());
-            if (cmp > 0)
-                return true;
-            if (cmp < 0)
-                return false;
-        }
-        return false;
     }
 
     // vector greater if one vector is lexicographically with abs values greater
@@ -107,24 +77,24 @@ public class AlgebraicModule {
         return false;
     }
 
-    public static BigInteger[] scalarMultiply(BigInteger scalar, BigInteger[] vector) {
-        BigInteger[] result = vector.clone();
+    public static Rational[] scalarMultiply(Rational scalar, Rational[] vector) {
+        Rational[] result = vector.clone();
         for (int i = 0; i < vector.length; i++) {
             result[i] = vector[i].multiply(scalar);
         }
         return result;
     }
 
-    public static BigInteger[] vectorAdd(BigInteger[] v1, BigInteger[] v2) {
-        BigInteger[] result = v1.clone();
+    public static Rational[] vectorAdd(Rational[] v1, Rational[] v2) {
+        Rational[] result = v1.clone();
         for (int i = 0; i < result.length; i++) {
             result[i] = v1[i].add(v2[i]);
         }
         return result;
     }
 
-    public static BigInteger[] vectorSubtract(BigInteger[] v1, BigInteger[] v2) {
-        return vectorAdd(v1, scalarMultiply(new BigInteger("-1"), v2));
+    public static Rational[] vectorSubtract(Rational[] v1, Rational[] v2) {
+        return vectorAdd(v1, scalarMultiply(new Rational(-1), v2));
     }
 
     // reduces base to quasi-gaussian form.
@@ -132,31 +102,30 @@ public class AlgebraicModule {
     // to be ones.
     // Biginteger necessary, because we may count lcm of many vector values
     // obtaingin very big number
-    public static void reduceBase(ArrayList<BigInteger[]> base) {
+    public static void reduceBase(ArrayList<Rational[]> base) {
         for (int i = 0; i < base.size(); i++) {
             for (int j = i + 1; j < base.size(); j++) {
                 if (vectorGreater(base.get(j), base.get(i)))
                     Collections.swap(base, i, j);
             }
             if (firstNonZeroElement(base.get(i)).compareTo(ZERO) < 0)
-                base.set(i, scalarMultiply(new BigInteger("-1"), base.get(i)));
+                base.set(i, scalarMultiply(new Rational(-1), base.get(i)));
 
-            BigInteger nz1 = firstNonZeroElement(base.get(i));
+            Rational nz1 = firstNonZeroElement(base.get(i));
             if (nz1.equals(ZERO))
                 return;
 
             for (int j = i + 1; j < base.size(); j++) {
                 // check if non zero
                 if (firstNonZeroElement(base.get(j)).compareTo(ZERO) < 0) {
-                    base.set(j, scalarMultiply(new BigInteger("-1"), base.get(j)));
+                    base.set(j, scalarMultiply(new Rational(-1), base.get(j)));
                 }
-                BigInteger nz2 = firstNonZeroElement(base.get(j));
+                Rational nz2 = firstNonZeroElement(base.get(j));
                 if (nz2.equals(ZERO) || leadingZerosCount(base.get(i)) != leadingZerosCount(base.get(j)))
                     continue;
-                BigInteger gcd = nz1.gcd(nz2);
-                BigInteger scm = nz1.multiply(nz2).divide(gcd);
-                base.set(j, scalarMultiply(scm.divide(nz2), base.get(j)));
-                base.set(j, vectorSubtract(base.get(j), scalarMultiply(scm.divide(nz1), base.get(i))));
+                Rational factor = nz1.multiply(nz2.inverse());
+                base.set(j, scalarMultiply(factor, base.get(j)));
+                base.set(j, vectorSubtract(base.get(i), base.get(j)));
             }
         }
     }
@@ -177,14 +146,6 @@ public class AlgebraicModule {
         return before == after;
     }
 
-    public static BigInteger[] toBigIntArray(int[] vector) {
-        BigInteger[] result = new BigInteger[vector.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = new BigInteger(String.valueOf(vector[i]));
-        }
-        return result;
-    }
-
     public static Rational[] toRationalArray(int[] vector) {
         Rational[] result = new Rational[vector.length];
         for (int i = 0; i < result.length; i++) {
@@ -194,12 +155,12 @@ public class AlgebraicModule {
     }
 
     // returns linear independent set of vectors reduced from original base
-    public static ArrayList<BigInteger[]> getSpaceBase(ArrayList<int[]> base) {
-        ArrayList<BigInteger[]> bigIntBase = new ArrayList<>();
+    public static ArrayList<Rational[]> getSpaceBase(ArrayList<int[]> base) {
+        ArrayList<Rational[]> bigIntBase = new ArrayList<>();
         for (int i = 0; i < base.size(); i++)
-            bigIntBase.add(toBigIntArray(base.get(i)));
+            bigIntBase.add(toRationalArray(base.get(i)));
         reduceBase(bigIntBase);
-        ArrayList<BigInteger[]> result = new ArrayList<>();
+        ArrayList<Rational[]> result = new ArrayList<>();
         for (int i = 0; i < bigIntBase.size(); i++) {
             if (!firstNonZeroElement(bigIntBase.get(i)).equals(ZERO))
                 result.add(bigIntBase.get(i));
