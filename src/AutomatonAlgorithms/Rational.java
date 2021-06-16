@@ -2,7 +2,7 @@ package AutomatonAlgorithms;
 
 import java.math.BigInteger;
 
-class Rational {
+public class Rational {
 
     private BigInteger nominator;
     private BigInteger denominator;
@@ -35,14 +35,6 @@ class Rational {
         this.denominator = denominator.divide(gcd);
     }
 
-    public void setNominator(BigInteger nominator) {
-        this.nominator = nominator;
-    }
-
-    public void setDenominator(BigInteger denominator) {
-        this.denominator = denominator;
-    }
-
     public BigInteger getNominator() {
         return this.nominator;
     }
@@ -51,12 +43,18 @@ class Rational {
         return this.denominator;
     }
 
+    public Rational copy() {
+        return new Rational(this.nominator, this.denominator);
+    }
+
     public Rational add(Rational other) {
+        if (other.nominator.compareTo(new BigInteger("0")) == 0)
+            return copy();
         BigInteger denomGCD = this.denominator.gcd(other.denominator);
         BigInteger thisMultiply = other.denominator.divide(denomGCD);
         BigInteger otherMultiply = this.denominator.divide(denomGCD);
         BigInteger resultNominator = this.nominator.multiply(thisMultiply).add(other.nominator.multiply(otherMultiply));
-        BigInteger resultDenominator = this.denominator.multiply(otherMultiply);
+        BigInteger resultDenominator = this.denominator.multiply(thisMultiply);
         return new Rational(resultNominator, resultDenominator);
     }
 
@@ -84,6 +82,10 @@ class Rational {
     }
 
     public String toString() {
+        if (this.nominator.compareTo(new BigInteger("0")) == 0)
+            return "0";
+        if (this.denominator.compareTo(new BigInteger("1")) == 0)
+            return nominator.toString();
         return nominator.toString() + "/" + denominator.toString();
     }
 }
