@@ -25,8 +25,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-
-import AutomatonAlgorithms.AlgebraicModule;
+import AutomatonAlgorithms.AlgebraicModuleRational;
 
 import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
@@ -164,20 +163,15 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             text += (words.get(i) == "") ? "." : words.get(i);
         }
 
-        // String description = "";// Integer.toString(dimensions.size()) + "
-        // dimensions: ";
-        // for (int i = 0; i < dimensions.size(); i++)
-        // description += Integer.toString(dimensions.get(i)) + " ";
-
         text = text + '\n';
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
-        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton(), subset);
-        ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()),
-                subset);
+        ArrayList<String> words = AlgebraicModuleRational.wordsForSubset(getAutomaton(), subset);
+        ArrayList<String> inverseAutomatonWords = AlgebraicModuleRational
+                .wordsForSubset(new InverseAutomaton(getAutomaton()), subset);
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(words);
         Pair<ArrayList<Integer>, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
         ArrayList<Integer> dimensions = (imageButton.isSelected() ? chainDescription.first
@@ -202,7 +196,5 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         }
 
         recalculate();
-        // AlgebraicModule.testAutomaton(getAutomaton());
-        // AlgebraicModule.testInverseAutomaton(new InverseAutomaton(automaton));
     }
 }

@@ -18,7 +18,6 @@ import javax.swing.JSplitPane;
 
 import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
-import AutomatonAlgorithms.AlgebraicModule;
 
 public class SplitPane extends JSplitPane {
     private final Automaton automaton;

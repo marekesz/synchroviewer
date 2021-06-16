@@ -21,6 +21,16 @@ public class Rational {
         recalcualte();
     }
 
+    public Rational(String nominator, String denominator) {
+        this.nominator = new BigInteger(nominator);
+        this.denominator = new BigInteger(denominator);
+        recalcualte();
+    }
+
+    public Rational(String nominator) {
+        this(nominator, "1");
+    }
+
     public Rational(int nominator, int denominator) {
         this(new BigInteger(Integer.toString(nominator)), new BigInteger(Integer.toString(denominator)));
     }
@@ -30,7 +40,7 @@ public class Rational {
     }
 
     public void recalcualte() {
-        BigInteger gcd = nominator.gcd(denominator);
+        BigInteger gcd = nominator.abs().gcd(denominator.abs());
         this.nominator = nominator.divide(gcd);
         this.denominator = denominator.divide(gcd);
     }
@@ -50,7 +60,7 @@ public class Rational {
     public Rational add(Rational other) {
         if (other.nominator.compareTo(new BigInteger("0")) == 0)
             return copy();
-        BigInteger denomGCD = this.denominator.gcd(other.denominator);
+        BigInteger denomGCD = this.denominator.abs().gcd(other.denominator.abs());
         BigInteger thisMultiply = other.denominator.divide(denomGCD);
         BigInteger otherMultiply = this.denominator.divide(denomGCD);
         BigInteger resultNominator = this.nominator.multiply(thisMultiply).add(other.nominator.multiply(otherMultiply));
@@ -77,6 +87,16 @@ public class Rational {
         return -1;
     }
 
+    public boolean equals(Rational other) {
+        if (other.nominator.equals(new BigInteger("0")) && nominator.equals(other.nominator))
+            return true;
+        return nominator.equals(other.nominator) && denominator.equals(other.denominator);
+    }
+
+    public Rational abs() {
+        return new Rational(this.nominator.abs(), this.denominator.abs());
+    }
+
     public double doubleValue() {
         return nominator.doubleValue() / denominator.doubleValue();
     }
@@ -87,5 +107,11 @@ public class Rational {
         if (this.denominator.compareTo(new BigInteger("1")) == 0)
             return nominator.toString();
         return nominator.toString() + "/" + denominator.toString();
+    }
+
+    public Rational inverse() {
+        if (this.nominator.equals(new BigInteger("0")))
+            throw new IllegalArgumentException("Cannot inverse 0");
+        return new Rational(this.denominator, this.nominator);
     }
 }
