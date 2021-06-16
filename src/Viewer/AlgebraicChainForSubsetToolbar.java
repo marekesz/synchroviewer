@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -37,8 +39,13 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private final JScrollPane scrollPane;
     private final JLabel lengthLabel;
 
-    private final JRadioButton imageButton;
-    private final JRadioButton preImageButton;
+    // private final JRadioButton imageButton;
+    // private final JRadioButton preImageButton;
+    // private final JRadioButton weightedButton;
+    // private final JRadioButton normalizedButton;
+    // private final JCheckBox weightedCheckBox;
+    // private final JCheckBox normalizedCheckBox;
+    private final JComboBox<String> comboBox;
 
     class Pair<U, V> {
         public final U first;
@@ -62,6 +69,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         textPane = new JTextPane();
         textPane.setEditable(false);
         textPane.setFont(getDeafultFont());
+
         // textPane.setPreferredSize(new Dimension(0, 60));
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem menuItemCopy;
@@ -91,28 +99,18 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         scrollPane.setPreferredSize(new Dimension(0, 100));
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        ButtonGroup buttonGroup = new ButtonGroup();
-        imageButton = new JRadioButton("Image");
-        preImageButton = new JRadioButton("Preimage");
-        imageButton.addItemListener(new ItemListener() {
-
+        comboBox = new JComboBox();
+        comboBox.addItem("Image");
+        comboBox.addItem("Preimage");
+        comboBox.addItem("Weighted");
+        comboBox.addItem("Normalized");
+        comboBox.setPreferredSize(new Dimension(200, 20));
+        comboBox.addActionListener(new ActionListener() {
             @Override
-            public void itemStateChanged(ItemEvent ev) {
-                if (ev.getStateChange() == ItemEvent.SELECTED)
-                    recalculate();
+            public void actionPerformed(ActionEvent e) {
+                recalculate();
             }
         });
-        preImageButton.addItemListener(new ItemListener() {
-
-            @Override
-            public void itemStateChanged(ItemEvent ev) {
-                if (ev.getStateChange() == ItemEvent.SELECTED)
-                    recalculate();
-            }
-        });
-        imageButton.setSelected(true);
-        buttonGroup.add(imageButton);
-        buttonGroup.add(preImageButton);
 
         JPanel outerPanel = new JPanel();
         outerPanel.setLayout(new GridBagLayout());
@@ -120,10 +118,18 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 1.0;
         c.gridwidth = 1;
-        outerPanel.add(imageButton, c);
+        outerPanel.add(comboBox, c);
+        // outerPanel.add(weightedCheckBox, c);
         c.gridwidth = GridBagConstraints.REMAINDER;
-        outerPanel.add(preImageButton, c);
-        c.gridwidth = 1;
+        // outerPanel.add(normalizedCheckBox, c);
+        // weightedCheckBox.setVisible(false);
+        // normalizedCheckBox.setVisible(false);
+        // c.gridwidth = 1;
+        // if (preImageButton.isSelected()) {
+        // outerPanel.add(imageButton, c);
+        // c.gridwidth = GridBagConstraints.REMAINDER;
+        // outerPanel.add(preImageButton, c);
+        // }
         panel.add(outerPanel, BorderLayout.SOUTH);
     }
 
@@ -169,22 +175,35 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
-        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton(), subset);
+        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton(), subset, null, false);
         ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()),
-                subset);
+                subset, null, false);
+        ArrayList<String> normalizedAutomatonWords = AlgebraicModule
+                .wordsForSubset(new InverseAutomaton(getAutomaton()), subset, null, true);
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(words);
         Pair<ArrayList<Integer>, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
-        ArrayList<Integer> dimensions = (imageButton.isSelected() ? chainDescription.first
-                : inverseChainDescription.first);
+        Pair<ArrayList<Integer>, String> normalizedChainDescription = getChainDescription(normalizedAutomatonWords);
+        boolean imageSelected = (String) comboBox.getSelectedItem() == "Image";
+        boolean preImageSelected = (String) comboBox.getSelectedItem() == "Preimage";
+        boolean normalizedSelected = (String) comboBox.getSelectedItem() == "Normalized";
+        ArrayList<Integer> dimensions;
+        if (imageSelected)
+            dimensions = chainDescription.first;
+        else if (preImageSelected)
+            dimensions = inverseChainDescription.first;
+        else
+            dimensions = normalizedChainDescription.first;
         super.setTitle("Algebraic chain for subset (length: " + Integer.toString(dimensions.size()) + ", dimension: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
-        if (imageButton.isSelected() && chainDescription.first.size() > 0)
+        if (imageSelected && chainDescription.first.size() > 0)
             textPane.setText(chainDescription.second);
-        else if (preImageButton.isSelected() && inverseChainDescription.first.size() > 0)
+        else if (preImageSelected && inverseChainDescription.first.size() > 0)
             textPane.setText(inverseChainDescription.second);
+        else if (normalizedSelected && normalizedChainDescription.first.size() > 0)
+            textPane.setText(normalizedChainDescription.second);
         else
             textPane.setText("EMPTY SUBSET");
-    }
+    } // to poprawić
 
     @Override
     protected void update() {

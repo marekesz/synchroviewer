@@ -10,10 +10,13 @@ public class AlgebraicModule {
     private static Rational ZERO = new Rational(0);
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
-    public static ArrayList<String> wordsForSubset(AbstractNFA automaton, int[] subset) {
+    public static ArrayList<String> wordsForSubset(AbstractNFA automaton, int[] subset, int[] weights,
+            boolean normalize) {
         if (automaton.getN() == 0)
             return new ArrayList<String>();
         Rational[] rationalSubset = toRationalArray(subset);
+        if (normalize)
+            rationalSubset = normalize(rationalSubset);
         ArrayList<String> result = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
@@ -21,14 +24,20 @@ public class AlgebraicModule {
             return result;
         result.add("");
         candidates.add("");
-        base.add(matMul(rationalSubset, wordToMatrixNFA(automaton, "")));
+        // printArray(matMul(rationalSubset, wordToMatrix(automaton, "")));
+        // System.out.println("added");
+        base.add(matMul(rationalSubset, wordToMatrix(automaton, "")));
         ArrayList<String> newCandidates = new ArrayList<>();
         while (candidates.size() > 0) {
             for (String x : candidates) {
                 for (int k = 0; k < automaton.getK(); k++) {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    Rational[] vec = matMul(rationalSubset, wordToMatrixNFA(automaton, x + a));
+                    Rational[] vec = matMul(rationalSubset, wordToMatrix(automaton, x + a));
+                    // System.out.println("S*[" + x + a + "]");
+                    // printMatrix(wordToMatrix(automaton, x + a));
+                    // printArray(vec);
                     if (!dependentFromBase(base, vec)) {
+                        // System.out.println("added");
                         base.add(vec);
                         newCandidates.add(x + a);
                         result.add(x + a);
@@ -38,6 +47,25 @@ public class AlgebraicModule {
             moveArrayList(newCandidates, candidates);
             newCandidates.clear();
         }
+        return result;
+    }
+
+    public static Rational[] normalize(Rational[] vector) {
+        // System.out.println("Normalization of: ");
+        // printArray(vector);
+        Rational sum = new Rational(0);
+        Rational[] result = new Rational[vector.length];
+        for (int i = 0; i < result.length; i++)
+            result[i] = vector[i];
+        for (Rational x : vector)
+            sum = sum.add(x);
+        // System.out.println("got sum: " + sum.toString());
+        // System.out.println("mean is: " + sum.multiply(new
+        // Rational(vector.length).inverse()));
+        for (int i = 0; i < result.length; i++)
+            result[i] = result[i].subtract(sum.multiply(new Rational(vector.length).inverse()));
+        // System.out.println("got:");
+        // printArray(result);
         return result;
     }
 
@@ -184,7 +212,7 @@ public class AlgebraicModule {
         return -1;
     }
 
-    public static Rational[][] wordToMatrixNFA(AbstractNFA automaton, String word) {
+    public static Rational[][] wordToMatrix(AbstractNFA automaton, String word) {
         int n = automaton.getN();
         Rational[][] result = new Rational[n][n];
         for (int i = 0; i < n; i++)
