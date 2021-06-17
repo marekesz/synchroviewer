@@ -3,6 +3,7 @@ package Viewer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -39,8 +40,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
-    private final JLabel lengthLabel;
-    private final JRadioButton showVectorsButton;
+    private final JCheckBox showVectorsButton;
     private final JComboBox<String> imageComboBox;
     private final JComboBox<String> normalizationComboBox;
 
@@ -50,11 +50,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         JPanel panel = getPanel();
 
-        lengthLabel = new JLabel();
-
         textPane = new JTextPane();
         textPane.setEditable(false);
-        textPane.setFont(getDeafultFont());
+        textPane.setFont(getDeafultFont().deriveFont(Font.BOLD));
 
         // textPane.setPreferredSize(new Dimension(0, 60));
         JPopupMenu popupMenu = new JPopupMenu();
@@ -85,13 +83,13 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         scrollPane.setPreferredSize(new Dimension(0, 100));
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        imageComboBox = new JComboBox();
-        normalizationComboBox = new JComboBox();
+        imageComboBox = new JComboBox<String>();
+        normalizationComboBox = new JComboBox<String>();
         imageComboBox.addItem("Image");
         imageComboBox.addItem("Preimage");
-        normalizationComboBox.addItem("none");
-        normalizationComboBox.addItem("0-sum normalized");
-        normalizationComboBox.addItem("steady-state weighted");
+        normalizationComboBox.addItem("Raw");
+        normalizationComboBox.addItem("Normalized to 0-sum");
+        normalizationComboBox.addItem("Weighted by steady state");
         // imageComboBox.setPreferredSize(new Dimension(200, 20));
 
         imageComboBox.addItemListener(new ItemListener() {
@@ -112,7 +110,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             }
         });
 
-        showVectorsButton = new JRadioButton("show vectors");
+        showVectorsButton = new JCheckBox("show vectors");
 
         showVectorsButton.addItemListener(new ItemListener() {
 
@@ -126,14 +124,14 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         outerPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
-        c.weightx = 1.0;
+        c.weightx = 0.0;
         c.gridwidth = 1;
         outerPanel.add(imageComboBox, c);
         c.anchor = GridBagConstraints.WEST;
-        c.weightx = 1.0;
+        c.weightx = 0.0;
         c.gridwidth = 1;
         outerPanel.add(normalizationComboBox, c);
-        c.anchor = GridBagConstraints.WEST;
+        c.anchor = GridBagConstraints.EAST;
         c.weightx = 1.0;
         c.gridwidth = 1;
         outerPanel.add(showVectorsButton, c);
@@ -178,29 +176,26 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                     text += ", ";
                 text += (words.get(i) == "") ? "." : words.get(i);
             }
-
-            text = text + '\n';
+            //text = text + '\n';
         } else {
             int dimId = 0;
             text += "i=0 dim=" + dimensions.get(dimId) + ":\n";
             for (int i = 0; i < words.size(); i++) {
                 if (i > 0 && words.get(i).length() > words.get(i - 1).length()) {
                     dimId += 1;
-                    text += "\ni=" + words.get(i).length() + " dim=" + dimensions.get(dimId) + ":\n";
+                    text += "i=" + words.get(i).length() + " dim=" + dimensions.get(dimId) + ":\n";
                 }
-                text += (words.get(i) == "" ? "." : words.get(i)) + "   "
-                        + AlgebraicModule.vectorToString(vectors.get(i)) + "\n";
+                text += words.get(i) == "" ? "." : words.get(i);
+                text += "   " + AlgebraicModule.vectorToString(vectors.get(i)) + "\n";
             }
-
-            text = text + '\n';
-
+            //text = text + '\n';
         }
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
-        boolean imageSelected = ((String) imageComboBox.getSelectedItem()) == "Image";
+        boolean imageSelected = (imageComboBox.getSelectedIndex() == 0);//((String) imageComboBox.getSelectedItem()) == "Image";
         boolean normalizedSelected = ((String) normalizationComboBox.getSelectedItem()) == "0-sum normalized";
         AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset, null,
@@ -214,7 +209,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         if (chainDescription.first.size() > 0)
             textPane.setText(chainDescription.second);
         else
-            textPane.setText("EMPTY SUBSET");
+            textPane.setText("Empty subspace");
     }
 
     @Override

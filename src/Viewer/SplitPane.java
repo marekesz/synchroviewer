@@ -49,15 +49,15 @@ public class SplitPane extends JSplitPane {
         setResizeWeight(1.0);
 
         codeToolbar = new AutomatonCodeToolbar("Automaton code", true, automaton);
-        ComputeImageToolbar computeImageToolbar = new ComputeImageToolbar("Compute image", true, automaton);
+        ComputeImageToolbar computeImageToolbar = new ComputeImageToolbar("Compute image", false, automaton);
         ComputePreimageToolbar computePreimageToolbar = new ComputePreimageToolbar("Compute preimage", false,
                 automaton);
         ShortestResetWordToolbar resetWordToolbar = new ShortestResetWordToolbar("Shortest reset word", true,
                 automaton);
         ShortestWordForSubsetToolbar shortestWordSubsetToolbar = new ShortestWordForSubsetToolbar(
-                "Shortest word for subset", true, automaton);
+                "Shortest word for subset", false, automaton);
         AlgebraicChainForSubsetToolbar algebraicChainForSubsetToolbar = new AlgebraicChainForSubsetToolbar(
-                "Linear-algebraic ascending chain for subset", false, automaton, new InverseAutomaton(automaton));
+                "Linear-algebraic ascending chain for subset", true, automaton, new InverseAutomaton(automaton));
         BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false,
                 automaton);
 

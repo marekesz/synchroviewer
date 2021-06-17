@@ -6,7 +6,7 @@ import java.util.HashSet;
 import AutomatonModels.AbstractNFA;
 import Viewer.AutomatonHelper;
 
-public class AlgebraicModule {
+public abstract class AlgebraicModule {
     private static Rational ZERO = new Rational(0);
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
@@ -153,7 +153,7 @@ public class AlgebraicModule {
         }
     }
 
-    // checks if vector depenedent from base
+    // checks if vector dependent from base
     public static boolean dependentFromBase(ArrayList<Rational[]> base, Rational[] vec) {
         if (leadingZerosCount(vec) == vec.length)
             return true;
@@ -273,9 +273,9 @@ public class AlgebraicModule {
     }
 
     public static String vectorToString(Rational[] rationals) {
-        String text = "(";
+        String text = "[";
         for (int i = 0; i < rationals.length; i++) {
-            text += rationals[i].toString() + (i < rationals.length - 1 ? "," : ")");
+            text += rationals[i].toString() + (i < rationals.length - 1 ? "," : "]");
         }
         return text;
     }

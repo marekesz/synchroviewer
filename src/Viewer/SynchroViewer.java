@@ -212,7 +212,7 @@ public class SynchroViewer {
                 panel.add(new Separator());
                 for (String str : strings) {
                     JLabel label = new JLabel(str, JLabel.CENTER);
-                    label.setFont(new Font("Arial", Font.ITALIC + Font.BOLD, 14));
+                    label.setFont(new Font(Font.SANS_SERIF, Font.ITALIC + Font.BOLD, 14));
                     panel.add(label);
                 }
                 panel.add(new Separator());
