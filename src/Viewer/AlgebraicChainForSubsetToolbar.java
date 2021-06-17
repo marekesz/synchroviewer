@@ -36,7 +36,8 @@ import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
 
 public class AlgebraicChainForSubsetToolbar extends DockToolbar {
-    private final int MAX_STATES = 25; // max number of states in automaton
+	private static final long serialVersionUID = 1L;
+	private final int MAX_STATES = 25; // max number of states in automaton
 
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
@@ -204,7 +205,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                 showVectorsButton.isSelected() == true);
         ArrayList<Integer> dimensions = chainDescription.first;
 
-        super.setTitle("Algebraic chain for subset (length: " + Integer.toString(dimensions.size()) + ", dimension: "
+        super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", dimension: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
         if (chainDescription.first.size() > 0)
             textPane.setText(chainDescription.second);
