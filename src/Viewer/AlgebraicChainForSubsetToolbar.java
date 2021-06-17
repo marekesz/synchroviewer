@@ -28,7 +28,9 @@ import java.awt.event.ItemListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import AutomatonAlgorithms.AlgebraicModule;
-
+import AutomatonAlgorithms.Pair;
+import AutomatonAlgorithms.Rational;
+import AutomatonModels.AbstractNFA;
 import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
 
@@ -38,25 +40,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
     private final JLabel lengthLabel;
-
-    // private final JRadioButton imageButton;
-    // private final JRadioButton preImageButton;
-    // private final JRadioButton weightedButton;
-    // private final JRadioButton normalizedButton;
-    // private final JCheckBox weightedCheckBox;
-    // private final JCheckBox normalizedCheckBox;
-    private final JComboBox<String> comboBox;
-
-    class Pair<U, V> {
-        public final U first;
-        public final V second;
-
-        public Pair(U first, V second) {
-            this.first = first;
-            this.second = second;
-        }
-
-    }
+    private final JRadioButton showVectorsButton;
+    private final JComboBox<String> imageComboBox;
+    private final JComboBox<String> normalizationComboBox;
 
     public AlgebraicChainForSubsetToolbar(String name, boolean visibleOnStart, Automaton automaton,
             InverseAutomaton inverseAutomaton) {
@@ -99,15 +85,39 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         scrollPane.setPreferredSize(new Dimension(0, 100));
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        comboBox = new JComboBox();
-        comboBox.addItem("Image");
-        comboBox.addItem("Preimage");
-        comboBox.addItem("Weighted");
-        comboBox.addItem("Normalized");
-        comboBox.setPreferredSize(new Dimension(200, 20));
-        comboBox.addActionListener(new ActionListener() {
+        imageComboBox = new JComboBox();
+        normalizationComboBox = new JComboBox();
+        imageComboBox.addItem("Image");
+        imageComboBox.addItem("Preimage");
+        normalizationComboBox.addItem("none");
+        normalizationComboBox.addItem("0-sum normalized");
+        normalizationComboBox.addItem("steady-state weighted");
+        // imageComboBox.setPreferredSize(new Dimension(200, 20));
+
+        imageComboBox.addItemListener(new ItemListener() {
+
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void itemStateChanged(ItemEvent ev) {
+                if (ev.getStateChange() == ItemEvent.SELECTED)
+                    recalculate();
+            }
+        });
+
+        normalizationComboBox.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent ev) {
+                if (ev.getStateChange() == ItemEvent.SELECTED)
+                    recalculate();
+            }
+        });
+
+        showVectorsButton = new JRadioButton("show vectors");
+
+        showVectorsButton.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent ev) {
                 recalculate();
             }
         });
@@ -118,18 +128,15 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 1.0;
         c.gridwidth = 1;
-        outerPanel.add(comboBox, c);
-        // outerPanel.add(weightedCheckBox, c);
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        // outerPanel.add(normalizedCheckBox, c);
-        // weightedCheckBox.setVisible(false);
-        // normalizedCheckBox.setVisible(false);
-        // c.gridwidth = 1;
-        // if (preImageButton.isSelected()) {
-        // outerPanel.add(imageButton, c);
-        // c.gridwidth = GridBagConstraints.REMAINDER;
-        // outerPanel.add(preImageButton, c);
-        // }
+        outerPanel.add(imageComboBox, c);
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1.0;
+        c.gridwidth = 1;
+        outerPanel.add(normalizationComboBox, c);
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1.0;
+        c.gridwidth = 1;
+        outerPanel.add(showVectorsButton, c);
         panel.add(outerPanel, BorderLayout.SOUTH);
     }
 
@@ -145,12 +152,14 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         }
     }
 
-    private Pair<ArrayList<Integer>, String> getChainDescription(ArrayList<String> words) {
+    private Pair<ArrayList<Integer>, String> getChainDescription(ArrayList<String> words, ArrayList<Rational[]> vectors,
+            boolean showVectors) {
         if (words.size() == 0)
             return new Pair<ArrayList<Integer>, String>(new ArrayList<>(), "");
         String text = "";
         int dimCnt = 0;
         ArrayList<Integer> dimensions = new ArrayList<Integer>();
+
         for (int i = 0; i < words.size(); i++) {
             dimCnt += 1;
             if (dimensions.size() == 0 || words.get(i).length() > words.get(i - 1).length())
@@ -158,52 +167,55 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             else
                 dimensions.set(dimensions.size() - 1, dimCnt);
         }
-        text += "1: ";
-        int dimId = 0;
-        for (int i = 0; i < words.size(); i++) {
-            if (i > 0 && words.get(i).length() > words.get(i - 1).length()) {
-                dimId += 1;
-                text += "\n" + dimensions.get(dimId) + ": ";
-            } else if (i > 0)
-                text += ", ";
-            text += (words.get(i) == "") ? "." : words.get(i);
-        }
+        if (!showVectors) {
+            text += "1: ";
+            int dimId = 0;
+            for (int i = 0; i < words.size(); i++) {
+                if (i > 0 && words.get(i).length() > words.get(i - 1).length()) {
+                    dimId += 1;
+                    text += "\n" + dimensions.get(dimId) + ": ";
+                } else if (i > 0)
+                    text += ", ";
+                text += (words.get(i) == "") ? "." : words.get(i);
+            }
 
-        text = text + '\n';
+            text = text + '\n';
+        } else {
+            int dimId = 0;
+            text += "i=0 dim=" + dimensions.get(dimId) + ":\n";
+            for (int i = 0; i < words.size(); i++) {
+                if (i > 0 && words.get(i).length() > words.get(i - 1).length()) {
+                    dimId += 1;
+                    text += "\ni=" + words.get(i).length() + " dim=" + dimensions.get(dimId) + ":\n";
+                }
+                text += (words.get(i) == "" ? "." : words.get(i)) + "   "
+                        + AlgebraicModule.vectorToString(vectors.get(i)) + "\n";
+            }
+
+            text = text + '\n';
+
+        }
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
-        ArrayList<String> words = AlgebraicModule.wordsForSubset(getAutomaton(), subset, null, false);
-        ArrayList<String> inverseAutomatonWords = AlgebraicModule.wordsForSubset(new InverseAutomaton(getAutomaton()),
-                subset, null, false);
-        ArrayList<String> normalizedAutomatonWords = AlgebraicModule
-                .wordsForSubset(new InverseAutomaton(getAutomaton()), subset, null, true);
-        Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(words);
-        Pair<ArrayList<Integer>, String> inverseChainDescription = getChainDescription(inverseAutomatonWords);
-        Pair<ArrayList<Integer>, String> normalizedChainDescription = getChainDescription(normalizedAutomatonWords);
-        boolean imageSelected = (String) comboBox.getSelectedItem() == "Image";
-        boolean preImageSelected = (String) comboBox.getSelectedItem() == "Preimage";
-        boolean normalizedSelected = (String) comboBox.getSelectedItem() == "Normalized";
-        ArrayList<Integer> dimensions;
-        if (imageSelected)
-            dimensions = chainDescription.first;
-        else if (preImageSelected)
-            dimensions = inverseChainDescription.first;
-        else
-            dimensions = normalizedChainDescription.first;
+        boolean imageSelected = ((String) imageComboBox.getSelectedItem()) == "Image";
+        boolean normalizedSelected = ((String) normalizationComboBox.getSelectedItem()) == "0-sum normalized";
+        AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
+        Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset, null,
+                normalizedSelected);
+        Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,
+                showVectorsButton.isSelected() == true);
+        ArrayList<Integer> dimensions = chainDescription.first;
+
         super.setTitle("Algebraic chain for subset (length: " + Integer.toString(dimensions.size()) + ", dimension: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
-        if (imageSelected && chainDescription.first.size() > 0)
+        if (chainDescription.first.size() > 0)
             textPane.setText(chainDescription.second);
-        else if (preImageSelected && inverseChainDescription.first.size() > 0)
-            textPane.setText(inverseChainDescription.second);
-        else if (normalizedSelected && normalizedChainDescription.first.size() > 0)
-            textPane.setText(normalizedChainDescription.second);
         else
             textPane.setText("EMPTY SUBSET");
-    } // to poprawić
+    }
 
     @Override
     protected void update() {

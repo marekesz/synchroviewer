@@ -10,19 +10,22 @@ public class AlgebraicModule {
     private static Rational ZERO = new Rational(0);
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
-    public static ArrayList<String> wordsForSubset(AbstractNFA automaton, int[] subset, int[] weights,
-            boolean normalize) {
-        if (automaton.getN() == 0)
-            return new ArrayList<String>();
-        Rational[] rationalSubset = toRationalArray(subset);
-        if (normalize)
-            rationalSubset = normalize(rationalSubset);
-        ArrayList<String> result = new ArrayList<>();
+    public static Pair<ArrayList<String>, ArrayList<Rational[]>> wordsForSubset(AbstractNFA automaton, int[] subset,
+            int[] weights, boolean normalize) {
+        ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
+
+        if (automaton.getN() == 0)
+            return new Pair<>(words, base);
+        Rational[] rationalSubset = toRationalArray(subset);
+        System.out.println("normalization = " + normalize);
+        if (normalize)
+            rationalSubset = normalize(rationalSubset);
         if (leadingZerosCount(rationalSubset) == rationalSubset.length)
-            return result;
-        result.add("");
+            return new Pair<>(words, base);
+
+        words.add("");
         candidates.add("");
         // printArray(matMul(rationalSubset, wordToMatrix(automaton, "")));
         // System.out.println("added");
@@ -40,14 +43,14 @@ public class AlgebraicModule {
                         // System.out.println("added");
                         base.add(vec);
                         newCandidates.add(x + a);
-                        result.add(x + a);
+                        words.add(x + a);
                     }
                 }
             }
             moveArrayList(newCandidates, candidates);
             newCandidates.clear();
         }
-        return result;
+        return new Pair(words, base);
     }
 
     public static Rational[] normalize(Rational[] vector) {
@@ -267,6 +270,14 @@ public class AlgebraicModule {
             }
             System.out.println("|");
         }
+    }
+
+    public static String vectorToString(Rational[] rationals) {
+        String text = "(";
+        for (int i = 0; i < rationals.length; i++) {
+            text += rationals[i].toString() + (i < rationals.length - 1 ? "," : ")");
+        }
+        return text;
     }
 
 }

@@ -27,7 +27,7 @@ public class SplitPane extends JSplitPane {
 
     private ArrayList<DockToolbar> dockToolbars = new ArrayList<>();
 
-    private final int MIN_WIDTH = 375;
+    private final int MIN_WIDTH = 450;// 375;
 
     public SplitPane() {
         super(JSplitPane.HORIZONTAL_SPLIT);
