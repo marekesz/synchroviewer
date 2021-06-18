@@ -3,6 +3,8 @@ package AutomatonAlgorithms;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
+
 import AutomatonModels.AbstractNFA;
 import Viewer.AutomatonHelper;
 
@@ -12,7 +14,7 @@ public abstract class AlgebraicModule {
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> wordsForSubset(AbstractNFA automaton, int[] subset,
-            int[] weights, boolean normalize) {
+            Rational[] weights, boolean normalize) {
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
@@ -22,6 +24,8 @@ public abstract class AlgebraicModule {
         Rational[] rationalSubset = toRationalArray(subset);
         if (normalize)
             rationalSubset = normalize(rationalSubset);
+        if (!Objects.isNull(weights))
+            rationalSubset = vectorMultiply(weights, rationalSubset);
         if (leadingZerosCount(rationalSubset) == rationalSubset.length)
             return new Pair<>(words, base);
 
@@ -51,6 +55,16 @@ public abstract class AlgebraicModule {
             newCandidates.clear();
         }
         return new Pair(words, base);
+    }
+
+    private static Rational[] vectorMultiply(Rational[] v1, Rational[] v2) {
+        if (v1.length != v2.length)
+            System.out.println("vectors dimensions mismatch");
+        int n = v1.length;
+        Rational[] result = new Rational[n];
+        for (int i = 0; i < n; i++)
+            result[i] = v1[i].multiply(v2[i]);
+        return result;
     }
 
     public static Rational[] normalize(Rational[] vector) {
@@ -127,11 +141,7 @@ public abstract class AlgebraicModule {
         return vectorAdd(v1, scalarMultiply(new Rational(-1), v2));
     }
 
-    // reduces base to quasi-gaussian form.
-    // After reduction each vector maintains its integer values and they don't need
-    // to be ones.
-    // Biginteger necessary, because we may count lcm of many vector values
-    // obtaingin very big number
+    // reduces base to gaussian form.
     public static void reduceBase(ArrayList<Rational[]> base) {
         for (int i = 0; i < base.size(); i++) {
             for (int j = i + 1; j < base.size(); j++) {

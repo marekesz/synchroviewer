@@ -24,6 +24,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.GridBagConstraints;
@@ -197,10 +198,14 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         int[] subset = getAutomaton().getSelectedStates();
         boolean imageSelected = (imageComboBox.getSelectedIndex() == 0);// ((String) imageComboBox.getSelectedItem()) ==
                                                                         // "Image";
-        boolean normalizedSelected = ((String) normalizationComboBox.getSelectedItem()) == "0-sum normalized";
+        boolean normalizedSelected = normalizationComboBox.getSelectedIndex() == 1;
+        boolean weightsSelected = normalizationComboBox.getSelectedIndex() == 2;
         AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
-        Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset, null,
-                normalizedSelected);
+        Rational[] weights = null;
+        if (weightsSelected)
+            weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton));
+        Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset,
+                weights, normalizedSelected);
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,
                 showVectorsButton.isSelected() == true);
         ArrayList<Integer> dimensions = chainDescription.first;
@@ -213,8 +218,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             textPane.setText("Empty subspace");
 
         System.out.println("Stationnary distribution:");
-        AlgebraicModule
-                .printArray(MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton())));
+        AlgebraicModule.printArray(MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton)));
 
     }
 

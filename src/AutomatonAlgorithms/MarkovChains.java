@@ -48,7 +48,7 @@ public class MarkovChains {
             if (firstNonZeroId == n + 1)
                 continue;
             if (firstNonZeroId == n) {
-                System.out.println("Error");
+                System.out.println("No unique steady state");
                 return zeroVector;
             }
             result[firstNonZeroId] = gaussianA.get(i)[n];
@@ -56,7 +56,7 @@ public class MarkovChains {
                 result[firstNonZeroId] = result[firstNonZeroId].subtract(gaussianA.get(i)[j].multiply(result[j]));
         }
         if (!AlgebraicModule.vectorsEqual(AlgebraicModule.matMul(result, matrix), result)) {
-            System.out.println("Error");
+            System.out.println("No unique steady state");
             return zeroVector;
         }
 
