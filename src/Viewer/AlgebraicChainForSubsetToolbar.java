@@ -93,6 +93,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         normalizationComboBox.addItem("Raw");
         normalizationComboBox.addItem("Normalized to 0-sum");
         normalizationComboBox.addItem("Weighted by steady state");
+        normalizationComboBox.addItem("Normalized by steady state");
         // imageComboBox.setPreferredSize(new Dimension(200, 20));
 
         imageComboBox.addItemListener(new ItemListener() {
@@ -201,11 +202,13 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                                                                         // "Image";
         boolean normalizedSelected = normalizationComboBox.getSelectedIndex() == 1;
         boolean weightsSelected = normalizationComboBox.getSelectedIndex() == 2;
+        boolean normalizedBySteadyState = normalizationComboBox.getSelectedIndex() == 3;
         AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
         Rational[] weights = null;
-        if (weightsSelected)
+        if (weightsSelected || normalizedBySteadyState)
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
-        firePropertyChange("setMarkovProbabilitiesVisible", !weightsSelected, weightsSelected);
+        firePropertyChange("setMarkovProbabilitiesVisible", !(weightsSelected || normalizedBySteadyState),
+                (weightsSelected || normalizedBySteadyState));
 
         if (weightsSelected
                 && !Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
@@ -220,7 +223,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             return;
         }
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset,
-                weights, normalizedSelected);
+                weights, normalizedSelected, normalizedBySteadyState);
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,
                 showVectorsButton.isSelected() == true);
         ArrayList<Integer> dimensions = chainDescription.first;

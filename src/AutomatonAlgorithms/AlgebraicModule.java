@@ -13,13 +13,15 @@ public abstract class AlgebraicModule {
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> wordsForSubset(AbstractNFA automaton, int[] subset,
-            Rational[] weights, boolean normalize) {
+            Rational[] weights, boolean normalize, boolean subsetMultiplied) {
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
         if (automaton.getN() == 0)
             return new Pair<>(words, base);
         Rational[] rationalSubset = toRationalArray(subset);
+        if (subsetMultiplied)
+            rationalSubset = vectorMultiply(weights, rationalSubset);
         if (normalize)
             rationalSubset = normalize(rationalSubset);
         if (leadingZerosCount(rationalSubset) == rationalSubset.length)
