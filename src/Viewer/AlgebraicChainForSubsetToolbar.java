@@ -29,6 +29,7 @@ import java.awt.event.ItemListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import AutomatonAlgorithms.AlgebraicModule;
+import AutomatonAlgorithms.MarkovChains;
 import AutomatonAlgorithms.Pair;
 import AutomatonAlgorithms.Rational;
 import AutomatonModels.AbstractNFA;
@@ -36,8 +37,8 @@ import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
 
 public class AlgebraicChainForSubsetToolbar extends DockToolbar {
-	private static final long serialVersionUID = 1L;
-	private final int MAX_STATES = 25; // max number of states in automaton
+    private static final long serialVersionUID = 1L;
+    private final int MAX_STATES = 25; // max number of states in automaton
 
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
@@ -177,7 +178,6 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                     text += ", ";
                 text += (words.get(i) == "") ? "." : words.get(i);
             }
-            //text = text + '\n';
         } else {
             int dimId = 0;
             text += "i=0 dim=" + dimensions.get(dimId) + ":\n";
@@ -189,14 +189,14 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                 text += words.get(i) == "" ? "." : words.get(i);
                 text += "   " + AlgebraicModule.vectorToString(vectors.get(i)) + "\n";
             }
-            //text = text + '\n';
         }
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
-        boolean imageSelected = (imageComboBox.getSelectedIndex() == 0);//((String) imageComboBox.getSelectedItem()) == "Image";
+        boolean imageSelected = (imageComboBox.getSelectedIndex() == 0);// ((String) imageComboBox.getSelectedItem()) ==
+                                                                        // "Image";
         boolean normalizedSelected = ((String) normalizationComboBox.getSelectedItem()) == "0-sum normalized";
         AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset, null,
@@ -211,6 +211,11 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             textPane.setText(chainDescription.second);
         else
             textPane.setText("Empty subspace");
+
+        System.out.println("Stationnary distribution:");
+        AlgebraicModule
+                .printArray(MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton())));
+
     }
 
     @Override

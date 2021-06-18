@@ -8,6 +8,7 @@ import Viewer.AutomatonHelper;
 
 public abstract class AlgebraicModule {
     private static Rational ZERO = new Rational(0);
+    public static Rational ONE = new Rational(1);
 
     // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i}))
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> wordsForSubset(AbstractNFA automaton, int[] subset,
@@ -19,7 +20,6 @@ public abstract class AlgebraicModule {
         if (automaton.getN() == 0)
             return new Pair<>(words, base);
         Rational[] rationalSubset = toRationalArray(subset);
-        System.out.println("normalization = " + normalize);
         if (normalize)
             rationalSubset = normalize(rationalSubset);
         if (leadingZerosCount(rationalSubset) == rationalSubset.length)
@@ -79,7 +79,14 @@ public abstract class AlgebraicModule {
         return ZERO;
     }
 
-    private static int leadingZerosCount(Rational[] vector) {
+    public static int nonZeroCnt(Rational[] vector) {
+        int result = 0;
+        for (int i = 0; i < vector.length; i++)
+            result += vector[i].equals(ZERO) ? 0 : 1;
+        return result;
+    }
+
+    public static int leadingZerosCount(Rational[] vector) {
         for (int i = 0; i < vector.length; i++) {
             if (!vector[i].equals(ZERO))
                 return i;
@@ -137,6 +144,10 @@ public abstract class AlgebraicModule {
             Rational nz1 = firstNonZeroElement(base.get(i));
             if (nz1.equals(ZERO))
                 return;
+
+            if (!nz1.equals(ONE))
+                base.set(i, scalarMultiply(nz1.inverse(), base.get(i)));
+            nz1 = ONE;
 
             for (int j = i + 1; j < base.size(); j++) {
                 // check if non zero
@@ -248,12 +259,12 @@ public abstract class AlgebraicModule {
         System.out.println();
     }
 
-    public static void printArrayOfArrays(ArrayList<int[]> array) {
+    public static void printArrayOfArrays(ArrayList<Rational[]> array) {
         System.out.println();
-        for (int[] a : array) {
+        for (Rational[] a : array) {
             System.out.print("[");
-            for (int e : a) {
-                System.out.print(e + ", ");
+            for (Rational e : a) {
+                System.out.print(e.toString() + ", ");
             }
             System.out.println("]");
         }
@@ -278,6 +289,25 @@ public abstract class AlgebraicModule {
             text += rationals[i].toString() + (i < rationals.length - 1 ? "," : "]");
         }
         return text;
+    }
+
+    public static boolean vectorsEqual(Rational[] v1, Rational[] v2) {
+        if (v1.length != v2.length)
+            return false;
+        for (int i = 0; i < v1.length; i++)
+            if (!v1[i].equals(v2[i]))
+                return false;
+        return true;
+    }
+
+    public static Rational[][] transpose(Rational[][] matrix) {
+        int n = matrix.length;
+        int m = matrix[0].length;
+        Rational[][] result = new Rational[m][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++)
+                result[i][j] = matrix[j][i];
+        return result;
     }
 
 }
