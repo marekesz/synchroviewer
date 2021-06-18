@@ -208,7 +208,8 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
         firePropertyChange("setMarkovProbabilitiesVisible", !weightsSelected, weightsSelected);
 
-        if (!Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
+        if (weightsSelected
+                && !Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
             super.setTitle("LinAlg chain (length: " + 0 + ", dimension: " + 0);
             textPane.setText("Not strongly connected");
             return;

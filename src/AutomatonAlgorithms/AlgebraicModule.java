@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
-
 import AutomatonModels.AbstractNFA;
 import Viewer.AutomatonHelper;
 
@@ -18,7 +17,6 @@ public abstract class AlgebraicModule {
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
-
         if (automaton.getN() == 0)
             return new Pair<>(words, base);
         Rational[] rationalSubset = toRationalArray(subset);
@@ -44,9 +42,6 @@ public abstract class AlgebraicModule {
                     vec = matMul(rationalSubset, wordToMatrix(automaton, x + a));
                     if (!Objects.isNull(weights))
                         vec = vectorMultiply(weights, vec);
-                    // System.out.println("S*[" + x + a + "]");
-                    // printMatrix(wordToMatrix(automaton, x + a));
-                    // printArray(vec);
                     if (!dependentFromBase(base, vec)) {
                         // System.out.println("added");
                         base.add(vec);
@@ -202,7 +197,8 @@ public abstract class AlgebraicModule {
         return result;
     }
 
-    // returns linear independent set of vectors reduced from original base
+    // returns linear independent set of vectors reduced from original base, without
+    // zero vectors
     public static ArrayList<Rational[]> getSpaceBase(ArrayList<Rational[]> base) {
         reduceBase(base);
         ArrayList<Rational[]> result = new ArrayList<>();
