@@ -30,6 +30,7 @@ import java.awt.event.ItemListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import AutomatonAlgorithms.AlgebraicModule;
+import AutomatonAlgorithms.Connectivity;
 import AutomatonAlgorithms.MarkovChains;
 import AutomatonAlgorithms.Pair;
 import AutomatonAlgorithms.Rational;
@@ -205,6 +206,18 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         if (weightsSelected)
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton));
         firePropertyChange("setMarkovProbabilitiesVisible", !weightsSelected, weightsSelected);
+
+        if (!Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
+            super.setTitle("LinAlg chain (length: " + 0 + ", dimension: " + 0);
+            textPane.setText("Not strongly connected");
+            return;
+        }
+
+        if (weightsSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
+            super.setTitle("LinAlg chain (length: " + 0 + ", dimension: " + 0);
+            textPane.setText("Statioary distribution not found");
+            return;
+        }
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset,
                 weights, normalizedSelected);
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,
@@ -213,6 +226,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", dimension: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
+
         if (chainDescription.first.size() > 0)
             textPane.setText(chainDescription.second);
         else
