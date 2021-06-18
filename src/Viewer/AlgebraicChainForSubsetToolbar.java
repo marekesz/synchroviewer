@@ -169,12 +169,12 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                 dimensions.set(dimensions.size() - 1, dimCnt);
         }
         if (!showVectors) {
-            text += "1: ";
             int dimId = 0;
+            text += "i=0 dim=" + dimensions.get(dimId) + ":\n";
             for (int i = 0; i < words.size(); i++) {
                 if (i > 0 && words.get(i).length() > words.get(i - 1).length()) {
                     dimId += 1;
-                    text += "\n" + dimensions.get(dimId) + ": ";
+                    text += "\ni=" + words.get(i).length() + " dim=" + dimensions.get(dimId) + ":\n";
                 } else if (i > 0)
                     text += ", ";
                 text += (words.get(i) == "") ? "." : words.get(i);
