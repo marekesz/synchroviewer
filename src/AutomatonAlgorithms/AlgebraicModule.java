@@ -24,8 +24,6 @@ public abstract class AlgebraicModule {
         Rational[] rationalSubset = toRationalArray(subset);
         if (normalize)
             rationalSubset = normalize(rationalSubset);
-        if (!Objects.isNull(weights))
-            rationalSubset = vectorMultiply(weights, rationalSubset);
         if (leadingZerosCount(rationalSubset) == rationalSubset.length)
             return new Pair<>(words, base);
 
@@ -33,13 +31,19 @@ public abstract class AlgebraicModule {
         candidates.add("");
         // printArray(matMul(rationalSubset, wordToMatrix(automaton, "")));
         // System.out.println("added");
-        base.add(matMul(rationalSubset, wordToMatrix(automaton, "")));
+        Rational[] vec = matMul(rationalSubset, wordToMatrix(automaton, ""));
+        if (Objects.isNull(weights))
+            base.add(vec);
+        else
+            base.add(vectorMultiply(weights, vec));
         ArrayList<String> newCandidates = new ArrayList<>();
         while (candidates.size() > 0) {
             for (String x : candidates) {
                 for (int k = 0; k < automaton.getK(); k++) {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    Rational[] vec = matMul(rationalSubset, wordToMatrix(automaton, x + a));
+                    vec = matMul(rationalSubset, wordToMatrix(automaton, x + a));
+                    if (!Objects.isNull(weights))
+                        vec = vectorMultiply(weights, vec);
                     // System.out.println("S*[" + x + a + "]");
                     // printMatrix(wordToMatrix(automaton, x + a));
                     // printArray(vec);

@@ -25,6 +25,8 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import AutomatonAlgorithms.MarkovChains;
+import AutomatonAlgorithms.Rational;
 import AutomatonModels.Automaton;
 
 public class PaintPanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -92,6 +94,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     private int oldHeight;
 
     private boolean verboseDrawing;
+    private boolean showMarkovPbb;
 
     // ************************************************************************
     // Initialization
@@ -108,7 +111,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         this.oldWidth = 0;
         this.oldHeight = 0;
         this.verboseDrawing = false;
-
+        this.showMarkovPbb = false;
         showRange = false;
         showAction = false;
 
@@ -257,6 +260,15 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
     public boolean getLoopEdgesVisible() {
         return this.verboseDrawing;
+    }
+
+    public boolean getMarkovPbbVisible() {
+        return this.showMarkovPbb;
+    }
+
+    public void setMarkovPbbVisible(boolean enabled) {
+        this.showMarkovPbb = enabled;
+        repaint();
     }
 
     public void setLoopEdgesVisible(boolean visible) {
@@ -585,6 +597,10 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         int N = getN();
         int K = getK();
 
+        Rational[] markovPbbs = null;
+        if (this.showMarkovPbb)
+            markovPbbs = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(this.automaton));
+
         // draw oval of range states at the beginning
         ArrayList<ArrayList<Double>> anglesPerNode = new ArrayList();
         for (int i = 0; i < N; i++) {
@@ -716,9 +732,19 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             g.setStroke(new BasicStroke());
             g.setColor(Color.BLACK);
             String label = Integer.toString(n);
-            g.drawString(label, (int) (vertices[n].x - g.getFontMetrics().stringWidth(label) / 2),
-                    (int) (vertices[n].y + 5));
+            if (this.showMarkovPbb) {
+
+                g.drawString(label, (int) (vertices[n].x - g.getFontMetrics().stringWidth(label) / 2),
+                        (int) (vertices[n].y - 5));
+                String pbbl = markovPbbs[n].toString();
+                g.drawString(pbbl, (int) (vertices[n].x - g.getFontMetrics().stringWidth(pbbl) / 2),
+                        (int) (vertices[n].y + 15));
+            } else {
+                g.drawString(label, (int) (vertices[n].x - g.getFontMetrics().stringWidth(label) / 2),
+                        (int) (vertices[n].y + 5));
+            }
         }
+
     }
 
     @Override

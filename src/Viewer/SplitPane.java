@@ -88,6 +88,14 @@ public class SplitPane extends JSplitPane {
             }
         });
 
+        algebraicChainForSubsetToolbar.addPropertyChangeListener("setMarkovProbabilitiesVisible",
+                new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent ev) {
+                        paintPanel.setMarkovPbbVisible((boolean) ev.getNewValue());
+                    }
+                });
+
         PropertyChangeListener showRangeListener = new PropertyChangeListener() {
 
             @Override

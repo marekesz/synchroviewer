@@ -204,6 +204,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         Rational[] weights = null;
         if (weightsSelected)
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton));
+        firePropertyChange("setMarkovProbabilitiesVisible", !weightsSelected, weightsSelected);
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = AlgebraicModule.wordsForSubset(automaton, subset,
                 weights, normalizedSelected);
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,
@@ -217,9 +218,8 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         else
             textPane.setText("Empty subspace");
 
-        System.out.println("Stationnary distribution:");
-        AlgebraicModule.printArray(MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton)));
-
+        // System.out.println("Stationnary distribution:");
+        // AlgebraicModule.printArray(MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton)));
     }
 
     @Override

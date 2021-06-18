@@ -21,6 +21,7 @@ public class MarkovChains {
                 for (int j : automaton.getTransitions(i, k))
                     result[i][j] = result[i][j].add(new Rational(1, automaton.getK()));
 
+        // AlgebraicModule.printMatrix(result);
         return result;
     }
 
@@ -43,20 +44,22 @@ public class MarkovChains {
         A[n][n] = ONE;
         ArrayList<Rational[]> gaussianA = new ArrayList<>(Arrays.asList(A));
         AlgebraicModule.reduceBase(gaussianA);
+        // AlgebraicModule.printArrayOfArrays(gaussianA);
         for (int i = n; i >= 0; i--) {
             int firstNonZeroId = AlgebraicModule.leadingZerosCount(gaussianA.get(i));
             if (firstNonZeroId == n + 1)
                 continue;
             if (firstNonZeroId == n) {
-                System.out.println("No unique steady state");
+                System.out.println("Error");
                 return zeroVector;
             }
             result[firstNonZeroId] = gaussianA.get(i)[n];
             for (int j = firstNonZeroId + 1; j < n; j++)
                 result[firstNonZeroId] = result[firstNonZeroId].subtract(gaussianA.get(i)[j].multiply(result[j]));
         }
+        // AlgebraicModule.printArray(result);
         if (!AlgebraicModule.vectorsEqual(AlgebraicModule.matMul(result, matrix), result)) {
-            System.out.println("No unique steady state");
+            System.out.println("Error");
             return zeroVector;
         }
 
