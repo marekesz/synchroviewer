@@ -40,7 +40,6 @@ import AutomatonModels.InverseAutomaton;
 
 public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private static final long serialVersionUID = 1L;
-    private final int MAX_STATES = 25; // max number of states in automaton
 
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
@@ -114,7 +113,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             }
         });
 
-        showVectorsButton = new JCheckBox("show vectors");
+        showVectorsButton = new JCheckBox("Show vectors");
 
         showVectorsButton.addItemListener(new ItemListener() {
 
@@ -210,13 +209,13 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         if (weightsSelected
                 && !Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
-            super.setTitle("LinAlg chain (length: " + 0 + ", dimension: " + 0);
+            super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
             textPane.setText("Not strongly connected");
             return;
         }
 
         if (weightsSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
-            super.setTitle("LinAlg chain (length: " + 0 + ", dimension: " + 0);
+            super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
             textPane.setText("Statioary distribution not found");
             return;
         }
@@ -226,7 +225,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                 showVectorsButton.isSelected() == true);
         ArrayList<Integer> dimensions = chainDescription.first;
 
-        super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", dimension: "
+        super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", maxdim: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
 
         if (chainDescription.first.size() > 0)
@@ -234,19 +233,18 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         else
             textPane.setText("Empty subspace");
 
-        // System.out.println("Stationnary distribution:");
+        // System.out.println("Stationary distribution:");
         // AlgebraicModule.printArray(MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton)));
     }
 
     @Override
     protected void update() {
-        if (getAutomaton().getN() > MAX_STATES) {
+        /*if (getAutomaton().getN() > MAX_STATES) {
             textPane.setText("");
             insertStringToTextPane(String.format("Automaton must have no more than %d states", MAX_STATES),
                     Color.BLACK);
             return;
-        }
-
+        }*/
         recalculate();
     }
 }
