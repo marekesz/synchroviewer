@@ -189,7 +189,8 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                     text += "i=" + words.get(i).length() + " dim=" + dimensions.get(dimId) + ":\n";
                 }
                 text += words.get(i) == "" ? "." : words.get(i);
-                text += "   " + AlgebraicModule.vectorToString(vectors.get(i)) + "\n";
+                text += "   " + AlgebraicModule.vectorToString(vectors.get(i)) + " sum="
+                        + AlgebraicModule.sumOfVector(vectors.get(i)) + "\n";
             }
         }
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
@@ -204,7 +205,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
         Rational[] weights = null;
         if (weightsSelected)
-            weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(automaton));
+            weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
         firePropertyChange("setMarkovProbabilitiesVisible", !weightsSelected, weightsSelected);
 
         if (!Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {

@@ -297,6 +297,13 @@ public abstract class AlgebraicModule {
         }
     }
 
+    public static Rational sumOfVector(Rational[] vector) {
+        Rational result = ZERO;
+        for (Rational x : vector)
+            result = result.add(x);
+        return result;
+    }
+
     public static String vectorToString(Rational[] rationals) {
         String text = "[";
         for (int i = 0; i < rationals.length; i++) {
