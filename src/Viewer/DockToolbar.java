@@ -143,7 +143,8 @@ public abstract class DockToolbar extends JToolBar {
     }
 
     public Font getDeafultFont() {
-        return new Font(Font.SANS_SERIF, Font.ITALIC + Font.BOLD, 14);
+        return new Font(Font.MONOSPACED, Font.ITALIC + Font.BOLD, 14);
+        //return new Font(Font.SANS_SERIF, Font.ITALIC + Font.BOLD, 14);
     }
 
     public boolean isVisibleOnStart() {

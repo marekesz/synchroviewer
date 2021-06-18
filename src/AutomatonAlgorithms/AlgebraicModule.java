@@ -296,7 +296,7 @@ public abstract class AlgebraicModule {
     public static String vectorToString(Rational[] rationals) {
         String text = "[";
         for (int i = 0; i < rationals.length; i++) {
-            text += rationals[i].toString() + (i < rationals.length - 1 ? "," : "]");
+            text += rationals[i].toString() + (i < rationals.length - 1 ? "; " : "]");
         }
         return text;
     }
