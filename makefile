@@ -7,4 +7,7 @@ $(SUBDIRS):
 .PHONY: all $(SUBDIRS)
 
 clean:
-	find ../ -type f -name '*.class' -delete
+	rm bin -r
+
+run:
+	cd bin; java SynchroViewer

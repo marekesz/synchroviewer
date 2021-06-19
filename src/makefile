@@ -3,7 +3,7 @@ JFLAGS = -g
 JC = javac
 .SUFFIXES: .java .class
 .java.class:
-	$(JC) -d $(JCLASSDIR)/. $(JFLAGS) $*.java
+	$(JC) -d $(JCLASSDIR)/. $(JFLAGS) $*.java; cp icons ../bin/icons -r
 
 CLASSES = \
 	SynchroViewer.java 
@@ -13,7 +13,7 @@ default: classes
 classes: $(CLASSES:.java=.class)
 
 run:
-	cp icons ../bin/ -r; cd $(JCLASSDIR); java SynchroViewer
+	cd $(JCLASSDIR); java SynchroViewer
 
 clean:
-	find ../ -type f -name '*.class' -delete
+	rm ../bin -r
