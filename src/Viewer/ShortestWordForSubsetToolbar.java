@@ -20,6 +20,7 @@ import java.util.Collections;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -33,6 +34,7 @@ import javax.swing.text.StyledDocument;
 
 import AutomatonAlgorithms.AlgebraicModule;
 import AutomatonAlgorithms.MarkovChains;
+import AutomatonAlgorithms.Rational;
 import AutomatonAlgorithms.ShortestCompressingWord;
 import AutomatonAlgorithms.ShortestExtendingWord;
 import AutomatonAlgorithms.ShortestResetWord;
@@ -45,14 +47,11 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
 
     private final JTextPane textPane;
     private final JLabel lengthLabel;
-
-    private final JRadioButton compressingButton;
-    private final JRadioButton resetButton;
-    private final JRadioButton extendingButton;
-    private final JRadioButton fullyExtendingButton;
     private InverseAutomaton inverseAutomaton;
 
     private boolean weighted;
+
+    private JComboBox<String> comboBox;
 
     public ShortestWordForSubsetToolbar(String name, boolean visibleOnStart, Automaton automaton) {
         super(name, visibleOnStart, automaton);
@@ -103,12 +102,14 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
 
         panel.add(textPane, BorderLayout.CENTER);
 
-        ButtonGroup buttonGroup = new ButtonGroup();
-        compressingButton = new JRadioButton("Compressing");
-        resetButton = new JRadioButton("Reset");
-        extendingButton = new JRadioButton("Extending");
-        fullyExtendingButton = new JRadioButton("Totally extending");
-        compressingButton.addItemListener(new ItemListener() {
+        comboBox = new JComboBox<String>();
+        comboBox.addItem("Compressing");
+        comboBox.addItem("Reset");
+        comboBox.addItem("Extending");
+        comboBox.addItem("Totally extending");
+        comboBox.addItem("Weighted by steady-state");
+
+        comboBox.addItemListener(new ItemListener() {
 
             @Override
             public void itemStateChanged(ItemEvent ev) {
@@ -116,35 +117,6 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
                     recalculate();
             }
         });
-        resetButton.addItemListener(new ItemListener() {
-
-            @Override
-            public void itemStateChanged(ItemEvent ev) {
-                if (ev.getStateChange() == ItemEvent.SELECTED)
-                    recalculate();
-            }
-        });
-        extendingButton.addItemListener(new ItemListener() {
-
-            @Override
-            public void itemStateChanged(ItemEvent ev) {
-                if (ev.getStateChange() == ItemEvent.SELECTED)
-                    recalculate();
-            }
-        });
-        fullyExtendingButton.addItemListener(new ItemListener() {
-
-            @Override
-            public void itemStateChanged(ItemEvent ev) {
-                if (ev.getStateChange() == ItemEvent.SELECTED)
-                    recalculate();
-            }
-        });
-        compressingButton.setSelected(true);
-        buttonGroup.add(compressingButton);
-        buttonGroup.add(resetButton);
-        buttonGroup.add(extendingButton);
-        buttonGroup.add(fullyExtendingButton);
 
         JPanel outerPanel = new JPanel();
         outerPanel.setLayout(new GridBagLayout());
@@ -152,13 +124,8 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 1.0;
         c.gridwidth = 1;
-        outerPanel.add(compressingButton, c);
+        outerPanel.add(comboBox, c);
         c.gridwidth = GridBagConstraints.REMAINDER;
-        outerPanel.add(resetButton, c);
-        c.gridwidth = 1;
-        outerPanel.add(extendingButton, c);
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        outerPanel.add(fullyExtendingButton, c);
         panel.add(outerPanel, BorderLayout.SOUTH);
     }
 
@@ -176,24 +143,25 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
-        BigInteger[] weights = null;
-        if (this.weighted) {
-            weights = AlgebraicModule
-                    .rationalArrayByCommonDenominator(MarkovChains.getStationaryDistribution(getAutomaton()));
-        }
         try {
             ArrayList<Integer> transitions = new ArrayList<>();
-            if (compressingButton.isSelected())
+            if (comboBox.getSelectedIndex() == 0)// compressing
                 transitions = ShortestCompressingWord.find(getAutomaton(), inverseAutomaton, subset);
-            else if (resetButton.isSelected())
+            else if (comboBox.getSelectedIndex() == 1)// reset
                 transitions = ShortestResetWord.find(getAutomaton(), subset);
-            else if (extendingButton.isSelected()) {
-                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset, weights,
-                        getAutomaton().getSelectedStates(), getAutomaton().getSelectedStatesNumber() + 1);
+            else if (comboBox.getSelectedIndex() == 2) { // extending
+                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset,
+                        getAutomaton().getSelectedStatesNumber() + 1);
                 Collections.reverse(transitions);
-            } else if (fullyExtendingButton.isSelected()) {
-                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset, null,
-                        getAutomaton().getSelectedStates(), getAutomaton().getN());
+            } else if (comboBox.getSelectedIndex() == 3) { // totally extending
+                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset,
+                        getAutomaton().getN());
+                Collections.reverse(transitions);
+            } else if (comboBox.getSelectedIndex() == 4) { // weighted by steady-state
+                Rational[] weights = MarkovChains.getStationaryDistribution(getAutomaton());
+
+                transitions = ShortestExtendingWord.findWeighted(getAutomaton(), inverseAutomaton, subset, weights,
+                        getAutomaton().getSelectedStates());
                 Collections.reverse(transitions);
             }
 
@@ -211,10 +179,6 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
             // lengthLabel.setText("Length: -");
             super.setTitle(this.getName() + String.format(" (length: --)"));
         }
-    }
-
-    public void setWeightsOn(boolean weighted) {
-        this.weighted = weighted;
     }
 
     @Override

@@ -272,6 +272,22 @@ public abstract class AlgebraicModule {
         System.out.println();
     }
 
+    public static void printArray(BigInteger[] array) {
+        System.out.println();
+        for (BigInteger e : array) {
+            System.out.print(e.toString() + ", ");
+        }
+        System.out.println();
+    }
+
+    public static void printArray(int[] array) {
+        System.out.println();
+        for (int e : array) {
+            System.out.print(e + ", ");
+        }
+        System.out.println();
+    }
+
     public static void printArrayOfArrays(ArrayList<Rational[]> array) {
         System.out.println();
         for (Rational[] a : array) {
@@ -338,9 +354,10 @@ public abstract class AlgebraicModule {
             BigInteger gcd = commonDenom.gcd(denom).abs();
             commonDenom = commonDenom.multiply(denom).divide(gcd);
         }
+        // System.out.println("common denom: " + commonDenom.toString());
         for (int i = 0; i < array.length; i++)
-            result[i] = array[i].getNominator().multiply(commonDenom);
-
+            result[i] = array[i].getNominator().multiply(commonDenom.divide(array[i].getDenominator()));
+        // printArray(result);
         return result;
     }
 }
