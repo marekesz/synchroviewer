@@ -32,22 +32,20 @@ public abstract class AlgebraicModule {
         candidates.add("");
         // printArray(matMul(rationalSubset, wordToMatrix(automaton, "")));
         // System.out.println("added");
-        Rational[] vec = matMul(rationalSubset, wordToMatrix(automaton, ""));
-        if (Objects.isNull(weights))
-            base.add(vec);
-        else
-            base.add(vectorMultiply(weights, vec));
+        Rational[] vector = matMul(rationalSubset, wordToMatrix(automaton, ""));
+        // if (Objects.isNull(weights))
+        base.add(vector);
+        // else
+        // base.add(vectorMultiply(weights, vector));
         ArrayList<String> newCandidates = new ArrayList<>();
         while (candidates.size() > 0) {
             for (String x : candidates) {
                 for (int k = 0; k < automaton.getK(); k++) {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    vec = matMul(rationalSubset, wordToMatrix(automaton, x + a));
-                    if (!Objects.isNull(weights))
-                        vec = vectorMultiply(weights, vec);
-                    if (!dependentFromBase(base, vec)) {
+                    vector = matMul(rationalSubset, wordToMatrix(automaton, x + a));
+                    if (!dependentFromBase(base, vector)) {
                         // System.out.println("added");
-                        base.add(vec);
+                        base.add(vector);
                         newCandidates.add(x + a);
                         words.add(x + a);
                     }
@@ -56,6 +54,10 @@ public abstract class AlgebraicModule {
             moveArrayList(newCandidates, candidates);
             newCandidates.clear();
         }
+        if (!Objects.isNull(weights) && !subsetMultiplied)
+            for (int i = 0; i < base.size(); i++)
+                base.set(i, vectorMultiply(weights, base.get(i)));
+
         return new Pair(words, base);
     }
 
@@ -70,21 +72,16 @@ public abstract class AlgebraicModule {
     }
 
     public static Rational[] normalize(Rational[] vector) {
-        // System.out.println("Normalization of: ");
-        // printArray(vector);
         Rational sum = new Rational(0);
         Rational[] result = new Rational[vector.length];
         for (int i = 0; i < result.length; i++)
             result[i] = vector[i];
         for (Rational x : vector)
             sum = sum.add(x);
-        // System.out.println("got sum: " + sum.toString());
-        // System.out.println("mean is: " + sum.multiply(new
-        // Rational(vector.length).inverse()));
+
         for (int i = 0; i < result.length; i++)
             result[i] = result[i].subtract(sum.multiply(new Rational(vector.length).inverse()));
-        // System.out.println("got:");
-        // printArray(result);
+
         return result;
     }
 
