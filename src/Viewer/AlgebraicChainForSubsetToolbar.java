@@ -201,23 +201,22 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         boolean imageSelected = (imageComboBox.getSelectedIndex() == 0);// ((String) imageComboBox.getSelectedItem()) ==
                                                                         // "Image";
         boolean normalizedSelected = normalizationComboBox.getSelectedIndex() == 1;
-        boolean weightsSelected = normalizationComboBox.getSelectedIndex() == 2;
+        boolean weightedSelected = normalizationComboBox.getSelectedIndex() == 2;
         boolean normalizedBySteadyState = normalizationComboBox.getSelectedIndex() == 3;
         AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
         Rational[] weights = null;
-        if (weightsSelected || normalizedBySteadyState)
+        if (weightedSelected || normalizedBySteadyState) {
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
-        firePropertyChange("setMarkovProbabilitiesVisible", !(weightsSelected || normalizedBySteadyState),
-                (weightsSelected || normalizedBySteadyState));
+            firePropertyChange("setMarkovProbabilitiesVisible", !(weightedSelected || normalizedBySteadyState),
+                    (weightedSelected || normalizedBySteadyState));
 
-        if (weightsSelected
-                && !Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
-            super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
-            textPane.setText("Not strongly connected");
-            return;
+            if (!Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
+                super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
+                textPane.setText("Not strongly connected");
+                return;
+            }
         }
-
-        if (weightsSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
+        if (weightedSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
             super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
             textPane.setText("Statioary distribution not found");
             return;
@@ -242,12 +241,12 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
     @Override
     protected void update() {
-        /*if (getAutomaton().getN() > MAX_STATES) {
-            textPane.setText("");
-            insertStringToTextPane(String.format("Automaton must have no more than %d states", MAX_STATES),
-                    Color.BLACK);
-            return;
-        }*/
+        /*
+         * if (getAutomaton().getN() > MAX_STATES) { textPane.setText("");
+         * insertStringToTextPane(String.
+         * format("Automaton must have no more than %d states", MAX_STATES),
+         * Color.BLACK); return; }
+         */
         recalculate();
     }
 }
