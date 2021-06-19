@@ -1,5 +1,6 @@
 package AutomatonAlgorithms;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -66,4 +67,7 @@ public class MarkovChains {
         return result;
     }
 
+    public static Rational[] getStationaryDistribution(AbstractNFA automaton) {
+        return getStationaryDistribution(getTransitMatrix(automaton));
+    }
 }

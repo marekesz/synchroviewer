@@ -1,5 +1,6 @@
 package AutomatonAlgorithms;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -329,4 +330,17 @@ public abstract class AlgebraicModule {
         return result;
     }
 
+    public static BigInteger[] rationalArrayByCommonDenominator(Rational[] array) {
+        BigInteger commonDenom = new BigInteger("1");
+        BigInteger[] result = new BigInteger[array.length];
+        for (int i = 0; i < array.length; i++) {
+            BigInteger denom = array[i].getDenominator().abs();
+            BigInteger gcd = commonDenom.gcd(denom).abs();
+            commonDenom = commonDenom.multiply(denom).divide(gcd);
+        }
+        for (int i = 0; i < array.length; i++)
+            result[i] = array[i].getNominator().multiply(commonDenom);
+
+        return result;
+    }
 }

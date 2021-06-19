@@ -13,6 +13,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,6 +31,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import AutomatonAlgorithms.AlgebraicModule;
+import AutomatonAlgorithms.MarkovChains;
 import AutomatonAlgorithms.ShortestCompressingWord;
 import AutomatonAlgorithms.ShortestExtendingWord;
 import AutomatonAlgorithms.ShortestResetWord;
@@ -47,13 +50,14 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
     private final JRadioButton resetButton;
     private final JRadioButton extendingButton;
     private final JRadioButton fullyExtendingButton;
-
     private InverseAutomaton inverseAutomaton;
+
+    private boolean weighted;
 
     public ShortestWordForSubsetToolbar(String name, boolean visibleOnStart, Automaton automaton) {
         super(name, visibleOnStart, automaton);
         inverseAutomaton = new InverseAutomaton(automaton);
-
+        weighted = false;
         JPanel panel = getPanel();
 
         lengthLabel = new JLabel();
@@ -172,6 +176,11 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
+        BigInteger[] weights = null;
+        if (this.weighted) {
+            weights = AlgebraicModule
+                    .rationalArrayByCommonDenominator(MarkovChains.getStationaryDistribution(getAutomaton()));
+        }
         try {
             ArrayList<Integer> transitions = new ArrayList<>();
             if (compressingButton.isSelected())
@@ -179,12 +188,12 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
             else if (resetButton.isSelected())
                 transitions = ShortestResetWord.find(getAutomaton(), subset);
             else if (extendingButton.isSelected()) {
-                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset,
-                        getAutomaton().getSelectedStatesNumber() + 1);
+                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset, weights,
+                        getAutomaton().getSelectedStates(), getAutomaton().getSelectedStatesNumber() + 1);
                 Collections.reverse(transitions);
             } else if (fullyExtendingButton.isSelected()) {
-                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset,
-                        getAutomaton().getN());
+                transitions = ShortestExtendingWord.find(getAutomaton(), inverseAutomaton, subset, null,
+                        getAutomaton().getSelectedStates(), getAutomaton().getN());
                 Collections.reverse(transitions);
             }
 
@@ -202,6 +211,10 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
             // lengthLabel.setText("Length: -");
             super.setTitle(this.getName() + String.format(" (length: --)"));
         }
+    }
+
+    public void setWeightsOn(boolean weighted) {
+        this.weighted = weighted;
     }
 
     @Override

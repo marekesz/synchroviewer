@@ -93,6 +93,7 @@ public class SplitPane extends JSplitPane {
                     @Override
                     public void propertyChange(PropertyChangeEvent ev) {
                         paintPanel.setMarkovPbbVisible((boolean) ev.getNewValue());
+                        shortestWordSubsetToolbar.setWeightsOn((boolean) ev.getNewValue());
                     }
                 });
 

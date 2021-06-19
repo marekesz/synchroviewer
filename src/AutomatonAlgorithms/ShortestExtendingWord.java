@@ -1,17 +1,39 @@
 
 package AutomatonAlgorithms;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
+import AutomatonModels.AbstractNFA;
 import AutomatonModels.Automaton;
 import AutomatonModels.InverseAutomaton;
 
 public abstract class ShortestExtendingWord {
 
+    private static BigInteger weightedSumOfSubset(int subset[], BigInteger[] weights) {
+        BigInteger result = new BigInteger("0");
+        for (int i = 0; i < subset.length; i++)
+            result.add(new BigInteger(Integer.toString(subset[i])).multiply(weights[i]));
+        return result;
+    }
+
+    public static boolean findEndCondition(Automaton automaton, int subsetValue, int selectedStates[],
+            BigInteger[] weights, int destinationSize) {
+        boolean weighted = !Objects.isNull(weights);
+        if (weighted) {
+            int[] subset = Helper.valueToSubset(automaton, subsetValue);
+            return weightedSumOfSubset(subset, weights).compareTo(weightedSumOfSubset(selectedStates, weights)) > 0;
+        } else {
+            return Integer.bitCount(subsetValue) >= destinationSize;
+        }
+
+    }
+
     public static ArrayList<Integer> find(Automaton automaton, InverseAutomaton inverseAutomaton, int[] subset,
-            int destinationSize) throws WordNotFoundException {
+            BigInteger[] weights, int[] selectedStates, int destinationSize) throws WordNotFoundException {
         int N = automaton.getN();
         int K = automaton.getK();
 
@@ -37,7 +59,7 @@ public abstract class ShortestExtendingWord {
             subsetValue = queue[start];
             start++;
 
-            if (Integer.bitCount(subsetValue) >= destinationSize) {
+            if (findEndCondition(automaton, subsetValue, selectedStates, weights, destinationSize)) {
                 ArrayList<Integer> transitions = new ArrayList<>();
                 while (fromWhereSubsetVal[subsetValue] != -1) {
                     transitions.add(fromWhereTransition[subsetValue]);
