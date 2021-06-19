@@ -32,7 +32,7 @@ public abstract class ShortestExtendingWord {
 
     }
 
-    public static ArrayList<Integer> find(Automaton automaton, InverseAutomaton inverseAutomaton, int[] subset,
+    public static ArrayList<Integer> findWeighted(Automaton automaton, InverseAutomaton inverseAutomaton, int[] subset,
             BigInteger[] weights, int[] selectedStates, int destinationSize) throws WordNotFoundException {
         int N = automaton.getN();
         int K = automaton.getK();
@@ -94,4 +94,5 @@ public abstract class ShortestExtendingWord {
 
         throw new WordNotFoundException();
     }
+
 }
