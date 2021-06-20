@@ -23,13 +23,6 @@ public abstract class ShortestExtendingWord {
     public static boolean checkWeightCondition(Automaton automaton, int subsetValue, int selectedStates[],
             BigInteger[] weights) {
         int[] subset = Helper.valueToSubset(automaton, subsetValue);
-        // System.out.println("for weights: ");
-        // AlgebraicModule.printArray(weights);
-        // System.out.println("for subset: ");
-        // AlgebraicModule.printArray(subset);
-        // System.out.println(
-        // weightedSumOfSubset(subset, weights).toString() + " > " +
-        // weightedSumOfSubset(selectedStates, weights));
         return weightedSumOfSubset(subset, weights).compareTo(weightedSumOfSubset(selectedStates, weights)) > 0;
     }
 
