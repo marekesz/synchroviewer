@@ -100,10 +100,12 @@ public abstract class AlgebraicModule {
 
                     if (!extendingWordFound && vectorWeight.compareTo(subsetWeight) < 0) {
                         String newWord = findHeavierWord(automaton, x + a, rationalSubset, subsetWeight, weights);
-                        extendingWordFound = true;
-                        base.add(matMul(rationalSubset, wordToMatrix(automaton, newWord)));
-                        newCandidates.add(newWord);
-                        words.add(newWord + '^');
+                        if (!Objects.isNull(newWord)) {
+                            extendingWordFound = true;
+                            base.add(matMul(rationalSubset, wordToMatrix(automaton, newWord)));
+                            newCandidates.add(newWord);
+                            words.add(newWord + '^');
+                        }
                     }
                     if (!dependentFromBase(base, vector)) {
                         base.add(vector);
