@@ -253,14 +253,15 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         if (weightedSelected || normalizedBySteadyState) {
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
-            firePropertyChange("setMarkovProbabilitiesVisible", !(weightedSelected || normalizedBySteadyState),
-                    (weightedSelected || normalizedBySteadyState));
+            firePropertyChange("setMarkovProbabilitiesVisible", false, true);
             // Strong connectivity exception
             if (!Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
                 super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
                 textPane.setText("Not strongly connected");
                 return;
             }
+        } else {
+            firePropertyChange("setMarkovProbabilitiesVisible", true, false);
         }
 
         if (weightedSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
