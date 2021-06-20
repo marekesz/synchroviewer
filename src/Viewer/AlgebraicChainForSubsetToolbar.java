@@ -192,7 +192,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     }
 
     private Pair<ArrayList<Integer>, String> getChainDescription(ArrayList<String> words, ArrayList<Rational[]> vectors,
-            boolean showVectors) {
+            boolean showVectors, boolean inverseWords) {
         if (words.size() == 0)
             return new Pair<ArrayList<Integer>, String>(new ArrayList<>(), "");
         String text = "";
@@ -218,7 +218,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                             + ":\n";
                 } else if (i > 0)
                     text += ", ";
-                text += (words.get(i) == "") ? "." : words.get(i);
+                text += (words.get(i) == "") ? "." : (inverseWords ? rotate(words.get(i)) : words.get(i));
             }
         } else {
             int dimId = 0;
@@ -230,12 +230,19 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                     text += "i=" + wordLengthWithoutExtraSymbols(words.get(i)) + " dim=" + dimensions.get(dimId)
                             + ":\n";
                 }
-                text += words.get(i) == "" ? "." : words.get(i);
+                text += words.get(i) == "" ? "." : (inverseWords ? rotate(words.get(i)) : words.get(i));
                 text += "   " + AlgebraicModule.vectorToString(vectors.get(i)) + " sum="
                         + AlgebraicModule.sumOfVector(vectors.get(i)) + "\n";
             }
         }
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
+    }
+
+    private String rotate(String string) {
+        String result = "";
+        for (int i = string.length() - 1; i >= 0; i--)
+            result += string.charAt(i);
+        return result;
     }
 
     private void recalculate() {
@@ -246,6 +253,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         boolean normalizedSelected = preprocessComboBox.getSelectedIndex() == 1; // normalized
         boolean normalizedBySteadyState = preprocessComboBox.getSelectedIndex() == 2; // normalized by steady-state
         boolean weightedSelected = postprocessComboBox.getSelectedIndex() == 1; // wighted by steady-state
+        boolean rotateWords = preImageSelected || preImageExtendedSumSelected;
         AbstractNFA automaton = imageSelected || imageExtendedSumSelected ? getAutomaton()
                 : new InverseAutomaton(getAutomaton());
         Rational[] weights = null;
@@ -279,7 +287,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                     normalizedBySteadyState);
 
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,
-                showVectorsButton.isSelected() == true);
+                showVectorsButton.isSelected() == true, rotateWords);
         ArrayList<Integer> dimensions = chainDescription.first;
 
         super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", maxdim: "

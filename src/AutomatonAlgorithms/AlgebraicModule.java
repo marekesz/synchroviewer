@@ -12,17 +12,17 @@ public abstract class AlgebraicModule {
     private static Rational ZERO = new Rational(0);
     public static Rational ONE = new Rational(1);
 
-    // computes array L, where L[i] = dim(span({[S][w] | w in Sigma^<=i})), returns
-    // words used for each L[i], and dimensions L[i] had
+    // computes array L, where L[i] = span({[S][w] | w in Sigma^<=i}), returns
+    // words used for each L[i], and dimensions of L[i]
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChain(AbstractNFA automaton, int[] subset,
-            Rational[] weights, boolean normalize, boolean subsetMultiplied) {
+            Rational[] weights, boolean normalize, boolean subsetPreprocessed) {
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
         ArrayList<String> candidates = new ArrayList<>();
         if (automaton.getN() == 0)
             return new Pair<>(words, base);
         Rational[] rationalSubset = toRationalArray(subset);
-        if (subsetMultiplied)
+        if (subsetPreprocessed)
             rationalSubset = vectorMultiply(weights, rationalSubset);
         if (normalize)
             rationalSubset = normalize(rationalSubset);
@@ -55,7 +55,7 @@ public abstract class AlgebraicModule {
             moveArrayList(newCandidates, candidates);
             newCandidates.clear();
         }
-        if (!Objects.isNull(weights) && !subsetMultiplied)
+        if (!Objects.isNull(weights) && !subsetPreprocessed)
             for (int i = 0; i < base.size(); i++)
                 base.set(i, vectorMultiply(weights, base.get(i)));
 
@@ -64,7 +64,7 @@ public abstract class AlgebraicModule {
 
     // the same, but finds words, that increases sum of vector
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainExtendSum(AbstractNFA automaton,
-            int[] subset, Rational[] weights, boolean normalize, boolean subsetMultiplied) {
+            int[] subset, Rational[] weights, boolean normalize, boolean subsetPreprocessed) {
 
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
@@ -77,7 +77,7 @@ public abstract class AlgebraicModule {
         if (automaton.getN() == 0)
             return new Pair<>(words, base);
         Rational[] rationalSubset = toRationalArray(subset);
-        if (subsetMultiplied)
+        if (subsetPreprocessed)
             rationalSubset = vectorMultiply(weights, rationalSubset);
         if (normalize)
             rationalSubset = normalize(rationalSubset);
@@ -122,7 +122,7 @@ public abstract class AlgebraicModule {
             moveArrayList(newCandidates, candidates);
             newCandidates.clear();
         }
-        if (!subsetMultiplied)
+        if (!subsetPreprocessed)
             for (int i = 0; i < base.size(); i++)
                 base.set(i, vectorMultiply(weights, base.get(i)));
 
