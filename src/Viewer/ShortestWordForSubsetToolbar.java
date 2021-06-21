@@ -62,7 +62,7 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
         lengthLabel = new JLabel();
         Font font = lengthLabel.getFont().deriveFont((float) getDeafultFont().getSize());
         lengthLabel.setFont(font);
-        JPanel labelPanel = new JPanel();
+        // JPanel labelPanel = new JPanel();
         // labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
         // labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         // labelPanel.add(lengthLabel);
@@ -107,7 +107,7 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
         comboBox.addItem("Reset");
         comboBox.addItem("Extending");
         comboBox.addItem("Totally extending");
-        comboBox.addItem("Weighted by steady-state");
+        comboBox.addItem("Weighted by eigenvector");
 
         comboBox.addItemListener(new ItemListener() {
 

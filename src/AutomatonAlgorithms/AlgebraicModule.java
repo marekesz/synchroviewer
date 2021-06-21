@@ -112,7 +112,7 @@ public abstract class AlgebraicModule {
                         newCandidates.add(x + a);
                         if (vectorWeight.compareTo(subsetWeight) > 0 && !extendingWordFound) {
                             extendingWordFound = true;
-                            words.add(x + a + "^");
+                            words.add(x + a + "*");
                         } else {
                             words.add(x + a);
                         }

@@ -91,16 +91,16 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         directionComboBox = new JComboBox<String>();
         directionComboBox.addItem("Image");
+        directionComboBox.addItem("Image (extend)");
         directionComboBox.addItem("Preimage");
-        directionComboBox.addItem("Image (extended sum)");
-        directionComboBox.addItem("Preimage (extended sum)");
+        directionComboBox.addItem("Preimage (extend)");
         preprocessComboBox = new JComboBox<String>();
         preprocessComboBox.addItem("Raw");
         preprocessComboBox.addItem("Normalized to 0-sum");
-        preprocessComboBox.addItem("Normalized by steady state");
+        preprocessComboBox.addItem("Multiplied by eigenvector");
         postprocessComboBox = new JComboBox<String>();
         postprocessComboBox.addItem("Raw");
-        postprocessComboBox.addItem("Weighted by steady state");
+        postprocessComboBox.addItem("Weighted by eigenvector");
 
         // imageComboBox = new JComboBox<String>();
         // normalizationComboBox = new JComboBox<String>();
@@ -247,12 +247,12 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
     private void recalculate() {
         boolean imageSelected = (directionComboBox.getSelectedIndex() == 0);// "image";
-        boolean preImageSelected = (directionComboBox.getSelectedIndex() == 1);// "preimage";
-        boolean imageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 2);// "image (extended sum)";
-        boolean preImageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 3);// "preimage (extended sum)";
+        boolean imageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 1);// "image (extend sum)";
+        boolean preImageSelected = (directionComboBox.getSelectedIndex() == 2);// "preimage";
+        boolean preImageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 3);// "preimage (extend sum)";
         boolean normalizedSelected = preprocessComboBox.getSelectedIndex() == 1; // normalized
-        boolean normalizedBySteadyState = preprocessComboBox.getSelectedIndex() == 2; // normalized by steady-state
-        boolean weightedSelected = postprocessComboBox.getSelectedIndex() == 1; // wighted by steady-state
+        boolean normalizedBySteadyState = preprocessComboBox.getSelectedIndex() == 2; // multiplied by steady-state
+        boolean weightedSelected = postprocessComboBox.getSelectedIndex() == 1; // weighted by steady-state
         boolean rotateWords = preImageSelected || preImageExtendedSumSelected;
         AbstractNFA automaton = imageSelected || imageExtendedSumSelected ? getAutomaton()
                 : new InverseAutomaton(getAutomaton());
