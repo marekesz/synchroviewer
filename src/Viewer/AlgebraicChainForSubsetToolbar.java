@@ -44,8 +44,6 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private final JTextPane textPane;
     private final JScrollPane scrollPane;
     private final JCheckBox showVectorsButton;
-    // private final JComboBox<String> imageComboBox;
-    // private final JComboBox<String> normalizationComboBox;
     private final JComboBox<String> directionComboBox;
     private final JComboBox<String> preprocessComboBox;
     private final JComboBox<String> postprocessComboBox;
