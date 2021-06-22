@@ -259,6 +259,10 @@ public class Automaton extends AbstractNFA {
         return selectedStatesByColor[color];
     }
 
+    public int[][] getSelectedStatesByColor() {
+        return selectedStatesByColor;
+    }
+
     public void automatonChanged() {
         PCS.firePropertyChange("automatonChanged", false, true);
     }

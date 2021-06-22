@@ -11,6 +11,8 @@ public class InverseAutomaton extends AbstractNFA {
     private int K, N;
     private int[][][] matrix; // matrix[state][transition] - array of states
     private int[] selectedStates;
+    private int[][] selectedStatesByColor;
+    private int COLORS_NUM = 10;
 
     public InverseAutomaton(Automaton automaton) {
         K = automaton.getK();
@@ -31,10 +33,19 @@ public class InverseAutomaton extends AbstractNFA {
         }
         selectedStates = new int[N];
         selectedStates = automaton.getSelectedStates();
+        selectedStatesByColor = automaton.getSelectedStatesByColor();
     }
 
     public int[] getSelectedStates() {
         return selectedStates;
+    }
+
+    public int[] getSelectedStates(int color) {
+        return selectedStatesByColor[color];
+    }
+
+    public int[][] getSelectedStatesByColor() {
+        return selectedStatesByColor;
     }
 
     public int getK() {
