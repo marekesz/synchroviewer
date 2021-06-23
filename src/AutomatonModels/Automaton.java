@@ -13,7 +13,6 @@ public class Automaton extends AbstractNFA {
 
     private int K, N; // max number of out edges for one state / number of states
     private int[][] matrix;
-    private int[] selectedStates;
     private int[][] selectedStatesByColor;
     private final PropertyChangeSupport PCS;
 
@@ -43,7 +42,6 @@ public class Automaton extends AbstractNFA {
             }
         }
 
-        selectedStates = new int[N];
         selectedStatesByColor = new int[PaintPanel.STATES_COLORS.length][N];
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             for (int i = 0; i < N; i++)
@@ -81,7 +79,6 @@ public class Automaton extends AbstractNFA {
         this.K = automaton.K;
         this.N = automaton.N;
         this.matrix = automaton.matrix;
-        this.selectedStates = new int[N];
     }
 
     public void addState() {
@@ -93,10 +90,7 @@ public class Automaton extends AbstractNFA {
             temp[N][k] = N;
         matrix = temp;
 
-        int[] newSelectedStates = new int[N + 1];
         int[][] newSelectedStatesByColor = new int[PaintPanel.STATES_COLORS.length][N + 1];
-        System.arraycopy(selectedStates, 0, newSelectedStates, 0, N);
-        selectedStates = newSelectedStates;
         for (int i = 0; i < N; i++)
             for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
                 newSelectedStatesByColor[c][i] = selectedStatesByColor[c][i];
@@ -120,20 +114,16 @@ public class Automaton extends AbstractNFA {
         }
         matrix = temp;
 
-        int[] newSelectedStates = new int[N - 1];
         int[][] newSelectedStatesByColor = new int[PaintPanel.STATES_COLORS.length][N - 1];
         for (int i = 0; i < N - 1; i++) {
             if (i < state) {
-                newSelectedStates[i] = selectedStates[i];
                 for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
                     newSelectedStatesByColor[c][i] = selectedStatesByColor[c][i];
             } else {
-                newSelectedStates[i] = selectedStates[i + 1];
                 for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
                     newSelectedStatesByColor[c][i] = selectedStatesByColor[c][i + 1];
             }
         }
-        selectedStates = newSelectedStates;
         selectedStatesByColor = newSelectedStatesByColor;
         N--;
         automatonChanged();
@@ -190,21 +180,17 @@ public class Automaton extends AbstractNFA {
     }
 
     public void selectState(int state) {
-        selectedStates[state] = 1;
         selectedStatesByColor[0][state] = 1;
         automatonChanged();
     }
 
     public void selectState(int state, int color) {
         selectedStatesByColor[color][state] = 1;
-        if (color == 0)
-        	selectedStates[state] = 1;
         automatonChanged();
     }
 
     public void selectStates(int[] selectedStates) {
         if (selectedStates.length == N) {
-            this.selectedStates = selectedStates;
             this.selectedStatesByColor[0] = selectedStates;
             automatonChanged();
         }
@@ -218,7 +204,6 @@ public class Automaton extends AbstractNFA {
     }
 
     public void unselectState(int state) {
-        selectedStates[state] = 0;
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             selectedStatesByColor[c][state] = 0;
         automatonChanged();
@@ -226,20 +211,17 @@ public class Automaton extends AbstractNFA {
 
     public void unselectState(int state, int color) {
         selectedStatesByColor[color][state] = 0;
-        if (color == 0)
-            selectedStates[state] = 0;
         automatonChanged();
     }
 
     public void clearSelectedStates() {
-        Arrays.fill(selectedStates, 0);
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             Arrays.fill(selectedStatesByColor[c], 0);
         automatonChanged();
     }
 
     public boolean isSelected(int state) {
-        return selectedStates[state] == 1;
+        return selectedStatesByColor[0][state] == 1;
     }
 
     public boolean isSelected(int state, int color) {
@@ -255,7 +237,7 @@ public class Automaton extends AbstractNFA {
 
     public int getSelectedStatesNumber() {
         int count = 0;
-        for (int i : selectedStates) {
+        for (int i : selectedStatesByColor[0]) {
             if (i == 1)
                 count++;
         }
@@ -274,7 +256,7 @@ public class Automaton extends AbstractNFA {
     }
 
     public int[] getSelectedStates() {
-        return selectedStates;
+        return selectedStatesByColor[0];
     }
 
     public int[] getSelectedStates(int color) {
