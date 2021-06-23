@@ -44,16 +44,16 @@ public class BasicPropertiesToolbar extends DockToolbar {
         inverseAutomaton = new InverseAutomaton(getAutomaton());
 
         if (Synchronizability.isIrreduciblySynchronizing(getAutomaton(), inverseAutomaton))
-            syncLabel.setText("Irreducibly synchronizing");
+            syncLabel.setText("Synchronizing (irreducibly)");
         else if (Synchronizability.isSynchronizing(getAutomaton(), inverseAutomaton))
-            syncLabel.setText("Synchronizing");
+            syncLabel.setText("Synchronizing (not irreducibly)");
         else
             syncLabel.setText("Not synchronizing");
 
         if (Connectivity.isStronglyConnected(getAutomaton(), inverseAutomaton))
             connectedLabel.setText("Strongly connected");
         else if (Connectivity.isConnected(getAutomaton(), inverseAutomaton))
-            connectedLabel.setText("Connected");
+            connectedLabel.setText("Connected (not strongly)");
         else
             connectedLabel.setText("Not connected");
     }
