@@ -95,13 +95,13 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         directionComboBox.addItem("Image");
         directionComboBox.addItem("Preimage");
         preprocessComboBox = new JComboBox<String>();
-        preprocessComboBox.addItem("Raw");
+        preprocessComboBox.addItem("--");
         preprocessComboBox.addItem("0-sum");
         preprocessComboBox.addItem("Eigenvector");
         preprocessComboBox.addItem("Eigenvector 0-sum");
 
         postprocessComboBox = new JComboBox<String>();
-        postprocessComboBox.addItem("Raw");
+        postprocessComboBox.addItem("--");
         postprocessComboBox.addItem("Eigenvector");
 
         sumComboBox = new JComboBox<String>();
@@ -146,6 +146,15 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             }
         });
 
+        sumComboBox.addItemListener(new ItemListener() {
+
+            @Override
+            public void itemStateChanged(ItemEvent ev) {
+                if (ev.getStateChange() == ItemEvent.SELECTED)
+                    recalculate();
+            }
+        });
+
         showVectorsButton = new JCheckBox("Show vectors");
 
         showVectorsButton.addItemListener(new ItemListener() {
@@ -159,18 +168,20 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         JPanel outerPanel = new JPanel();
         outerPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(0,0,0,5);
+        c.insets = new Insets(0, 0, 0, 5);
         c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.0; c.weighty = 0.0;
+        c.weightx = 0.0;
+        c.weighty = 0.0;
         c.gridwidth = 1;
         outerPanel.add(new JLabel("Direction:"), c);
         outerPanel.add(directionComboBox, c);
         outerPanel.add(new JLabel("Sum:"), c);
-        c.weightx = 0.0; outerPanel.add(sumComboBox, c);
         c.weightx = 0.0;
-        
+        outerPanel.add(sumComboBox, c);
+        c.weightx = 0.0;
+
         c.anchor = GridBagConstraints.WEST;
         c.gridy = 1;
         c.gridwidth = 1;
@@ -178,12 +189,13 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         outerPanel.add(preprocessComboBox, c);
         outerPanel.add(new JLabel("Post:"), c);
         outerPanel.add(postprocessComboBox, c);
-        
+
         c.anchor = GridBagConstraints.EAST;
         c.fill = GridBagConstraints.NONE;
         c.gridwidth = GridBagConstraints.REMAINDER;
-        c.weightx = 1.0; outerPanel.add(showVectorsButton, c);
-        
+        c.weightx = 1.0;
+        outerPanel.add(showVectorsButton, c);
+
         panel.add(outerPanel, BorderLayout.SOUTH);
     }
 
@@ -267,21 +279,21 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
     private void recalculate() {
         boolean imageSelected = (directionComboBox.getSelectedIndex() == 0);// "image";
-        boolean imageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 1);// "image (extend sum)";
         boolean preImageSelected = (directionComboBox.getSelectedIndex() == 2);// "preimage";
-        boolean preImageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 3);// "preimage (extend sum)";
         boolean zeroSum = preprocessComboBox.getSelectedIndex() == 1; // 0-sum
-        boolean eigenVector = preprocessComboBox.getSelectedIndex() == 2; // eigenvector
+        boolean eigenVectorPre = preprocessComboBox.getSelectedIndex() == 2; // eigenvector
         boolean eigenVectorZeroSum = preprocessComboBox.getSelectedIndex() == 3; // eigenvector 0-sum
-        boolean weightedSelected = postprocessComboBox.getSelectedIndex() == 1; // weighted by steady-state
-        boolean rotateWords = preImageSelected || preImageExtendedSumSelected;
-        boolean extendingSum = imageExtendedSumSelected || preImageExtendedSumSelected;
-        AbstractNFA automaton = imageSelected || imageExtendedSumSelected ? getAutomaton()
-                : new InverseAutomaton(getAutomaton());
-        Rational[] weights = null;
-        int[] subset = getAutomaton().getSelectedStates();
+        boolean eigenVectorPost = postprocessComboBox.getSelectedIndex() == 1; // weighted by steady-state
+        boolean rotateWords = preImageSelected;
+        boolean increasingSum = sumComboBox.getSelectedIndex() == 1; // increasing
+        boolean decreasingSum = sumComboBox.getSelectedIndex() == 2; // decreasing
 
-        if (weightedSelected || eigenVector) {
+        AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
+
+        Rational[] weights = null;
+        // int[] subset = getAutomaton().getSelectedStates();
+
+        if (eigenVectorPost || eigenVectorPre) {
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
             firePropertyChange("setMarkovProbabilitiesVisible", false, true);
             // Strong connectivity exception
@@ -294,7 +306,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             firePropertyChange("setMarkovProbabilitiesVisible", true, false);
         }
 
-        if (weightedSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
+        if (eigenVectorPost && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
             super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
             textPane.setText("Statioary distribution not found");
             return;
@@ -309,20 +321,16 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         // resultsBlueSubset = LinAlgChain.linAlgChainExtendSum(automaton, subset,
         // weights, zeroSum, eigenVector,
         // eigenVectorZeroSum);
-        Pair<ArrayList<String>, ArrayList<Rational[]>> resultsManySubsets = null;
-        if (imageSelected || preImageSelected)
-            resultsManySubsets = LinAlgChain.linAlgChainForManySubsets(automaton, weights, zeroSum, eigenVector,
+        Pair<ArrayList<String>, ArrayList<Rational[]>> results = null;
+        if (!increasingSum && !decreasingSum)
+            results = LinAlgChain.linAlgChainForManySubsets(automaton, weights, zeroSum, eigenVectorPre,
                     eigenVectorZeroSum);
         else
-            resultsManySubsets = LinAlgChain.linAlgChainExtendSumForManySubsets(automaton, weights, zeroSum,
-                    eigenVector, eigenVectorZeroSum);
+            results = LinAlgChain.linAlgChainChangeSumForManySubsets(automaton, weights, zeroSum, eigenVectorPre,
+                    eigenVectorZeroSum, increasingSum);
 
-        // Pair<ArrayList<Integer>, String> chainDescription =
-        // getChainDescription(resultsBlueSubset.first,
-        // resultsBlueSubset.second, showVectorsButton.isSelected() == true,
-        // rotateWords, extendingSum);
-        Pair<ArrayList<Integer>, String> chainDescriptionManySubs = getChainDescription(resultsManySubsets.first,
-                resultsManySubsets.second, showVectorsButton.isSelected() == true, rotateWords, extendingSum);
+        Pair<ArrayList<Integer>, String> chainDescriptionManySubs = getChainDescription(results.first, results.second,
+                showVectorsButton.isSelected() == true, rotateWords, increasingSum || decreasingSum);
         ArrayList<Integer> dimensions = chainDescriptionManySubs.first;
 
         super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", maxdim: "

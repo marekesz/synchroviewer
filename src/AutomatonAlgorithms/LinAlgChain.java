@@ -58,10 +58,10 @@ public class LinAlgChain {
         return new Pair(words, base);
     }
 
-    // the same, but finds words, that increases sum of vector
-    public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainExtendSumForManySubsets(
+    // the same, but finds words, that increases or decreases sum of vector
+    public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainChangeSumForManySubsets(
             AbstractNFA automaton, Rational[] weights, boolean normalize, boolean eigenVectorPreprocess,
-            boolean eigenVectorZeroSum) {
+            boolean eigenVectorZeroSum, boolean increaseDecrease) {
 
         boolean weighted = !Objects.isNull(weights);
         if (!weighted)
@@ -94,8 +94,10 @@ public class LinAlgChain {
                     Rational[] newVector = AlgebraicModule.matMul(baseVector,
                             AlgebraicModule.wordToMatrix(automaton, Character.toString(a)));
                     Rational vectorWeight = AlgebraicModule.weightedSumOfSubset(newVector, weights);
-                    if (!extendingWordFound && vectorWeight.compareTo(subsetWeight) < 0) {
-                        String b = findExtendingLetter(automaton, baseWord + a, baseVector, weights);
+                    if (!extendingWordFound && (increaseDecrease ? (vectorWeight.compareTo(subsetWeight) < 0)
+                            : (vectorWeight.compareTo(subsetWeight) > 0))) {
+                        String b = findChangingSumLetter(automaton, baseWord + a, baseVector, weights,
+                                increaseDecrease);
                         if (!Objects.isNull(b)) {
                             extendingWordFound = true;
                             base.add(AlgebraicModule.matMul(baseVector, AlgebraicModule.wordToMatrix(automaton, b)));
@@ -104,7 +106,8 @@ public class LinAlgChain {
                     }
                     if (!AlgebraicModule.dependentFromBase(base, newVector)) {
                         base.add(newVector);
-                        if (vectorWeight.compareTo(subsetWeight) > 0 && !extendingWordFound) {
+                        if ((increaseDecrease ? (vectorWeight.compareTo(subsetWeight) > 0)
+                                : (vectorWeight.compareTo(subsetWeight) < 0)) && !extendingWordFound) {
                             extendingWordFound = true;
                             words.add(baseWord + a + "*");
                         } else
@@ -156,29 +159,19 @@ public class LinAlgChain {
         return base;
     }
 
-    private static String findExtendingLetter(AbstractNFA automaton, String word, Rational[] baseVector,
-            Rational[] weights) {
+    private static String findChangingSumLetter(AbstractNFA automaton, String word, Rational[] baseVector,
+            Rational[] weights, boolean increaseDecrease) {
         for (int k = 0; k < automaton.getK(); k++) {
             String b = Character.toString(AutomatonHelper.TRANSITIONS_LETTERS[k]);
             Rational[] vector = AlgebraicModule.matMul(baseVector, AlgebraicModule.wordToMatrix(automaton, b));
-            if (AlgebraicModule.weightedSumOfSubset(vector, weights)
-                    .compareTo(AlgebraicModule.weightedSumOfSubset(baseVector, weights)) > 0)
+            Rational vectorWeight = AlgebraicModule.weightedSumOfSubset(vector, weights);
+            Rational baseVectorWeight = AlgebraicModule.weightedSumOfSubset(baseVector, weights);
+
+            if ((increaseDecrease ? (vectorWeight.compareTo(baseVectorWeight) > 0)
+                    : (vectorWeight.compareTo(baseVectorWeight) < 0)))
                 return b;
         }
         // System.out.println("heavier letter not found");
-        return null;
-    }
-
-    private static String findHeavierWord(AbstractNFA automaton, String word, Rational[] rationalSubset,
-            Rational subsetWeight, Rational[] weights) {
-        for (int k = 0; k < automaton.getK(); k++) {
-            String potentialWord = word.substring(0, word.length() - 1) + AutomatonHelper.TRANSITIONS_LETTERS[k];
-            Rational[] vector = AlgebraicModule.matMul(rationalSubset,
-                    AlgebraicModule.wordToMatrix(automaton, potentialWord));
-            if (AlgebraicModule.weightedSumOfSubset(vector, weights).compareTo(subsetWeight) > 0)
-                return potentialWord;
-        }
-        // System.out.println("heavier word not found");
         return null;
     }
 
