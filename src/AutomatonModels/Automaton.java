@@ -4,6 +4,7 @@ package AutomatonModels;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
+import java.awt.Color;
 
 import Viewer.AutomatonHelper;
 
@@ -93,8 +94,13 @@ public class Automaton extends AbstractNFA {
         matrix = temp;
 
         int[] newSelectedStates = new int[N + 1];
+        int[][] newSelectedStatesByColor = new int[COLORS_NUM][N + 1];
         System.arraycopy(selectedStates, 0, newSelectedStates, 0, N);
         selectedStates = newSelectedStates;
+        for (int i = 0; i < N; i++)
+            for (int c = 0; c < COLORS_NUM; c++)
+                newSelectedStatesByColor[c][i] = selectedStatesByColor[c][i];
+        selectedStatesByColor = newSelectedStatesByColor;
 
         N++;
         automatonChanged();
@@ -229,6 +235,13 @@ public class Automaton extends AbstractNFA {
 
     public boolean isSelected(int state, int color) {
         return selectedStatesByColor[color][state] == 1;
+    }
+
+    public boolean isSelectedByAnyColor(int state) {
+        for (int c = 0; c < COLORS_NUM; c++)
+            if (selectedStatesByColor[c][state] > 0)
+                return true;
+        return false;
     }
 
     public int getSelectedStatesNumber() {
