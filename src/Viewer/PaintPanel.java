@@ -72,9 +72,10 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         }
     }
 
-    public static final Color[] STATES_COLORS = { Color.WHITE, new Color(96, 128, 255), new Color(255, 128, 96),
+    public static final Color UNSELECTED_COLOR = Color.WHITE;
+    public static final Color[] STATES_COLORS = { new Color(96, 128, 255), new Color(255, 128, 96),
             new Color(96, 255, 96), new Color(255, 255, 96), new Color(96, 255, 255), new Color(255, 96, 255),
-            Color.ORANGE, new Color(160, 0, 210), new Color(219, 112, 147) };
+            Color.ORANGE, new Color(160, 0, 210), new Color(219, 112, 147), Color.GREEN };
 
     private Automaton automaton;
     private Color[] oldColors;
@@ -448,7 +449,10 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             else if (highlighted >= 0 && operation == Operation.ADD_TRANS)
                 addTransFirstState = highlighted;
             else if (highlighted >= 0 && operation == Operation.SELECT_STATES) {
-                automaton.selectState(highlighted, getColorId(selectedStateColor));
+                if (automaton.isSelected(highlighted, getColorId(selectedStateColor)))
+                	automaton.unselectState(highlighted, getColorId(selectedStateColor));
+                else
+                	automaton.selectState(highlighted, getColorId(selectedStateColor));
             } else if (highlighted >= 0) {
                 grabShiftX = (int) (vertices[highlighted].x - grabX);
                 grabShiftY = (int) (vertices[highlighted].y - grabY);
@@ -465,10 +469,12 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             }
         } else if (ev.getButton() == MouseEvent.BUTTON3) {
             if (highlighted >= 0 && operation == Operation.SELECT_STATES) {
-                automaton.unselectState(highlighted, getColorId(selectedStateColor));
-                newColors[getColorId(selectedStateColor)][highlighted] = unselectedStateColor;
-                if (getColorId(selectedStateColor) == 1)
+            	for (int i = 0; i < STATES_COLORS.length; i++) {
+                  automaton.unselectState(highlighted, i);
+                  newColors[getColorId(selectedStateColor)][highlighted] = unselectedStateColor;
+                  if (i == 0)
                     oldColors[highlighted] = unselectedStateColor;
+            	}
             }
         }
 
@@ -788,11 +794,11 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     private ArrayList<Color> getColorsOf(Color[][] newColors2, int state) {
         ArrayList<Color> result = new ArrayList<>();
         if (!automaton.isSelectedByAnyColor(state)) {
-            result.add(unselectedStateColor);
+            result.add(UNSELECTED_COLOR);
             return result;
         }
 
-        for (int c = 1; c < STATES_COLORS.length; c++) {
+        for (int c = 0; c < STATES_COLORS.length; c++) {
             if (automaton.isSelected(state, c))
                 result.add(STATES_COLORS[c]);
         }
@@ -802,13 +808,13 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
     private void fillMultiColorState(Graphics g, int x, int y, int width, int height, ArrayList<Color> colors) {
         if (colors.size() == 0)
             return;
-        int angle = 360 / colors.size();
-        int rest = 360 % colors.size();
+        float angle = 360 / colors.size();
+        float rest = 360 % colors.size();
         Color oldColor = g.getColor();
         int startAngle = 0;
         for (int i = 0; i < colors.size(); i++) {
             g.setColor(colors.get(i));
-            g.fillArc(x, y, width, height, startAngle, angle + (rest > 0 ? 1 : 0));
+            g.fillArc(x, y, width, height, (int)Math.round(startAngle+0.5f), (int)Math.round(angle + (rest > 0 ? 1 : 0)));
             rest--;
             startAngle += angle;
         }
