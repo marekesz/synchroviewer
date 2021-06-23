@@ -35,7 +35,7 @@ public class SplitPane extends JSplitPane {
         setBackground(new Color(224, 224, 224));
 
         automaton = new Automaton(// "2 5 1 0 2 1 3 2 4 3 0 0");//
-                "2 9 8 0 0 2 3 3 4 4 5 5 6 6 7 7 2 8 0 1");
+                "4 7 1 0 0 0 0 2 1 1 3 1 2 2 2 3 4 3 5 4 4 3 4 6 5 5 6 5 6 6");
         paintPanel = new PaintPanel(automaton);
         setTopComponent(paintPanel);
 

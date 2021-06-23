@@ -98,10 +98,15 @@ public class LinAlgChain {
                             : (vectorWeight.compareTo(subsetWeight) > 0))) {
                         String b = findChangingSumLetter(automaton, baseWord + a, baseVector, weights,
                                 increaseDecrease);
+
                         if (!Objects.isNull(b)) {
-                            extendingWordFound = true;
-                            base.add(AlgebraicModule.matMul(baseVector, AlgebraicModule.wordToMatrix(automaton, b)));
-                            words.add(baseWord + b + '*');
+                            Rational[] alterVector = AlgebraicModule.matMul(baseVector,
+                                    AlgebraicModule.wordToMatrix(automaton, b));
+                            if (!AlgebraicModule.dependentFromBase(base, alterVector)) {
+                                extendingWordFound = true;
+                                base.add(alterVector);
+                                words.add(baseWord + b + '*');
+                            }
                         }
                     }
                     if (!AlgebraicModule.dependentFromBase(base, newVector)) {
