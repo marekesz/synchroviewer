@@ -197,6 +197,8 @@ public class Automaton extends AbstractNFA {
 
     public void selectState(int state, int color) {
         selectedStatesByColor[color][state] = 1;
+        if (color == 0)
+        	selectedStates[state] = 1;
         automatonChanged();
     }
 

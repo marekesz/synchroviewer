@@ -273,7 +273,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         if (weightedSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
             super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
-            textPane.setText("Statioary distribution not found");
+            textPane.setText("Unique eigenvector not found");
             return;
         }
 

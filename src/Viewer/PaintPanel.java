@@ -78,8 +78,6 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             Color.ORANGE, new Color(160, 0, 210), new Color(219, 112, 147), Color.GREEN };
 
     private Automaton automaton;
-    private Color[] oldColors;
-    private Color[][] newColors;
     private Point2D.Double[] vertices;
     private int[] orders;
     private int highlighted;
@@ -293,17 +291,12 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
         this.vertices = new Point2D.Double[N];
         this.orders = new int[N];
-        this.oldColors = new Color[N];
-        this.newColors = new Color[STATES_COLORS.length][N];
         this.highlighted = -1;
         this.addTransFirstState = -1;
         this.swapStatesFirstState = -1;
         int[] selectedStates = new int[N];
         for (int n = 0; n < N; n++) {
             orders[n] = n;
-            oldColors[n] = unselectedStateColor;
-            for (int c = 0; c < STATES_COLORS.length; c++)
-                newColors[c][n] = unselectedStateColor;
             selectedStates[n] = 1;
         }
 
@@ -315,16 +308,11 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         int N = getN();
         this.vertices = new Point2D.Double[N];
         this.orders = new int[N];
-        this.oldColors = new Color[N];
-        this.newColors = new Color[STATES_COLORS.length][N];
         this.highlighted = -1;
         this.addTransFirstState = -1;
         this.swapStatesFirstState = -1;
         for (int n = 0; n < N; n++) {
             orders[n] = n;
-            oldColors[n] = unselectedStateColor;
-            for (int c = 0; c < STATES_COLORS.length; c++)
-                newColors[c][n] = unselectedStateColor;
         }
 
         automaton.clearSelectedStates();
@@ -398,19 +386,6 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 for (int n = 0; n < N; n++)
                     this.orders[n] = n;
 
-                Color[] temp = new Color[N];
-                Color[][] temp3 = new Color[STATES_COLORS.length][N];
-                System.arraycopy(this.oldColors, 0, temp, 0, N - 1);
-                for (int c = 0; c < STATES_COLORS.length; c++)
-                    for (int i = 0; i < N - 1; i++)
-                        temp3[c][i] = newColors[c][i];
-                for (int c = 0; c < STATES_COLORS.length; c++)
-                    temp3[c][N - 1] = unselectedStateColor;
-
-                temp[N - 1] = unselectedStateColor;
-                this.oldColors = temp;
-
-                this.newColors = temp3;
                 Point2D.Double[] temp2 = new Point2D.Double[N];
                 System.arraycopy(this.vertices, 0, temp2, 0, N - 1);
                 temp2[N - 1] = new Point2D.Double(ev.getPoint().getX(), ev.getPoint().getY());
@@ -421,25 +396,14 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 for (int n = 0; n < N - 1; n++)
                     this.orders[n] = n;
 
-                Color[] temp = new Color[N - 1];
-                Color[][] temp3 = new Color[STATES_COLORS.length][N - 1];
                 Point2D.Double[] temp2 = new Point2D.Double[N - 1];
                 for (int n = 0; n < N - 1; n++) {
                     if (n < highlighted) {
-                        temp[n] = this.oldColors[n];
-                        for (int c = 0; c < STATES_COLORS.length; c++)
-                            temp3[c][n] = newColors[c][n];
                         temp2[n] = this.vertices[n];
                     } else {
-                        temp[n] = this.oldColors[n + 1];
-                        for (int c = 0; c < STATES_COLORS.length; c++)
-                            temp3[c][n] = newColors[c][n + 1];
-
                         temp2[n] = this.vertices[n + 1];
                     }
                 }
-                this.oldColors = temp;
-                this.newColors = temp3;
                 this.vertices = temp2;
 
                 automaton.removeState(highlighted);
@@ -470,10 +434,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         } else if (ev.getButton() == MouseEvent.BUTTON3) {
             if (highlighted >= 0 && operation == Operation.SELECT_STATES) {
             	for (int i = 0; i < STATES_COLORS.length; i++) {
-                  automaton.unselectState(highlighted, i);
-                  newColors[getColorId(selectedStateColor)][highlighted] = unselectedStateColor;
-                  if (i == 0)
-                    oldColors[highlighted] = unselectedStateColor;
+                    automaton.unselectState(highlighted, i);
             	}
             }
         }
@@ -747,11 +708,6 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             int n = orders[i];
             if (automaton.isSelectedByAnyColor(n)) {
                 g.setColor(selectedStateColor);
-                oldColors[n] = unselectedStateColor;
-                for (int c = 0; c < STATES_COLORS.length; c++)
-                    newColors[c][n] = unselectedStateColor;
-            } else {
-                g.setColor(oldColors[n]);
             }
             if (highlighted != -1 && highlighted == n)
                 g.setColor(g.getColor().brighter());
@@ -760,7 +716,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             // VERTEX_RADIUS), VERTEX_RADIUS * 2,
             // VERTEX_RADIUS * 2);
             fillMultiColorState(g, (int) (vertices[n].x - VERTEX_RADIUS), (int) (vertices[n].y - VERTEX_RADIUS),
-                    VERTEX_RADIUS * 2, VERTEX_RADIUS * 2, getColorsOf(newColors, n));
+                    VERTEX_RADIUS * 2, VERTEX_RADIUS * 2, getColorsOf(n));
 
             g.setColor(Color.BLACK);
             if (highlighted != -1 && highlighted == n)
@@ -791,7 +747,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
     }
 
-    private ArrayList<Color> getColorsOf(Color[][] newColors2, int state) {
+    private ArrayList<Color> getColorsOf(int state) {
         ArrayList<Color> result = new ArrayList<>();
         if (!automaton.isSelectedByAnyColor(state)) {
             result.add(UNSELECTED_COLOR);
