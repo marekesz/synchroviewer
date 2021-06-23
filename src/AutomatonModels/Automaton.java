@@ -222,6 +222,13 @@ public class Automaton extends AbstractNFA {
         automatonChanged();
     }
 
+    public void unselectState(int state, int color) {
+        selectedStatesByColor[color][state] = 0;
+        if (color == 1)
+            selectedStates[state] = 0;
+        automatonChanged();
+    }
+
     public void clearSelectedStates() {
         Arrays.fill(selectedStates, 0);
         for (int c = 0; c < COLORS_NUM; c++)

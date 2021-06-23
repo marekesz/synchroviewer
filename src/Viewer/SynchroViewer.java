@@ -351,7 +351,6 @@ public class SynchroViewer {
 
             @Override
             public void propertyChange(PropertyChangeEvent ev) {
-                System.out.println("got something");
                 int selectedStatesNumber = paintPanel.getSelectedStatesNumber();
                 selectedStatesLabel.setText(Integer.toString(selectedStatesNumber));
             }
