@@ -46,8 +46,21 @@ public abstract class AlgebraicModule {
     public static Rational[] normalize(Rational[] vector) {
         Rational sum = new Rational(0);
         Rational[] result = new Rational[vector.length];
+        for (int i = 0; i < vector.length; i++)
+            result[i] = vector[i].copy();
+
+        for (Rational x : vector)
+            sum = sum.add(x);
+
         for (int i = 0; i < result.length; i++)
-            result[i] = vector[i];
+            result[i] = result[i].subtract(sum.multiply(new Rational(vector.length).inverse()));
+
+        return result;
+    }
+
+    public static Rational[] normalize(Rational[] vector, Rational[] weights) {
+        Rational sum = new Rational(0);
+        Rational[] result = vectorMultiply(vector, weights);
         for (Rational x : vector)
             sum = sum.add(x);
 

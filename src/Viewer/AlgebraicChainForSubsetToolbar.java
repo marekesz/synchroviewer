@@ -95,8 +95,10 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         directionComboBox.addItem("Preimage (extend)");
         preprocessComboBox = new JComboBox<String>();
         preprocessComboBox.addItem("Raw");
-        preprocessComboBox.addItem("Normalized to 0-sum");
-        preprocessComboBox.addItem("Multiplied by eigenvector");
+        preprocessComboBox.addItem("0-sum");
+        preprocessComboBox.addItem("Eigenvector");
+        preprocessComboBox.addItem("Eigenvector 0-sum");
+
         postprocessComboBox = new JComboBox<String>();
         postprocessComboBox.addItem("Raw");
         postprocessComboBox.addItem("Weighted by eigenvector");
@@ -237,7 +239,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             }
         }
         if (!foundExtendingWord && isExtendingWord)
-            text += "\n Extending word not found";
+            text += "\nExtending word not found";
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
@@ -253,8 +255,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         boolean imageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 1);// "image (extend sum)";
         boolean preImageSelected = (directionComboBox.getSelectedIndex() == 2);// "preimage";
         boolean preImageExtendedSumSelected = (directionComboBox.getSelectedIndex() == 3);// "preimage (extend sum)";
-        boolean normalizedSelected = preprocessComboBox.getSelectedIndex() == 1; // normalized
-        boolean normalizedBySteadyState = preprocessComboBox.getSelectedIndex() == 2; // multiplied by steady-state
+        boolean zeroSum = preprocessComboBox.getSelectedIndex() == 1; // 0-sum
+        boolean eigenVector = preprocessComboBox.getSelectedIndex() == 2; // eigenvector
+        boolean eigenVectorZeroSum = preprocessComboBox.getSelectedIndex() == 3; // eigenvector 0-sum
         boolean weightedSelected = postprocessComboBox.getSelectedIndex() == 1; // weighted by steady-state
         boolean rotateWords = preImageSelected || preImageExtendedSumSelected;
         boolean extendingSum = imageExtendedSumSelected || preImageExtendedSumSelected;
@@ -263,7 +266,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         Rational[] weights = null;
         int[] subset = getAutomaton().getSelectedStates();
 
-        if (weightedSelected || normalizedBySteadyState) {
+        if (weightedSelected || eigenVector) {
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
             firePropertyChange("setMarkovProbabilitiesVisible", false, true);
             // Strong connectivity exception
@@ -284,18 +287,18 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         Pair<ArrayList<String>, ArrayList<Rational[]>> resultsBlueSubset = null;
         if (imageSelected || preImageSelected)
-            resultsBlueSubset = LinAlgChain.linAlgChain(automaton, subset, weights, normalizedSelected,
-                    normalizedBySteadyState);
+            resultsBlueSubset = LinAlgChain.linAlgChain(automaton, subset, weights, zeroSum, eigenVector,
+                    eigenVectorZeroSum);
         else
-            resultsBlueSubset = LinAlgChain.linAlgChainExtendSum(automaton, subset, weights, normalizedSelected,
-                    normalizedBySteadyState);
+            resultsBlueSubset = LinAlgChain.linAlgChainExtendSum(automaton, subset, weights, zeroSum, eigenVector,
+                    eigenVectorZeroSum);
         Pair<ArrayList<String>, ArrayList<Rational[]>> resultsManySubsets = null;
         if (imageSelected || preImageSelected)
-            resultsManySubsets = LinAlgChain.linAlgChainForManySubsets(automaton, weights, normalizedSelected,
-                    normalizedBySteadyState);
+            resultsManySubsets = LinAlgChain.linAlgChainForManySubsets(automaton, weights, zeroSum, eigenVector,
+                    eigenVectorZeroSum);
         else
-            resultsManySubsets = LinAlgChain.linAlgChainExtendSumForManySubsets(automaton, weights, normalizedSelected,
-                    normalizedBySteadyState);
+            resultsManySubsets = LinAlgChain.linAlgChainExtendSumForManySubsets(automaton, weights, zeroSum,
+                    eigenVector, eigenVectorZeroSum);
 
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(resultsBlueSubset.first,
                 resultsBlueSubset.second, showVectorsButton.isSelected() == true, rotateWords, extendingSum);
