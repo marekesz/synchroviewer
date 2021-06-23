@@ -79,6 +79,14 @@ public abstract class AlgebraicModule {
         return vector.length;
     }
 
+    public static int leadingZerosCount(int[] vector) {
+        for (int i = 0; i < vector.length; i++) {
+            if (vector[i] != 0)
+                return i;
+        }
+        return vector.length;
+    }
+
     // vector greater if one vector is lexicographically with abs values greater
     public static boolean vectorGreater(Rational[] v1, Rational[] v2) {
         int cmp = 0;

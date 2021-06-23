@@ -277,23 +277,33 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             return;
         }
 
-        Pair<ArrayList<String>, ArrayList<Rational[]>> results = null;
+        Pair<ArrayList<String>, ArrayList<Rational[]>> resultsBlueSubset = null;
         if (imageSelected || preImageSelected)
-            results = LinAlgChain.linAlgChain(automaton, subset, weights, normalizedSelected, normalizedBySteadyState);
+            resultsBlueSubset = LinAlgChain.linAlgChain(automaton, subset, weights, normalizedSelected,
+                    normalizedBySteadyState);
         else
-            results = LinAlgChain.linAlgChainExtendSum(automaton, subset, weights, normalizedSelected,
+            resultsBlueSubset = LinAlgChain.linAlgChainExtendSum(automaton, subset, weights, normalizedSelected,
+                    normalizedBySteadyState);
+        Pair<ArrayList<String>, ArrayList<Rational[]>> resultsManySubsets = null;
+        if (imageSelected || preImageSelected)
+            resultsManySubsets = LinAlgChain.linAlgChainForManySubsets(automaton, weights, normalizedSelected,
+                    normalizedBySteadyState);
+        else
+            resultsManySubsets = LinAlgChain.linAlgChainExtendSumForManySubsets(automaton, weights, normalizedSelected,
                     normalizedBySteadyState);
 
-        Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,
-                showVectorsButton.isSelected() == true, rotateWords);
+        Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(resultsBlueSubset.first,
+                resultsBlueSubset.second, showVectorsButton.isSelected() == true, rotateWords);
+        Pair<ArrayList<Integer>, String> chainDescriptionManySubs = getChainDescription(resultsManySubsets.first,
+                resultsManySubsets.second, showVectorsButton.isSelected() == true, rotateWords);
         ArrayList<Integer> dimensions = chainDescription.first;
 
         super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", maxdim: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
 
-        if (chainDescription.first.size() > 0)
-            textPane.setText(chainDescription.second);
-        else
+        if (chainDescriptionManySubs.first.size() > 0) {
+            textPane.setText(chainDescription.second + "\n for many chains: \n" + chainDescriptionManySubs.second);
+        } else
             textPane.setText("Empty subspace");
     }
 
