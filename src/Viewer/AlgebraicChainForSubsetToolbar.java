@@ -29,6 +29,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+
 import AutomatonAlgorithms.AlgebraicModule;
 import AutomatonAlgorithms.Connectivity;
 import AutomatonAlgorithms.LinAlgChain;
@@ -48,6 +50,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     private final JComboBox<String> directionComboBox;
     private final JComboBox<String> preprocessComboBox;
     private final JComboBox<String> postprocessComboBox;
+    private final JComboBox<String> sumComboBox;
 
     public AlgebraicChainForSubsetToolbar(String name, boolean visibleOnStart, Automaton automaton,
             InverseAutomaton inverseAutomaton) {
@@ -90,9 +93,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         directionComboBox = new JComboBox<String>();
         directionComboBox.addItem("Image");
-        directionComboBox.addItem("Image (extend)");
         directionComboBox.addItem("Preimage");
-        directionComboBox.addItem("Preimage (extend)");
         preprocessComboBox = new JComboBox<String>();
         preprocessComboBox.addItem("Raw");
         preprocessComboBox.addItem("0-sum");
@@ -102,6 +103,11 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         postprocessComboBox = new JComboBox<String>();
         postprocessComboBox.addItem("Raw");
         postprocessComboBox.addItem("Eigenvector");
+
+        sumComboBox = new JComboBox<String>();
+        sumComboBox.addItem("--");
+        sumComboBox.addItem("Increase");
+        sumComboBox.addItem("Decrease");
 
         // imageComboBox = new JComboBox<String>();
         // normalizationComboBox = new JComboBox<String>();
@@ -153,22 +159,31 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         JPanel outerPanel = new JPanel();
         outerPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(0,0,0,5);
+        c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
-        c.weightx = 0.0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.0; c.weighty = 0.0;
         c.gridwidth = 1;
+        outerPanel.add(new JLabel("Direction:"), c);
         outerPanel.add(directionComboBox, c);
-        c.anchor = GridBagConstraints.WEST;
+        outerPanel.add(new JLabel("Sum:"), c);
+        c.weightx = 0.0; outerPanel.add(sumComboBox, c);
         c.weightx = 0.0;
+        
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = 1;
         c.gridwidth = 1;
+        outerPanel.add(new JLabel("Pre:"), c);
         outerPanel.add(preprocessComboBox, c);
-        c.anchor = GridBagConstraints.EAST;
-        c.weightx = 1.0;
-        c.gridwidth = 1;
+        outerPanel.add(new JLabel("Post:"), c);
         outerPanel.add(postprocessComboBox, c);
+        
         c.anchor = GridBagConstraints.EAST;
-        c.weightx = 1.0;
-        c.gridwidth = 1;
-        outerPanel.add(showVectorsButton, c);
+        c.fill = GridBagConstraints.NONE;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.weightx = 1.0; outerPanel.add(showVectorsButton, c);
+        
         panel.add(outerPanel, BorderLayout.SOUTH);
     }
 
