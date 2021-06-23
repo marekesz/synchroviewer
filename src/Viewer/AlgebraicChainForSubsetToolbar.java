@@ -191,14 +191,16 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     }
 
     private Pair<ArrayList<Integer>, String> getChainDescription(ArrayList<String> words, ArrayList<Rational[]> vectors,
-            boolean showVectors, boolean inverseWords) {
+            boolean showVectors, boolean inverseWords, boolean isExtendingWord) {
         if (words.size() == 0)
             return new Pair<ArrayList<Integer>, String>(new ArrayList<>(), "");
         String text = "";
         int dimCnt = 0;
         ArrayList<Integer> dimensions = new ArrayList<Integer>();
-
+        boolean foundExtendingWord = false;
         for (int i = 0; i < words.size(); i++) {
+            if (words.get(i).contains("*"))
+                foundExtendingWord = true;
             dimCnt += 1;
             if (dimensions.size() == 0
                     || wordLengthWithoutExtraSymbols(words.get(i)) > wordLengthWithoutExtraSymbols(words.get(i - 1)))
@@ -234,6 +236,8 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                         + AlgebraicModule.sumOfVector(vectors.get(i)) + "\n";
             }
         }
+        if (!foundExtendingWord && isExtendingWord)
+            text += "\n Extending word not found";
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
@@ -253,6 +257,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         boolean normalizedBySteadyState = preprocessComboBox.getSelectedIndex() == 2; // multiplied by steady-state
         boolean weightedSelected = postprocessComboBox.getSelectedIndex() == 1; // weighted by steady-state
         boolean rotateWords = preImageSelected || preImageExtendedSumSelected;
+        boolean extendingSum = imageExtendedSumSelected || preImageExtendedSumSelected;
         AbstractNFA automaton = imageSelected || imageExtendedSumSelected ? getAutomaton()
                 : new InverseAutomaton(getAutomaton());
         Rational[] weights = null;
@@ -273,7 +278,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         if (weightedSelected && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
             super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
-            textPane.setText("Unique eigenvector not found");
+            textPane.setText("Statioary distribution not found");
             return;
         }
 
@@ -293,9 +298,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                     normalizedBySteadyState);
 
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(resultsBlueSubset.first,
-                resultsBlueSubset.second, showVectorsButton.isSelected() == true, rotateWords);
+                resultsBlueSubset.second, showVectorsButton.isSelected() == true, rotateWords, extendingSum);
         Pair<ArrayList<Integer>, String> chainDescriptionManySubs = getChainDescription(resultsManySubsets.first,
-                resultsManySubsets.second, showVectorsButton.isSelected() == true, rotateWords);
+                resultsManySubsets.second, showVectorsButton.isSelected() == true, rotateWords, extendingSum);
         ArrayList<Integer> dimensions = chainDescription.first;
 
         super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", maxdim: "

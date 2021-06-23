@@ -67,7 +67,7 @@ public class LinAlgChain {
         base = prepareL0Base(automaton, weights, normalize, preprocess);
         for (int i = 0; i < base.size(); i++)
             words.add("");
-        System.out.println("base size: " + base.size());
+        // System.out.println("base size: " + base.size());
         if (base.size() == 0)
             return new Pair<>(words, base);
 
@@ -77,7 +77,7 @@ public class LinAlgChain {
             while (candsIndex < currentBaseSize) {
                 Rational[] baseVector = base.get(candsIndex);
                 String baseWord = words.get(candsIndex);
-                System.out.println("word: " + baseWord);
+                // System.out.println("word: " + baseWord);
                 for (int k = 0; k < automaton.getK(); k++) {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
                     Rational[] newVector = AlgebraicModule.matMul(baseVector,
@@ -94,7 +94,7 @@ public class LinAlgChain {
             for (int i = 0; i < base.size(); i++)
                 base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
 
-        System.out.println("result length: " + words.size());
+        // System.out.println("result length: " + words.size());
         return new Pair(words, base);
     }
 
@@ -248,7 +248,7 @@ public class LinAlgChain {
     public static ArrayList<Rational[]> getAllSubsets(AbstractNFA automaton, Rational[] weights, boolean normalize,
             boolean subsetPreprocessed) {
         ArrayList<Rational[]> result = new ArrayList<>();
-        System.out.println("subsets processed:");
+        // System.out.println("subsets processed:");
         for (int[] subset : subArray(automaton.getSelectedStatesByColor(), 1, COLORS_NUM - 1)) {
             Rational[] rationalSubset = AlgebraicModule.toRationalArray(subset);
 
@@ -258,7 +258,7 @@ public class LinAlgChain {
                 rationalSubset = AlgebraicModule.normalize(rationalSubset);
             if (AlgebraicModule.leadingZerosCount(rationalSubset) < rationalSubset.length) {
                 result.add(rationalSubset);
-                AlgebraicModule.printArray(rationalSubset);
+                // AlgebraicModule.printArray(rationalSubset);
             }
         }
         return result;
@@ -301,6 +301,7 @@ public class LinAlgChain {
                     .compareTo(AlgebraicModule.weightedSumOfSubset(baseVector, weights)) > 0)
                 return b;
         }
+        System.out.println("heavier letter not found");
         return null;
     }
 
@@ -313,6 +314,7 @@ public class LinAlgChain {
             if (AlgebraicModule.weightedSumOfSubset(vector, weights).compareTo(subsetWeight) > 0)
                 return potentialWord;
         }
+        System.out.println("heavier word not found");
         return null;
     }
 
