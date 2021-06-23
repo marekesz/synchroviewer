@@ -279,6 +279,7 @@ public class Automaton extends AbstractNFA {
         return selectedStatesByColor[color];
     }
 
+    @Override
     public int[][] getSelectedStatesByColor() {
         return selectedStatesByColor;
     }

@@ -31,6 +31,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import AutomatonAlgorithms.AlgebraicModule;
 import AutomatonAlgorithms.Connectivity;
+import AutomatonAlgorithms.LinAlgChain;
 import AutomatonAlgorithms.MarkovChains;
 import AutomatonAlgorithms.Pair;
 import AutomatonAlgorithms.Rational;
@@ -278,10 +279,9 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = null;
         if (imageSelected || preImageSelected)
-            results = AlgebraicModule.linAlgChain(automaton, subset, weights, normalizedSelected,
-                    normalizedBySteadyState);
+            results = LinAlgChain.linAlgChain(automaton, subset, weights, normalizedSelected, normalizedBySteadyState);
         else
-            results = AlgebraicModule.linAlgChainExtendSum(automaton, subset, weights, normalizedSelected,
+            results = LinAlgChain.linAlgChainExtendSum(automaton, subset, weights, normalizedSelected,
                     normalizedBySteadyState);
 
         Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(results.first, results.second,

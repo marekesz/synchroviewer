@@ -9,125 +9,8 @@ import AutomatonModels.AbstractNFA;
 import Viewer.AutomatonHelper;
 
 public abstract class AlgebraicModule {
-    private static Rational ZERO = new Rational(0);
+    public static Rational ZERO = new Rational(0);
     public static Rational ONE = new Rational(1);
-
-    // computes array L, where L[i] = span({[S][w] | w in Sigma^<=i}), returns
-    // words used for each L[i], and dimensions of L[i]
-    public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChain(AbstractNFA automaton, int[] subset,
-            Rational[] weights, boolean normalize, boolean subsetPreprocessed) {
-        ArrayList<String> words = new ArrayList<>();
-        ArrayList<Rational[]> base = new ArrayList<>();
-        ArrayList<String> candidates = new ArrayList<>();
-        if (automaton.getN() == 0)
-            return new Pair<>(words, base);
-        Rational[] rationalSubset = toRationalArray(subset);
-        if (subsetPreprocessed)
-            rationalSubset = vectorMultiply(weights, rationalSubset);
-        if (normalize)
-            rationalSubset = normalize(rationalSubset);
-        if (leadingZerosCount(rationalSubset) == rationalSubset.length)
-            return new Pair<>(words, base);
-
-        words.add("");
-        candidates.add("");
-        // printArray(matMul(rationalSubset, wordToMatrix(automaton, "")));
-        // System.out.println("added");
-        Rational[] vector = matMul(rationalSubset, wordToMatrix(automaton, ""));
-        // if (Objects.isNull(weights))
-        base.add(vector);
-        // else
-        // base.add(vectorMultiply(weights, vector));
-        ArrayList<String> newCandidates = new ArrayList<>();
-        while (candidates.size() > 0) {
-            for (String x : candidates) {
-                for (int k = 0; k < automaton.getK(); k++) {
-                    char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    vector = matMul(rationalSubset, wordToMatrix(automaton, x + a));
-                    if (!dependentFromBase(base, vector)) {
-                        // System.out.println("added");
-                        base.add(vector);
-                        newCandidates.add(x + a);
-                        words.add(x + a);
-                    }
-                }
-            }
-            moveArrayList(newCandidates, candidates);
-            newCandidates.clear();
-        }
-        if (!Objects.isNull(weights) && !subsetPreprocessed)
-            for (int i = 0; i < base.size(); i++)
-                base.set(i, vectorMultiply(weights, base.get(i)));
-
-        return new Pair(words, base);
-    }
-
-    // the same, but finds words, that increases sum of vector
-    public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainExtendSum(AbstractNFA automaton,
-            int[] subset, Rational[] weights, boolean normalize, boolean subsetPreprocessed) {
-
-        ArrayList<String> words = new ArrayList<>();
-        ArrayList<Rational[]> base = new ArrayList<>();
-        ArrayList<String> candidates = new ArrayList<>();
-        boolean weighted = !Objects.isNull(weights);
-        if (!weighted)
-            weights = ones(automaton.getN());
-
-        Rational subsetWeight = weightedSumOfSubset(subset, weights);
-        if (automaton.getN() == 0)
-            return new Pair<>(words, base);
-        Rational[] rationalSubset = toRationalArray(subset);
-        if (subsetPreprocessed)
-            rationalSubset = vectorMultiply(weights, rationalSubset);
-        if (normalize)
-            rationalSubset = normalize(rationalSubset);
-        if (leadingZerosCount(rationalSubset) == rationalSubset.length)
-            return new Pair<>(words, base);
-
-        words.add("");
-        candidates.add("");
-        Rational[] vector = matMul(rationalSubset, wordToMatrix(automaton, ""));
-        base.add(vector);
-        ArrayList<String> newCandidates = new ArrayList<>();
-
-        boolean extendingWordFound = false;
-        while (candidates.size() > 0) {
-            for (String x : candidates) {
-                for (int k = 0; k < automaton.getK(); k++) {
-                    char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    vector = matMul(rationalSubset, wordToMatrix(automaton, x + a));
-                    Rational vectorWeight = weightedSumOfSubset(vector, weights);
-
-                    if (!extendingWordFound && vectorWeight.compareTo(subsetWeight) < 0) {
-                        String newWord = findHeavierWord(automaton, x + a, rationalSubset, subsetWeight, weights);
-                        if (!Objects.isNull(newWord)) {
-                            extendingWordFound = true;
-                            base.add(matMul(rationalSubset, wordToMatrix(automaton, newWord)));
-                            newCandidates.add(newWord);
-                            words.add(newWord + '^');
-                        }
-                    }
-                    if (!dependentFromBase(base, vector)) {
-                        base.add(vector);
-                        newCandidates.add(x + a);
-                        if (vectorWeight.compareTo(subsetWeight) > 0 && !extendingWordFound) {
-                            extendingWordFound = true;
-                            words.add(x + a + "*");
-                        } else {
-                            words.add(x + a);
-                        }
-                    }
-                }
-            }
-            moveArrayList(newCandidates, candidates);
-            newCandidates.clear();
-        }
-        if (!subsetPreprocessed)
-            for (int i = 0; i < base.size(); i++)
-                base.set(i, vectorMultiply(weights, base.get(i)));
-
-        return new Pair(words, base);
-    }
 
     public static Rational[] ones(int n) {
         Rational[] result = new Rational[n];
@@ -136,32 +19,21 @@ public abstract class AlgebraicModule {
         return result;
     }
 
-    private static String findHeavierWord(AbstractNFA automaton, String word, Rational[] rationalSubset,
-            Rational subsetWeight, Rational[] weights) {
-        for (int k = 0; k < automaton.getK(); k++) {
-            String potentialWord = word.substring(0, word.length() - 1) + AutomatonHelper.TRANSITIONS_LETTERS[k];
-            Rational[] vector = matMul(rationalSubset, wordToMatrix(automaton, potentialWord));
-            if (weightedSumOfSubset(vector, weights).compareTo(subsetWeight) > 0)
-                return potentialWord;
-        }
-        return null;
-    }
-
-    private static Rational weightedSumOfSubset(Rational[] subset, Rational[] weights) {
+    public static Rational weightedSumOfSubset(Rational[] subset, Rational[] weights) {
         Rational result = ZERO;
         for (int i = 0; i < subset.length; i++)
             result = result.add(subset[i].multiply(weights[i]));
         return result;
     }
 
-    private static Rational weightedSumOfSubset(int[] subset, Rational[] weights) {
+    public static Rational weightedSumOfSubset(int[] subset, Rational[] weights) {
         Rational result = ZERO;
         for (int i = 0; i < subset.length; i++)
             result = result.add(new Rational(subset[i]).multiply(weights[i]));
         return result;
     }
 
-    private static Rational[] vectorMultiply(Rational[] v1, Rational[] v2) {
+    public static Rational[] vectorMultiply(Rational[] v1, Rational[] v2) {
         if (v1.length != v2.length)
             System.out.println("vectors dimensions mismatch");
         int n = v1.length;

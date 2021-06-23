@@ -44,6 +44,7 @@ public class InverseAutomaton extends AbstractNFA {
         return selectedStatesByColor[color];
     }
 
+    @Override
     public int[][] getSelectedStatesByColor() {
         return selectedStatesByColor;
     }

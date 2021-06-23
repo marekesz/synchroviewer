@@ -18,4 +18,6 @@ public abstract class AbstractNFA {
     }
 
     public abstract int[] getTransitions(int i, int k);
+
+    public abstract int[][] getSelectedStatesByColor();
 }
