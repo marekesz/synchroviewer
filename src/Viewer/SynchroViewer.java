@@ -343,15 +343,25 @@ public class SynchroViewer {
         toolbar.add(Box.createHorizontalGlue());
 
         JLabel label = new JLabel("Selected states:  ");
-        JLabel selectedStatesLabel = new JLabel(Integer.toString(splitPane.getSelectedStatesNumber()));
+        JLabel selectedStatesLabel = new JLabel(Integer.toString(paintPanel.getSelectedStatesNumber()));
         Font font = label.getFont().deriveFont(Font.PLAIN, 20);
         label.setFont(font);
         selectedStatesLabel.setFont(font);
-        splitPane.getAutomaton().addPropertyChangeListener("automatonChanged", new PropertyChangeListener() {
+        paintPanel.addPropertyChangeListener("selectedStateColorChanged", new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent ev) {
-                int selectedStatesNumber = splitPane.getSelectedStatesNumber();
+                System.out.println("got something");
+                int selectedStatesNumber = paintPanel.getSelectedStatesNumber();
+                selectedStatesLabel.setText(Integer.toString(selectedStatesNumber));
+            }
+        });
+
+        paintPanel.getAutomaton().addPropertyChangeListener("automatonChanged", new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent ev) {
+                int selectedStatesNumber = paintPanel.getSelectedStatesNumber();
                 selectedStatesLabel.setText(Integer.toString(selectedStatesNumber));
             }
         });

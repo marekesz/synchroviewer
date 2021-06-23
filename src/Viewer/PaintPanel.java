@@ -18,6 +18,7 @@ import java.awt.geom.Point2D;
 import java.awt.FontMetrics;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -189,6 +190,19 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         return selectedStateColor;
     }
 
+    public int getSelectedStatesNumber() {
+        return automaton.getSelectedStatesNumber(getColorId(selectedStateColor));
+    }
+
+    public Automaton getAutomaton() {
+        return automaton;
+    }
+
+    public void selectedStateColorChanged() {
+        System.out.println("selectedStateColorChanged");
+        firePropertyChange("selectedStateColorChanged", true, false);
+    }
+
     public int getColorId(Color color) {
         for (int c = 0; c < STATES_COLORS.length; c++)
             if (color.equals(STATES_COLORS[c]))
@@ -222,6 +236,8 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             // }
 
             selectedStateColor = color;
+
+            selectedStateColorChanged();
             repaint();
         }
     }
