@@ -101,7 +101,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         postprocessComboBox = new JComboBox<String>();
         postprocessComboBox.addItem("Raw");
-        postprocessComboBox.addItem("Weighted by eigenvector");
+        postprocessComboBox.addItem("Eigenvector");
 
         // imageComboBox = new JComboBox<String>();
         // normalizationComboBox = new JComboBox<String>();
@@ -285,13 +285,15 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             return;
         }
 
-        Pair<ArrayList<String>, ArrayList<Rational[]>> resultsBlueSubset = null;
-        if (imageSelected || preImageSelected)
-            resultsBlueSubset = LinAlgChain.linAlgChain(automaton, subset, weights, zeroSum, eigenVector,
-                    eigenVectorZeroSum);
-        else
-            resultsBlueSubset = LinAlgChain.linAlgChainExtendSum(automaton, subset, weights, zeroSum, eigenVector,
-                    eigenVectorZeroSum);
+        // Pair<ArrayList<String>, ArrayList<Rational[]>> resultsBlueSubset = null;
+        // if (imageSelected || preImageSelected)
+        // resultsBlueSubset = LinAlgChain.linAlgChain(automaton, subset, weights,
+        // zeroSum, eigenVector,
+        // eigenVectorZeroSum);
+        // else
+        // resultsBlueSubset = LinAlgChain.linAlgChainExtendSum(automaton, subset,
+        // weights, zeroSum, eigenVector,
+        // eigenVectorZeroSum);
         Pair<ArrayList<String>, ArrayList<Rational[]>> resultsManySubsets = null;
         if (imageSelected || preImageSelected)
             resultsManySubsets = LinAlgChain.linAlgChainForManySubsets(automaton, weights, zeroSum, eigenVector,
@@ -300,17 +302,19 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             resultsManySubsets = LinAlgChain.linAlgChainExtendSumForManySubsets(automaton, weights, zeroSum,
                     eigenVector, eigenVectorZeroSum);
 
-        Pair<ArrayList<Integer>, String> chainDescription = getChainDescription(resultsBlueSubset.first,
-                resultsBlueSubset.second, showVectorsButton.isSelected() == true, rotateWords, extendingSum);
+        // Pair<ArrayList<Integer>, String> chainDescription =
+        // getChainDescription(resultsBlueSubset.first,
+        // resultsBlueSubset.second, showVectorsButton.isSelected() == true,
+        // rotateWords, extendingSum);
         Pair<ArrayList<Integer>, String> chainDescriptionManySubs = getChainDescription(resultsManySubsets.first,
                 resultsManySubsets.second, showVectorsButton.isSelected() == true, rotateWords, extendingSum);
-        ArrayList<Integer> dimensions = chainDescription.first;
+        ArrayList<Integer> dimensions = chainDescriptionManySubs.first;
 
         super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", maxdim: "
                 + Integer.toString(dimensions.isEmpty() ? 0 : dimensions.get(dimensions.size() - 1)) + ")");
 
         if (chainDescriptionManySubs.first.size() > 0) {
-            textPane.setText(chainDescription.second + "\n for many chains: \n" + chainDescriptionManySubs.second);
+            textPane.setText(chainDescriptionManySubs.second);
         } else
             textPane.setText("Empty subspace");
     }

@@ -13,53 +13,9 @@ public class LinAlgChain {
     public static Rational ONE = new Rational(1);
     private static int COLORS_NUM = 10;
 
-    // computes array L, where L[i] = span({[S][w] | w in Sigma^<=i}), returns
+    // computes array L, where L[i] = span({[S][w] | w in Sigma^<=i, S in automaton
+    // selected subsets}), returns
     // words used for each L[i], and dimensions of L[i]
-    public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChain(AbstractNFA automaton, int[] subset,
-            Rational[] weights, boolean zeroSum, boolean preprocess, boolean eigenVectorZeroSum) {
-        ArrayList<String> words = new ArrayList<>();
-        ArrayList<Rational[]> base = new ArrayList<>();
-        ArrayList<String> candidates = new ArrayList<>();
-        if (automaton.getN() == 0)
-            return new Pair<>(words, base);
-        Rational[] rationalSubset = AlgebraicModule.toRationalArray(subset);
-        if (preprocess)
-            rationalSubset = AlgebraicModule.vectorMultiply(weights, rationalSubset);
-        if (zeroSum)
-            rationalSubset = AlgebraicModule.normalize(rationalSubset);
-        if (eigenVectorZeroSum)
-            rationalSubset = AlgebraicModule.normalize(rationalSubset, weights);
-        if (AlgebraicModule.leadingZerosCount(rationalSubset) == rationalSubset.length)
-            return new Pair<>(words, base);
-
-        words.add("");
-        candidates.add("");
-        Rational[] vector = AlgebraicModule.matMul(rationalSubset, AlgebraicModule.wordToMatrix(automaton, ""));
-        base.add(vector);
-        ArrayList<String> newCandidates = new ArrayList<>();
-        while (candidates.size() > 0) {
-            for (String x : candidates) {
-                for (int k = 0; k < automaton.getK(); k++) {
-                    char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    vector = AlgebraicModule.matMul(rationalSubset, AlgebraicModule.wordToMatrix(automaton, x + a));
-                    if (!AlgebraicModule.dependentFromBase(base, vector)) {
-                        base.add(vector);
-                        newCandidates.add(x + a);
-                        words.add(x + a);
-                    }
-                }
-            }
-            AlgebraicModule.moveArrayList(newCandidates, candidates);
-            newCandidates.clear();
-        }
-        if (!Objects.isNull(weights) && !preprocess)
-            for (int i = 0; i < base.size(); i++)
-                base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
-
-        return new Pair(words, base);
-    }
-
-    // The same, but optimized and handling all colored subsets
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainForManySubsets(AbstractNFA automaton,
             Rational[] weights, boolean zeroSum, boolean eigenVectorPreprocess, boolean eigenVectorZeroSum) {
         ArrayList<String> words = new ArrayList<>();
@@ -99,75 +55,6 @@ public class LinAlgChain {
                 base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
 
         // System.out.println("result length: " + words.size());
-        return new Pair(words, base);
-    }
-
-    // the same, but finds words, that increases sum of vector
-    public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainExtendSum(AbstractNFA automaton,
-            int[] subset, Rational[] weights, boolean zeroSum, boolean eigenVectorPreprocess,
-            boolean eigenVectorZeroSum) {
-
-        ArrayList<String> words = new ArrayList<>();
-        ArrayList<Rational[]> base = new ArrayList<>();
-        ArrayList<String> candidates = new ArrayList<>();
-        boolean weighted = !Objects.isNull(weights);
-        if (!weighted)
-            weights = AlgebraicModule.ones(automaton.getN());
-
-        Rational subsetWeight = AlgebraicModule.weightedSumOfSubset(subset, weights);
-        if (automaton.getN() == 0)
-            return new Pair<>(words, base);
-        Rational[] rationalSubset = AlgebraicModule.toRationalArray(subset);
-        if (eigenVectorPreprocess)
-            rationalSubset = AlgebraicModule.vectorMultiply(weights, rationalSubset);
-        if (zeroSum)
-            rationalSubset = AlgebraicModule.normalize(rationalSubset);
-        if (AlgebraicModule.leadingZerosCount(rationalSubset) == rationalSubset.length)
-            return new Pair<>(words, base);
-
-        words.add("");
-        candidates.add("");
-        Rational[] vector = AlgebraicModule.matMul(rationalSubset, AlgebraicModule.wordToMatrix(automaton, ""));
-        base.add(vector);
-        ArrayList<String> newCandidates = new ArrayList<>();
-
-        boolean extendingWordFound = false;
-        while (candidates.size() > 0) {
-            for (String x : candidates) {
-                for (int k = 0; k < automaton.getK(); k++) {
-                    char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
-                    vector = AlgebraicModule.matMul(rationalSubset, AlgebraicModule.wordToMatrix(automaton, x + a));
-                    Rational vectorWeight = AlgebraicModule.weightedSumOfSubset(vector, weights);
-
-                    if (!extendingWordFound && vectorWeight.compareTo(subsetWeight) < 0) {
-                        String newWord = findHeavierWord(automaton, x + a, rationalSubset, subsetWeight, weights);
-                        if (!Objects.isNull(newWord)) {
-                            extendingWordFound = true;
-                            base.add(AlgebraicModule.matMul(rationalSubset,
-                                    AlgebraicModule.wordToMatrix(automaton, newWord)));
-                            newCandidates.add(newWord);
-                            words.add(newWord + '*');
-                        }
-                    }
-                    if (!AlgebraicModule.dependentFromBase(base, vector)) {
-                        base.add(vector);
-                        newCandidates.add(x + a);
-                        if (vectorWeight.compareTo(subsetWeight) > 0 && !extendingWordFound) {
-                            extendingWordFound = true;
-                            words.add(x + a + "*");
-                        } else {
-                            words.add(x + a);
-                        }
-                    }
-                }
-            }
-            AlgebraicModule.moveArrayList(newCandidates, candidates);
-            newCandidates.clear();
-        }
-        if (!eigenVectorPreprocess)
-            for (int i = 0; i < base.size(); i++)
-                base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
-
         return new Pair(words, base);
     }
 
