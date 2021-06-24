@@ -293,7 +293,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         Rational[] weights = null;
         // int[] subset = getAutomaton().getSelectedStates();
 
-        if (eigenVectorPost || eigenVectorPre) {
+        if (eigenVectorPost || eigenVectorPre || eigenVectorZeroSum) {
             weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
             firePropertyChange("setMarkovProbabilitiesVisible", false, true);
             // Strong connectivity exception
@@ -324,10 +324,10 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = null;
         if (!increasingSum && !decreasingSum)
             results = LinAlgChain.linAlgChainForManySubsets(automaton, weights, zeroSum, eigenVectorPre,
-                    eigenVectorZeroSum);
+                    eigenVectorPost, eigenVectorZeroSum);
         else
             results = LinAlgChain.linAlgChainChangeSumForManySubsets(automaton, weights, zeroSum, eigenVectorPre,
-                    eigenVectorZeroSum, increasingSum);
+                    eigenVectorPost, eigenVectorZeroSum, increasingSum);
 
         Pair<ArrayList<Integer>, String> chainDescriptionManySubs = getChainDescription(results.first, results.second,
                 showVectorsButton.isSelected() == true, rotateWords, increasingSum || decreasingSum);

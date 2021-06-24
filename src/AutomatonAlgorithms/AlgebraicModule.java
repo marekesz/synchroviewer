@@ -60,12 +60,17 @@ public abstract class AlgebraicModule {
 
     public static Rational[] normalize(Rational[] vector, Rational[] weights) {
         Rational sum = new Rational(0);
-        Rational[] result = vectorMultiply(vector, weights);
-        for (Rational x : vector)
-            sum = sum.add(x);
+        Rational[] result = vector.clone();
+        Rational weightedMean = ZERO;
+        for (Rational x : vectorMultiply(vector, weights))
+            weightedMean = weightedMean.add(x);
 
         for (int i = 0; i < result.length; i++)
-            result[i] = result[i].subtract(sum.multiply(new Rational(vector.length).inverse()));
+            result[i] = result[i].subtract(weightedMean);
+
+        // for (int i = 0; i < result.length; i++)
+        // result[i] = result[i].subtract(sum.multiply(new
+        // Rational(vector.length).inverse()));
 
         return result;
     }

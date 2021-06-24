@@ -17,7 +17,8 @@ public class LinAlgChain {
     // selected subsets}), returns
     // words used for each L[i], and dimensions of L[i]
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainForManySubsets(AbstractNFA automaton,
-            Rational[] weights, boolean zeroSum, boolean eigenVectorPreprocess, boolean eigenVectorZeroSum) {
+            Rational[] weights, boolean zeroSum, boolean eigenVectorPreprocess, boolean eigenVectorPostprocess,
+            boolean eigenVectorZeroSum) {
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
         if (automaton.getN() == 0)
@@ -50,7 +51,7 @@ public class LinAlgChain {
                 candsIndex++;
             }
         }
-        if (!Objects.isNull(weights) && !eigenVectorPreprocess)
+        if (eigenVectorPostprocess)
             for (int i = 0; i < base.size(); i++)
                 base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
 
@@ -61,11 +62,17 @@ public class LinAlgChain {
     // the same, but finds words, that increases or decreases sum of vector
     public static Pair<ArrayList<String>, ArrayList<Rational[]>> linAlgChainChangeSumForManySubsets(
             AbstractNFA automaton, Rational[] weights, boolean normalize, boolean eigenVectorPreprocess,
-            boolean eigenVectorZeroSum, boolean increaseDecrease) {
+            boolean eigenVectorPostprocess, boolean eigenVectorZeroSum, boolean increaseDecrease) {
+
+        System.out.println("normalize: " + normalize + " eigenVectorPre: " + eigenVectorPreprocess + " eigenVectorPost"
+                + eigenVectorPostprocess + " eigenVectorZeroSum" + eigenVectorZeroSum + " increaseDecrease:"
+                + increaseDecrease);
+        System.out.println("weights: ");
 
         boolean weighted = !Objects.isNull(weights);
         if (!weighted)
             weights = AlgebraicModule.ones(automaton.getN());
+        AlgebraicModule.printArray(weights);
 
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
@@ -122,14 +129,22 @@ public class LinAlgChain {
                 candsIndex++;
             }
         }
-        if (!eigenVectorPreprocess)
-            for (int i = 0; i < base.size(); i++)
-                base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
 
+        if (eigenVectorPostprocess) {
+            for (int i = 0; i < base.size(); i++) {
+                System.out.println("weights: ");
+                AlgebraicModule.printArray(weights);
+                System.out.println("*: ");
+                AlgebraicModule.printArray(base.get(i));
+                System.out.println("=:");
+                base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
+                AlgebraicModule.printArray(base.get(i));
+            }
+        }
         return new Pair(words, base);
     }
 
-    public static ArrayList<Rational[]> getAllSubsets(AbstractNFA automaton, Rational[] weights, boolean normalize,
+    public static ArrayList<Rational[]> getAllSubsets(AbstractNFA automaton, Rational[] weights, boolean zeroSum,
             boolean eigenVectorPreprocess, boolean eigenVectorZeroSum) {
         ArrayList<Rational[]> result = new ArrayList<>();
         // System.out.println("subsets processed:");
@@ -138,7 +153,7 @@ public class LinAlgChain {
 
             if (eigenVectorPreprocess)
                 rationalSubset = AlgebraicModule.vectorMultiply(weights, rationalSubset);
-            if (normalize)
+            if (zeroSum)
                 rationalSubset = AlgebraicModule.normalize(rationalSubset);
             if (eigenVectorZeroSum)
                 rationalSubset = AlgebraicModule.normalize(rationalSubset, weights);
