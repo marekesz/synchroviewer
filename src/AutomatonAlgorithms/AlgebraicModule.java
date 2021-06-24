@@ -65,10 +65,14 @@ public abstract class AlgebraicModule {
         for (Rational x : vectorMultiply(vector, weights))
             weightedMean = weightedMean.add(x);
 
-        for (int i = 0; i < result.length; i++)
+        Rational oneFactor = ONE;
+        for (int i = 0; i < result.length; i++) {
             result[i] = result[i].subtract(weightedMean);
-
-        // for (int i = 0; i < result.length; i++)
+            if (result[i].compareTo(ZERO) > 0)
+                oneFactor = result[i].inverse();
+        }
+        for (int i = 0; i < result.length; i++)
+            result[i] = result[i].multiply(oneFactor);
         // result[i] = result[i].subtract(sum.multiply(new
         // Rational(vector.length).inverse()));
 
