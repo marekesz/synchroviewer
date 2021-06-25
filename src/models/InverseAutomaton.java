@@ -1,11 +1,9 @@
 
-package AutomatonModels;
+package models;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import AutomatonAlgorithms.Rational;
-import Viewer.AutomatonHelper;
+import algorithms.Rational;
 
 public class InverseAutomaton extends AbstractNFA {
 
@@ -13,7 +11,6 @@ public class InverseAutomaton extends AbstractNFA {
     private int[][][] matrix; // matrix[state][transition] - array of states
     private int[] selectedStates;
     private int[][] selectedStatesByColor;
-    private int COLORS_NUM = 10;
     private Rational[] probabilityDistribution;
     private Rational[] eigenVector;
 

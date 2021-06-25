@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -17,10 +17,14 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 
-import AutomatonModels.Automaton;
+import models.Automaton;
 
 public class AutomatonCodeToolbar extends DockToolbar {
-    private JTextPane textPane;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JTextPane textPane;
 
     public AutomatonCodeToolbar(String name, boolean visibleOnStart, Automaton automaton) {
         super(name, visibleOnStart, automaton);
@@ -79,8 +83,8 @@ public class AutomatonCodeToolbar extends DockToolbar {
 
         panel.add(textPane, BorderLayout.CENTER);
 
-        JButton realignButton = new JButton("Realign");
-        realignButton.addActionListener(new ActionListener() {
+        JButton assignButton = new JButton("Assign");
+        assignButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent ev) {
@@ -91,7 +95,7 @@ public class AutomatonCodeToolbar extends DockToolbar {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        buttonPanel.add(realignButton);
+        buttonPanel.add(assignButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
     }
 

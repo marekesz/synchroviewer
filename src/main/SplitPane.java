@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,11 +16,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import models.Automaton;
+import models.InverseAutomaton;
 
 public class SplitPane extends JSplitPane {
-    private final Automaton automaton;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final Automaton automaton;
     private PaintPanel paintPanel;
 
     private final AutomatonCodeToolbar codeToolbar;
@@ -122,7 +126,8 @@ public class SplitPane extends JSplitPane {
 
         PropertyChangeListener showActionListener = new PropertyChangeListener() {
 
-            @Override
+            @SuppressWarnings("unchecked")
+			@Override
             public void propertyChange(PropertyChangeEvent ev) {
                 if (ev.getOldValue() == null) {
                     if (ev.getSource().equals(computeImageToolbar))
@@ -130,8 +135,7 @@ public class SplitPane extends JSplitPane {
                     else
                         computeImageToolbar.actionCheckBoxSetSelected(false);
 
-                    HashMap<Integer, ArrayList<Integer>> actions = (HashMap<Integer, ArrayList<Integer>>) ev
-                            .getNewValue();
+                    HashMap<Integer, ArrayList<Integer>> actions = (HashMap<Integer, ArrayList<Integer>>) ev.getNewValue();
                     paintPanel.showAction(actions);
                 } else
                     paintPanel.setShowAction(false);

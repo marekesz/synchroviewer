@@ -1,4 +1,4 @@
-package AutomatonAlgorithms;
+package algorithms;
 
 public class Pair<U, V> {
     public final U first;

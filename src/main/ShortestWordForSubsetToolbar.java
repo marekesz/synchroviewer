@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -13,50 +13,45 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import AutomatonAlgorithms.AlgebraicModule;
-import AutomatonAlgorithms.MarkovChains;
-import AutomatonAlgorithms.Rational;
-import AutomatonAlgorithms.ShortestCompressingWord;
-import AutomatonAlgorithms.ShortestExtendingWord;
-import AutomatonAlgorithms.ShortestResetWord;
-import AutomatonAlgorithms.WordNotFoundException;
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import algorithms.Rational;
+import algorithms.ShortestCompressingWord;
+import algorithms.ShortestExtendingWord;
+import algorithms.ShortestResetWord;
+import algorithms.WordNotFoundException;
+import models.Automaton;
+import models.InverseAutomaton;
 
 public class ShortestWordForSubsetToolbar extends DockToolbar {
-    private final int MAX_STATES = 25; // max number of states in automaton
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private final int MAX_STATES = 25; // max number of states in automaton
 
     private final JTextPane textPane;
     private final JLabel lengthLabel;
     private InverseAutomaton inverseAutomaton;
-
-    private boolean weighted;
 
     private JComboBox<String> comboBox;
 
     public ShortestWordForSubsetToolbar(String name, boolean visibleOnStart, Automaton automaton) {
         super(name, visibleOnStart, automaton);
         inverseAutomaton = new InverseAutomaton(automaton);
-        weighted = false;
         JPanel panel = getPanel();
 
         lengthLabel = new JLabel();

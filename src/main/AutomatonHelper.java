@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.Color;
 

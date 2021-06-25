@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -8,13 +8,17 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import AutomatonAlgorithms.Connectivity;
-import AutomatonAlgorithms.Synchronizability;
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import algorithms.Connectivity;
+import algorithms.Synchronizability;
+import models.Automaton;
+import models.InverseAutomaton;
 
 public class BasicPropertiesToolbar extends DockToolbar {
-    private final JLabel syncLabel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final JLabel syncLabel;
     private final JLabel connectedLabel;
 
     private InverseAutomaton inverseAutomaton;

@@ -1,15 +1,13 @@
 
-package AutomatonAlgorithms;
+package algorithms;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Objects;
 
-import AutomatonModels.AbstractNFA;
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import models.Automaton;
+import models.InverseAutomaton;
 
 public abstract class ShortestExtendingWord {
 

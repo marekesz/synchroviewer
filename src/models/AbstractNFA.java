@@ -1,11 +1,6 @@
-package AutomatonModels;
+package models;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.Arrays;
-
-import AutomatonAlgorithms.Rational;
-import Viewer.AutomatonHelper;
+import algorithms.Rational;
 
 public abstract class AbstractNFA {
     private int K, N; // max number of out edges for one state / number of states

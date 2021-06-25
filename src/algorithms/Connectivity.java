@@ -1,10 +1,10 @@
 
-package AutomatonAlgorithms;
+package algorithms;
 
 import java.util.Arrays;
 
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import models.Automaton;
+import models.InverseAutomaton;
 
 public abstract class Connectivity {
 

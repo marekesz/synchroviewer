@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,11 +29,15 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import models.Automaton;
+import models.InverseAutomaton;
 
 public class ComputePreimageToolbar extends DockToolbar {
-    private JTextPane textPane;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JTextPane textPane;
     private InverseAutomaton inverseAutomaton;
     private final HashMap<Character, Integer> hashMap;
     private JCheckBox rangeCheckBox;
@@ -65,7 +69,12 @@ public class ComputePreimageToolbar extends DockToolbar {
                 Color.LIGHT_GRAY);
         DefaultStyledDocument doc = new DefaultStyledDocument() {
 
-            @Override
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
             public void insertString(int offset, String str, AttributeSet a) {
                 try {
                     super.insertString(offset, str, a);

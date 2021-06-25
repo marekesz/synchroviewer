@@ -1,7 +1,7 @@
 
-package AutomatonAlgorithms;
+package algorithms;
 
-import AutomatonModels.Automaton;
+import models.Automaton;
 
 public abstract class Helper {
 

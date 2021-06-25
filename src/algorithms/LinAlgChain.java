@@ -1,17 +1,13 @@
-package AutomatonAlgorithms;
+package algorithms;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import AutomatonModels.AbstractNFA;
-import Viewer.AutomatonHelper;
+import main.AutomatonHelper;
+import models.AbstractNFA;
 
 public class LinAlgChain {
-    private static Rational ZERO = new Rational(0);
     public static Rational ONE = new Rational(1);
-    private static int COLORS_NUM = 10;
 
     // computes array L, where L[i] = span({[S][w] | w in Sigma^<=i, S in automaton
     // selected subsets}), returns
@@ -56,7 +52,7 @@ public class LinAlgChain {
                 base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
 
         // System.out.println("result length: " + words.size());
-        return new Pair(words, base);
+        return new Pair<ArrayList<String>, ArrayList<Rational[]>>(words, base);
     }
 
     // the same, but finds words, that increases or decreases sum of vector
@@ -141,7 +137,7 @@ public class LinAlgChain {
                 AlgebraicModule.printArray(base.get(i));
             }
         }
-        return new Pair(words, base);
+        return new Pair<ArrayList<String>, ArrayList<Rational[]>>(words, base);
     }
 
     public static ArrayList<Rational[]> getAllSubsets(AbstractNFA automaton, Rational[] weights, boolean zeroSum,
@@ -193,14 +189,6 @@ public class LinAlgChain {
         }
         // System.out.println("heavier letter not found");
         return null;
-    }
-
-    private int wordLengthWithoutExtraSymbols(String word) {
-        int length = 0;
-        for (char c : word.toCharArray())
-            if (c >= 'a' && c <= 'z')
-                length++;
-        return length;
     }
 
 }

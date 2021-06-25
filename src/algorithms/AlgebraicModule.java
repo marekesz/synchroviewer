@@ -1,12 +1,12 @@
-package AutomatonAlgorithms;
+package algorithms;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
-import AutomatonModels.AbstractNFA;
-import Viewer.AutomatonHelper;
+
+import main.AutomatonHelper;
+import models.AbstractNFA;
 
 public abstract class AlgebraicModule {
     public static Rational ZERO = new Rational(0);
@@ -59,7 +59,6 @@ public abstract class AlgebraicModule {
     }
 
     public static Rational[] normalize(Rational[] vector, Rational[] weights) {
-        Rational sum = new Rational(0);
         Rational[] result = vector.clone();
         Rational weightedMean = ZERO;
         for (Rational x : vectorMultiply(vector, weights))
@@ -73,8 +72,6 @@ public abstract class AlgebraicModule {
         }
         for (int i = 0; i < result.length; i++)
             result[i] = result[i].multiply(oneFactor);
-        // result[i] = result[i].subtract(sum.multiply(new
-        // Rational(vector.length).inverse()));
 
         return result;
     }

@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -24,12 +24,17 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import AutomatonAlgorithms.ShortestResetWord;
-import AutomatonAlgorithms.WordNotFoundException;
-import AutomatonModels.Automaton;
+import algorithms.ShortestResetWord;
+import algorithms.WordNotFoundException;
+import models.Automaton;
 
 public class ShortestResetWordToolbar extends DockToolbar {
-    private final int MAX_STATES = 25; // max number of states in automaton
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private final int MAX_STATES = 25; // max number of states in automaton
 
     private final JTextPane textPane;
     private final JLabel lengthLabel;

@@ -1,10 +1,9 @@
-package AutomatonAlgorithms;
+package algorithms;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import AutomatonModels.AbstractNFA;
+import models.AbstractNFA;
 
 public class MarkovChains {
     public static Rational ZERO = new Rational(0);

@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -43,7 +43,7 @@ import javax.swing.JPopupMenu.Separator;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 
-public class SynchroViewer {
+public class MainFrame {
 
     private final JFrame frame;
 
@@ -62,7 +62,7 @@ public class SynchroViewer {
     private JButton removeTransButton;
     private JComboBox<String> transitions;
 
-    public SynchroViewer(JFrame frame) {
+    public MainFrame(JFrame frame) {
         this.frame = frame;
         splitPane = new SplitPane();
         paintPanel = splitPane.getPaintPanel();
@@ -465,11 +465,15 @@ public class SynchroViewer {
         paintPanel.repaintCenterAutomaton();
     }
 
-    private class ComboBoxRenderer extends JPanel implements ListCellRenderer {
-        JPanel textPanel;
+    private class ComboBoxRenderer extends JPanel implements ListCellRenderer<Object> {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		JPanel textPanel;
         JLabel text;
 
-        public ComboBoxRenderer(JComboBox combo) {
+        public ComboBoxRenderer(JComboBox<String> combo) {
             textPanel = new JPanel();
             text = new JLabel();
             text.setOpaque(true);
@@ -477,7 +481,7 @@ public class SynchroViewer {
         }
 
         @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
                 boolean cellHasFocus) {
             if (value == null)
                 return text;

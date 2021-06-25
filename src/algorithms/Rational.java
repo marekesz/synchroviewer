@@ -1,4 +1,4 @@
-package AutomatonAlgorithms;
+package algorithms;
 
 import java.math.BigInteger;
 

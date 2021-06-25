@@ -1,30 +1,21 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.math.BigInteger;
 
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import AutomatonAlgorithms.Connectivity;
-import AutomatonAlgorithms.Rational;
-import AutomatonAlgorithms.Synchronizability;
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import algorithms.Rational;
+import models.Automaton;
 
 public class ProbabilityDistributionToolbar extends DockToolbar implements ChangeListener {
 	private static final long serialVersionUID = 1L;

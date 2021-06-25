@@ -1,10 +1,10 @@
-package AutomatonAlgorithms;
+package algorithms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import AutomatonModels.Automaton;
+import models.Automaton;
 
 public abstract class ShortestResetWord {
 

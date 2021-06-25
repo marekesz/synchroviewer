@@ -1,5 +1,5 @@
 
-package Viewer;
+package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -21,10 +21,14 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import AutomatonModels.Automaton;
+import models.Automaton;
 
 public abstract class DockToolbar extends JToolBar {
-    private JPanel panel; // content panel
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JPanel panel; // content panel
     private final String name;
     private final boolean visibleOnStart;
     private Automaton automaton;

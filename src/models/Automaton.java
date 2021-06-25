@@ -1,18 +1,14 @@
 
-package AutomatonModels;
+package models;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
 
-import AutomatonAlgorithms.Connectivity;
-import AutomatonAlgorithms.MarkovChains;
-import AutomatonAlgorithms.Rational;
-
-import java.awt.Color;
-
-import Viewer.AutomatonHelper;
-import Viewer.PaintPanel;
+import algorithms.Connectivity;
+import algorithms.MarkovChains;
+import algorithms.Rational;
+import main.PaintPanel;
 
 public class Automaton extends AbstractNFA {
 

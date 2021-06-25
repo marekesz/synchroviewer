@@ -1,25 +1,36 @@
 
-package AutomatonAlgorithms;
+package algorithms;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import models.Automaton;
+import models.InverseAutomaton;
 
-public abstract class ShortestCompressingWord {
+public abstract class Synchronizability {
 
-    public static ArrayList<Integer> find(Automaton automaton, InverseAutomaton inverseAutomaton, int[] subset)
-            throws WordNotFoundException {
+    public static boolean isIrreduciblySynchronizing(Automaton automaton, InverseAutomaton inverseAutomaton) {
+        int K = automaton.getK();
+
+        if (!isSynchronizing(automaton, inverseAutomaton))
+            return false;
+
+        for (int ommitLetter = 0; ommitLetter < K; ommitLetter++) {
+            if (isSynchronizing(automaton, inverseAutomaton, ommitLetter))
+                return false;
+        }
+        return true;
+    }
+
+    public static boolean isSynchronizing(Automaton automaton, InverseAutomaton inverseAutomaton) {
+        return isSynchronizing(automaton, inverseAutomaton, -1);
+    }
+
+    private static boolean isSynchronizing(Automaton automaton, InverseAutomaton inverseAutomaton, int ommitLetter) {
         int N = automaton.getN();
         int K = automaton.getK();
 
         boolean[] visited = new boolean[N * (N - 1)];
-        int[] fromWherePair = new int[N * (N - 1)];
-        int[] fromWhereTransition = new int[N * (N - 1)];
         Arrays.fill(visited, false);
-        Arrays.fill(fromWherePair, -1);
-        Arrays.fill(fromWhereTransition, -1);
 
         int[] queue = new int[N * (N - 1) / 2];
         Arrays.fill(queue, -1);
@@ -28,6 +39,9 @@ public abstract class ShortestCompressingWord {
 
         for (int n = 0; n < N; n++) {
             for (int k = 0; k < K; k++) {
+                if (k == ommitLetter)
+                    continue;
+
                 int[] states = inverseAutomaton.getMatrix()[n][k];
                 for (int i1 = 0; i1 < states.length; i1++) {
                     for (int i2 = 0; i2 < states.length; i2++) {
@@ -37,14 +51,7 @@ public abstract class ShortestCompressingWord {
                             continue;
 
                         if (!visited[a * N + b]) {
-                            if (subset[a] == 1 && subset[b] == 1) {
-                                ArrayList<Integer> transitions = new ArrayList<>();
-                                transitions.add(k);
-                                return transitions;
-                            }
-
                             visited[a * N + b] = true;
-                            fromWhereTransition[a * N + b] = k;
                             queue[end] = a * N + b;
                             end++;
                         }
@@ -59,6 +66,9 @@ public abstract class ShortestCompressingWord {
             start++;
 
             for (int k = 0; k < K; k++) {
+                if (k == ommitLetter)
+                    continue;
+
                 int[] states1 = inverseAutomaton.getMatrix()[q][k];
                 int[] states2 = inverseAutomaton.getMatrix()[p][k];
 
@@ -75,29 +85,19 @@ public abstract class ShortestCompressingWord {
                             continue;
 
                         visited[a * N + b] = true;
-                        fromWherePair[a * N + b] = q * N + p;
-                        fromWhereTransition[a * N + b] = k;
                         queue[end] = a * N + b;
                         end++;
-
-                        if (subset[a] == 1 && subset[b] == 1) {
-                            int pair = a * N + b;
-                            ArrayList<Integer> transitions = new ArrayList<>();
-                            while (true) {
-                                transitions.add(fromWhereTransition[pair]);
-                                pair = fromWherePair[pair];
-
-                                if (pair == -1)
-                                    break;
-                            }
-
-                            return transitions;
-                        }
                     }
                 }
             }
         }
 
-        throw new WordNotFoundException();
+        for (int i = 0; i < N - 1; i++) {
+            for (int j = i + 1; j < N; j++) {
+                if (!visited[i * N + j])
+                    return false;
+            }
+        }
+        return true;
     }
 }

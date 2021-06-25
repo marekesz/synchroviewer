@@ -1,10 +1,11 @@
 
-package Viewer;
+package main;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -15,10 +16,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.FontMetrics;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,11 +26,8 @@ import java.util.Objects;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import AutomatonAlgorithms.Connectivity;
-import AutomatonAlgorithms.MarkovChains;
-import AutomatonAlgorithms.Rational;
-import AutomatonModels.Automaton;
-import AutomatonModels.InverseAutomaton;
+import algorithms.Rational;
+import models.Automaton;
 
 public class PaintPanel extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -605,7 +601,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             markovPbbs = this.automaton.getEigenVector();
 
         // draw oval of range states at the beginning
-        ArrayList<ArrayList<Double>> anglesPerNode = new ArrayList();
+        ArrayList<ArrayList<Double>> anglesPerNode = new ArrayList<>();
         for (int i = 0; i < N; i++) {
             anglesPerNode.add(new ArrayList<>());
             int n = orders[i];
