@@ -98,7 +98,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         preprocessComboBox.addItem("--");
         preprocessComboBox.addItem("0-sum");
         preprocessComboBox.addItem("Eigenvector");
-        preprocessComboBox.addItem("Eigenvector 0-sum");
+        preprocessComboBox.addItem("0-sum for eigenvector");
 
         postprocessComboBox = new JComboBox<String>();
         postprocessComboBox.addItem("--");
@@ -168,7 +168,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         JPanel outerPanel = new JPanel();
         outerPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(0, 0, 0, 5);
+        c.insets = new Insets(2, 2, 2, 2);
         c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
