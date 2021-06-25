@@ -61,14 +61,17 @@ public class SplitPane extends JSplitPane {
                 "Linear-algebraic ascending chain for subset", true, automaton, new InverseAutomaton(automaton));
         BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false,
                 automaton);
+        ProbabilityDistributionToolbar probabilityDistributionToolbar = new ProbabilityDistributionToolbar("Probability distribution on letters", false,
+                automaton);
 
         addToolbar(codeToolbar, innerPanel);
+        addToolbar(basicPropertiesToolbar, innerPanel);
         addToolbar(computeImageToolbar, innerPanel);
         addToolbar(computePreimageToolbar, innerPanel);
         addToolbar(resetWordToolbar, innerPanel);
         addToolbar(shortestWordSubsetToolbar, innerPanel);
+        addToolbar(probabilityDistributionToolbar, innerPanel);
         addToolbar(algebraicChainForSubsetToolbar, innerPanel);
-        addToolbar(basicPropertiesToolbar, innerPanel);
 
         updateToolbars();
 

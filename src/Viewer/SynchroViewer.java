@@ -181,13 +181,23 @@ public class SynchroViewer {
         loopItem.setVisible(true);
         loopItem.setSelected(paintPanel.getLoopEdgesVisible());
         loopItem.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent ev) {
                 paintPanel.setLoopEdgesVisible(!paintPanel.getLoopEdgesVisible());
             }
         });
         viewMenu.add(loopItem);
+        JCheckBoxMenuItem eigenvectorItem = new JCheckBoxMenuItem("Show eigenvector (if strongly connected)");
+        eigenvectorItem.setVisible(true);
+        eigenvectorItem.setSelected(paintPanel.getLoopEdgesVisible());
+        eigenvectorItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ev) {
+                paintPanel.setMarkovPbbVisible(!paintPanel.getMarkovPbbVisible());
+            }
+        });
+        viewMenu.add(eigenvectorItem);
+
         menuBar.add(viewMenu);
 
         JMenu helpMenu = new JMenu("Help");

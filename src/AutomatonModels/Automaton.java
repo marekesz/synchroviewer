@@ -4,6 +4,9 @@ package AutomatonModels;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
+
+import AutomatonAlgorithms.Rational;
+
 import java.awt.Color;
 
 import Viewer.AutomatonHelper;
@@ -14,8 +17,9 @@ public class Automaton extends AbstractNFA {
     private int K, N; // max number of out edges for one state / number of states
     private int[][] matrix;
     private int[][] selectedStatesByColor;
-    private final PropertyChangeSupport PCS;
+    private Rational[] probabilityDistribution; 
 
+    private final PropertyChangeSupport PCS;
     public Automaton(String code) throws IllegalArgumentException {
         PCS = new PropertyChangeSupport(this);
 
@@ -46,6 +50,8 @@ public class Automaton extends AbstractNFA {
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             for (int i = 0; i < N; i++)
                 selectedStatesByColor[c][i] = (c == 0 ? 1 : 0);
+        
+        resetProbabilityDistribution();
     }
 
     public String toString() {
@@ -165,6 +171,7 @@ public class Automaton extends AbstractNFA {
         }
         matrix = temp;
         K++;
+        resetProbabilityDistribution();
         automatonChanged();
     }
 
@@ -175,6 +182,7 @@ public class Automaton extends AbstractNFA {
                 System.arraycopy(matrix[n], 0, temp[n], 0, K - 1);
             matrix = temp;
             K--;
+            resetProbabilityDistribution();
             automatonChanged();
         }
     }
@@ -268,6 +276,21 @@ public class Automaton extends AbstractNFA {
         return selectedStatesByColor;
     }
 
+    public void setProbabilityDistribution(Rational[] dist) {
+    	this.probabilityDistribution = dist;
+    	automatonChanged();
+    }
+    
+    public Rational[] getProbabilityDistribution() {
+    	return this.probabilityDistribution;
+    }
+    
+    private void resetProbabilityDistribution() {
+        this.probabilityDistribution = new Rational[K];
+        for (int i = 0; i < K; i++)
+        	this.probabilityDistribution[i] = new Rational(1, K);
+    }
+    
     public void automatonChanged() {
         PCS.firePropertyChange("automatonChanged", false, true);
     }
