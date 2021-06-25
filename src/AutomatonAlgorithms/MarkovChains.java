@@ -20,7 +20,7 @@ public class MarkovChains {
         for (int i = 0; i < n; i++)
             for (int k = 0; k < automaton.getK(); k++)
                 for (int j : automaton.getTransitions(i, k))
-                    result[i][j] = result[i][j].add(new Rational(1, automaton.getK()));
+                    result[i][j] = result[i][j].add(automaton.getProbabilityDistribution()[k]);
 
         // AlgebraicModule.printMatrix(result);
         return result;

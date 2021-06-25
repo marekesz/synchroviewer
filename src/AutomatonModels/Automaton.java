@@ -17,9 +17,10 @@ public class Automaton extends AbstractNFA {
     private int K, N; // max number of out edges for one state / number of states
     private int[][] matrix;
     private int[][] selectedStatesByColor;
-    private Rational[] probabilityDistribution; 
+    private Rational[] probabilityDistribution;
 
     private final PropertyChangeSupport PCS;
+
     public Automaton(String code) throws IllegalArgumentException {
         PCS = new PropertyChangeSupport(this);
 
@@ -50,7 +51,7 @@ public class Automaton extends AbstractNFA {
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             for (int i = 0; i < N; i++)
                 selectedStatesByColor[c][i] = (c == 0 ? 1 : 0);
-        
+
         resetProbabilityDistribution();
     }
 
@@ -277,20 +278,21 @@ public class Automaton extends AbstractNFA {
     }
 
     public void setProbabilityDistribution(Rational[] dist) {
-    	this.probabilityDistribution = dist;
-    	automatonChanged();
+        this.probabilityDistribution = dist;
+        automatonChanged();
     }
-    
+
+    @Override
     public Rational[] getProbabilityDistribution() {
-    	return this.probabilityDistribution;
+        return this.probabilityDistribution;
     }
-    
+
     private void resetProbabilityDistribution() {
         this.probabilityDistribution = new Rational[K];
         for (int i = 0; i < K; i++)
-        	this.probabilityDistribution[i] = new Rational(1, K);
+            this.probabilityDistribution[i] = new Rational(1, K);
     }
-    
+
     public void automatonChanged() {
         PCS.firePropertyChange("automatonChanged", false, true);
     }

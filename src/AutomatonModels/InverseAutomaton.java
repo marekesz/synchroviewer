@@ -4,6 +4,7 @@ package AutomatonModels;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import AutomatonAlgorithms.Rational;
 import Viewer.AutomatonHelper;
 
 public class InverseAutomaton extends AbstractNFA {
@@ -13,6 +14,7 @@ public class InverseAutomaton extends AbstractNFA {
     private int[] selectedStates;
     private int[][] selectedStatesByColor;
     private int COLORS_NUM = 10;
+    private Rational[] probabilityDistribution;
 
     public InverseAutomaton(Automaton automaton) {
         K = automaton.getK();
@@ -34,6 +36,7 @@ public class InverseAutomaton extends AbstractNFA {
         selectedStates = new int[N];
         selectedStates = automaton.getSelectedStates();
         selectedStatesByColor = automaton.getSelectedStatesByColor();
+        probabilityDistribution = automaton.getProbabilityDistribution();
     }
 
     public int[] getSelectedStates() {
@@ -65,4 +68,10 @@ public class InverseAutomaton extends AbstractNFA {
     public int[] getTransitions(int i, int k) {
         return matrix[i][k];
     }
+
+    @Override
+    public Rational[] getProbabilityDistribution() {
+        return this.probabilityDistribution;
+    }
+
 }
