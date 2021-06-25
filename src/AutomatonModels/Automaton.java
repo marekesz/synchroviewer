@@ -47,14 +47,16 @@ public class Automaton extends AbstractNFA {
                 }
             }
         }
+        resetSelectedStatesByColor();
+        resetProbabilityDistribution();
+        resetEigenVector();
+    }
 
+    public void resetSelectedStatesByColor() {
         selectedStatesByColor = new int[PaintPanel.STATES_COLORS.length][N];
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             for (int i = 0; i < N; i++)
                 selectedStatesByColor[c][i] = (c == 0 ? 1 : 0);
-
-        resetProbabilityDistribution();
-        resetEigenVector();
     }
 
     public String toString() {
@@ -88,6 +90,10 @@ public class Automaton extends AbstractNFA {
         this.K = automaton.K;
         this.N = automaton.N;
         this.matrix = automaton.matrix;
+
+        resetSelectedStatesByColor();
+        resetProbabilityDistribution();
+        resetEigenVector();
     }
 
     public void addState() {
