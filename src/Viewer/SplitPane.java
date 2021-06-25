@@ -34,8 +34,8 @@ public class SplitPane extends JSplitPane {
 
         setBackground(new Color(224, 224, 224));
 
-        automaton = new Automaton(// "2 5 1 0 2 1 3 2 4 3 0 0");//
-                "4 7 1 0 0 0 0 2 1 1 3 1 2 2 2 3 4 3 5 4 4 3 4 6 5 5 6 5 6 6");
+        automaton = new Automaton("2 5 1 0 2 1 3 2 4 3 0 0");//
+        // "4 7 1 0 0 0 0 2 1 1 3 1 2 2 2 3 4 3 5 4 4 3 4 6 5 5 6 5 6 6");
         paintPanel = new PaintPanel(automaton);
         setTopComponent(paintPanel);
 
@@ -61,8 +61,8 @@ public class SplitPane extends JSplitPane {
                 "Linear-algebraic ascending chain for subset", true, automaton, new InverseAutomaton(automaton));
         BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false,
                 automaton);
-        ProbabilityDistributionToolbar probabilityDistributionToolbar = new ProbabilityDistributionToolbar("Probability distribution on letters", false,
-                automaton);
+        ProbabilityDistributionToolbar probabilityDistributionToolbar = new ProbabilityDistributionToolbar(
+                "Probability distribution on letters", false, automaton);
 
         addToolbar(codeToolbar, innerPanel);
         addToolbar(basicPropertiesToolbar, innerPanel);

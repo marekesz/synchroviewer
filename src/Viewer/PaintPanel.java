@@ -22,13 +22,16 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Objects;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import AutomatonAlgorithms.Connectivity;
 import AutomatonAlgorithms.MarkovChains;
 import AutomatonAlgorithms.Rational;
 import AutomatonModels.Automaton;
+import AutomatonModels.InverseAutomaton;
 
 public class PaintPanel extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -732,8 +735,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             g.setStroke(new BasicStroke());
             g.setColor(Color.BLACK);
             String label = Integer.toString(n);
-            if (this.showMarkovPbb) {
-
+            if (!Objects.isNull(markovPbbs) && this.showMarkovPbb) {
                 g.drawString(label, (int) (vertices[n].x - g.getFontMetrics().stringWidth(label) / 2),
                         (int) (vertices[n].y - 5));
                 String pbbl = markovPbbs[n].toString();

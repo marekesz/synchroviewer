@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
 
+import AutomatonAlgorithms.Connectivity;
 import AutomatonAlgorithms.MarkovChains;
 import AutomatonAlgorithms.Rational;
 
@@ -159,6 +160,7 @@ public class Automaton extends AbstractNFA {
         matrix[state2] = temp;
 
         automatonChanged();
+        resetEigenVector();
     }
 
     public void addTransition(int out, int in, int k) {
@@ -169,6 +171,7 @@ public class Automaton extends AbstractNFA {
             createNewTransition();
             matrix[out][k] = in;
         }
+        resetEigenVector();
         automatonChanged();
     }
 
@@ -201,17 +204,23 @@ public class Automaton extends AbstractNFA {
     public void selectState(int state) {
         selectedStatesByColor[0][state] = 1;
         automatonChanged();
+        resetEigenVector();
+
     }
 
     public void selectState(int state, int color) {
         selectedStatesByColor[color][state] = 1;
         automatonChanged();
+        resetEigenVector();
+
     }
 
     public void selectStates(int[] selectedStates) {
         if (selectedStates.length == N) {
             this.selectedStatesByColor[0] = selectedStates;
             automatonChanged();
+            resetEigenVector();
+
         }
     }
 
@@ -219,6 +228,8 @@ public class Automaton extends AbstractNFA {
         if (selectedStates.length == N) {
             this.selectedStatesByColor[color] = selectedStates;
             automatonChanged();
+            resetEigenVector();
+
         }
     }
 
@@ -226,17 +237,23 @@ public class Automaton extends AbstractNFA {
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             selectedStatesByColor[c][state] = 0;
         automatonChanged();
+        resetEigenVector();
+
     }
 
     public void unselectState(int state, int color) {
         selectedStatesByColor[color][state] = 0;
         automatonChanged();
+        resetEigenVector();
+
     }
 
     public void clearSelectedStates() {
         for (int c = 0; c < PaintPanel.STATES_COLORS.length; c++)
             Arrays.fill(selectedStatesByColor[c], 0);
         automatonChanged();
+        resetEigenVector();
+
     }
 
     public boolean isSelected(int state) {
@@ -290,6 +307,7 @@ public class Automaton extends AbstractNFA {
     public void setProbabilityDistribution(Rational[] dist) {
         this.probabilityDistribution = dist;
         automatonChanged();
+        resetEigenVector();
     }
 
     @Override
@@ -309,11 +327,14 @@ public class Automaton extends AbstractNFA {
     }
 
     private void resetEigenVector() {
-        this.eigenVector = MarkovChains.getStationaryDistribution(this);
-        automatonChanged();
+        this.eigenVector = Connectivity.isStronglyConnected(this, new InverseAutomaton(this))
+                ? MarkovChains.getStationaryDistribution(this)
+                : null;
+        // automatonChanged();
     }
 
     public void automatonChanged() {
+        resetEigenVector();
         PCS.firePropertyChange("automatonChanged", false, true);
     }
 
