@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
 
+import AutomatonAlgorithms.MarkovChains;
 import AutomatonAlgorithms.Rational;
 
 import java.awt.Color;
@@ -18,7 +19,7 @@ public class Automaton extends AbstractNFA {
     private int[][] matrix;
     private int[][] selectedStatesByColor;
     private Rational[] probabilityDistribution;
-
+    private Rational[] eigenVector;
     private final PropertyChangeSupport PCS;
 
     public Automaton(String code) throws IllegalArgumentException {
@@ -53,6 +54,7 @@ public class Automaton extends AbstractNFA {
                 selectedStatesByColor[c][i] = (c == 0 ? 1 : 0);
 
         resetProbabilityDistribution();
+        resetEigenVector();
     }
 
     public String toString() {
@@ -173,6 +175,7 @@ public class Automaton extends AbstractNFA {
         matrix = temp;
         K++;
         resetProbabilityDistribution();
+        resetEigenVector();
         automatonChanged();
     }
 
@@ -184,6 +187,7 @@ public class Automaton extends AbstractNFA {
             matrix = temp;
             K--;
             resetProbabilityDistribution();
+            resetEigenVector();
             automatonChanged();
         }
     }
@@ -287,10 +291,19 @@ public class Automaton extends AbstractNFA {
         return this.probabilityDistribution;
     }
 
+    @Override
+    public Rational[] getEigenVector() {
+        return this.eigenVector;
+    }
+
     private void resetProbabilityDistribution() {
         this.probabilityDistribution = new Rational[K];
         for (int i = 0; i < K; i++)
             this.probabilityDistribution[i] = new Rational(1, K);
+    }
+
+    private void resetEigenVector() {
+        this.eigenVector = MarkovChains.getStationaryDistribution(this);
     }
 
     public void automatonChanged() {
@@ -305,4 +318,5 @@ public class Automaton extends AbstractNFA {
         update(new Automaton("0 0"));
         PCS.firePropertyChange("automatonReset", false, true);
     }
+
 }

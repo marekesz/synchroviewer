@@ -23,4 +23,6 @@ public abstract class AbstractNFA {
     public abstract int[][] getSelectedStatesByColor();
 
     public abstract Rational[] getProbabilityDistribution();
+
+    public abstract Rational[] getEigenVector();
 }

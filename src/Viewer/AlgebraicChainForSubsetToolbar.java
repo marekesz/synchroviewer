@@ -294,7 +294,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         // int[] subset = getAutomaton().getSelectedStates();
 
         if (eigenVectorPost || eigenVectorPre || eigenVectorZeroSum) {
-            weights = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(getAutomaton()));
+            weights = getAutomaton().getEigenVector();
             firePropertyChange("setMarkovProbabilitiesVisible", false, true);
             // Strong connectivity exception
             if (!Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {

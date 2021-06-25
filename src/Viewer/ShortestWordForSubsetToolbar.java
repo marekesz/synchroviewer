@@ -158,7 +158,7 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
                         getAutomaton().getN());
                 Collections.reverse(transitions);
             } else if (comboBox.getSelectedIndex() == 4) { // weighted by steady-state
-                Rational[] weights = MarkovChains.getStationaryDistribution(getAutomaton());
+                Rational[] weights = getAutomaton().getEigenVector();
 
                 transitions = ShortestExtendingWord.findWeighted(getAutomaton(), inverseAutomaton, subset, weights,
                         getAutomaton().getSelectedStates());

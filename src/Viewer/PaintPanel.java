@@ -414,9 +414,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
                 addTransFirstState = highlighted;
             else if (highlighted >= 0 && operation == Operation.SELECT_STATES) {
                 if (automaton.isSelected(highlighted, getColorId(selectedStateColor)))
-                	automaton.unselectState(highlighted, getColorId(selectedStateColor));
+                    automaton.unselectState(highlighted, getColorId(selectedStateColor));
                 else
-                	automaton.selectState(highlighted, getColorId(selectedStateColor));
+                    automaton.selectState(highlighted, getColorId(selectedStateColor));
             } else if (highlighted >= 0) {
                 grabShiftX = (int) (vertices[highlighted].x - grabX);
                 grabShiftY = (int) (vertices[highlighted].y - grabY);
@@ -433,9 +433,9 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             }
         } else if (ev.getButton() == MouseEvent.BUTTON3) {
             if (highlighted >= 0 && operation == Operation.SELECT_STATES) {
-            	for (int i = 0; i < STATES_COLORS.length; i++) {
+                for (int i = 0; i < STATES_COLORS.length; i++) {
                     automaton.unselectState(highlighted, i);
-            	}
+                }
             }
         }
 
@@ -599,7 +599,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
 
         Rational[] markovPbbs = null;
         if (this.showMarkovPbb)
-            markovPbbs = MarkovChains.getStationaryDistribution(MarkovChains.getTransitMatrix(this.automaton));
+            markovPbbs = this.automaton.getEigenVector();
 
         // draw oval of range states at the beginning
         ArrayList<ArrayList<Double>> anglesPerNode = new ArrayList();
@@ -770,7 +770,8 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         int startAngle = 0;
         for (int i = 0; i < colors.size(); i++) {
             g.setColor(colors.get(i));
-            g.fillArc(x, y, width, height, (int)Math.round(startAngle+0.5f), (int)Math.round(angle + (rest > 0 ? 1 : 0)));
+            g.fillArc(x, y, width, height, (int) Math.round(startAngle + 0.5f),
+                    (int) Math.round(angle + (rest > 0 ? 1 : 0)));
             rest--;
             startAngle += angle;
         }

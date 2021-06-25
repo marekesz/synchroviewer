@@ -15,6 +15,7 @@ public class InverseAutomaton extends AbstractNFA {
     private int[][] selectedStatesByColor;
     private int COLORS_NUM = 10;
     private Rational[] probabilityDistribution;
+    private Rational[] eigenVector;
 
     public InverseAutomaton(Automaton automaton) {
         K = automaton.getK();
@@ -37,6 +38,7 @@ public class InverseAutomaton extends AbstractNFA {
         selectedStates = automaton.getSelectedStates();
         selectedStatesByColor = automaton.getSelectedStatesByColor();
         probabilityDistribution = automaton.getProbabilityDistribution();
+        eigenVector = automaton.getEigenVector();
     }
 
     public int[] getSelectedStates() {
@@ -72,6 +74,11 @@ public class InverseAutomaton extends AbstractNFA {
     @Override
     public Rational[] getProbabilityDistribution() {
         return this.probabilityDistribution;
+    }
+
+    @Override
+    public Rational[] getEigenVector() {
+        return this.eigenVector;
     }
 
 }
