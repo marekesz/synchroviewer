@@ -295,7 +295,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
 
         if (eigenVectorPost || eigenVectorPre || eigenVectorZeroSum) {
             weights = getAutomaton().getEigenVector();
-            firePropertyChange("setMarkovProbabilitiesVisible", false, true);
+            // firePropertyChange("setMarkovProbabilitiesVisible", false, true);
             // Strong connectivity exception
             if (!Connectivity.isStronglyConnected(getAutomaton(), new InverseAutomaton(getAutomaton()))) {
                 super.setTitle("LinAlg chain (length: " + 0 + ", maxdim: " + 0);
@@ -303,7 +303,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                 return;
             }
         } else {
-            firePropertyChange("setMarkovProbabilitiesVisible", true, false);
+            // firePropertyChange("setMarkovProbabilitiesVisible", true, false);
         }
 
         if (eigenVectorPost && AlgebraicModule.leadingZerosCount(weights) == weights.length) {
