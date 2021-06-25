@@ -106,7 +106,7 @@ public class Automaton extends AbstractNFA {
         selectedStatesByColor = newSelectedStatesByColor;
 
         N++;
-        automatonChanged();
+        resetEigenVector();
     }
 
     public void removeState(int state) {
@@ -135,7 +135,7 @@ public class Automaton extends AbstractNFA {
         }
         selectedStatesByColor = newSelectedStatesByColor;
         N--;
-        automatonChanged();
+        resetEigenVector();
     }
 
     public void replaceStates(int state1, int state2) {
@@ -304,6 +304,7 @@ public class Automaton extends AbstractNFA {
 
     private void resetEigenVector() {
         this.eigenVector = MarkovChains.getStationaryDistribution(this);
+        automatonChanged();
     }
 
     public void automatonChanged() {
