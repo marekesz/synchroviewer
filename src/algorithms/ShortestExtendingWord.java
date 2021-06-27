@@ -91,7 +91,6 @@ public abstract class ShortestExtendingWord {
             Rational[] rationalWeights, int[] selectedStates) throws WordNotFoundException {
         int N = automaton.getN();
         int K = automaton.getK();
-        // AlgebraicModule.printArray(rationalWeights);
         BigInteger[] weights = AlgebraicModule.rationalArrayByCommonDenominator(rationalWeights);
         if (N == 0)
             throw new WordNotFoundException();

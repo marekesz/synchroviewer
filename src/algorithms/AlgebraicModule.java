@@ -34,8 +34,6 @@ public abstract class AlgebraicModule {
     }
 
     public static Rational[] vectorMultiply(Rational[] v1, Rational[] v2) {
-        if (v1.length != v2.length)
-            System.out.println("vectors dimensions mismatch");
         int n = v1.length;
         Rational[] result = new Rational[n];
         for (int i = 0; i < n; i++)
@@ -350,10 +348,8 @@ public abstract class AlgebraicModule {
             BigInteger gcd = commonDenom.gcd(denom).abs();
             commonDenom = commonDenom.multiply(denom).divide(gcd);
         }
-        // System.out.println("common denom: " + commonDenom.toString());
         for (int i = 0; i < array.length; i++)
             result[i] = array[i].getNominator().multiply(commonDenom.divide(array[i].getDenominator()));
-        // printArray(result);
         return result;
     }
 }

@@ -24,7 +24,6 @@ public class LinAlgChain {
         base = prepareL0Base(automaton, weights, zeroSum, eigenVectorPreprocess, eigenVectorZeroSum);
         for (int i = 0; i < base.size(); i++)
             words.add("");
-        // System.out.println("base size: " + base.size());
         if (base.size() == 0)
             return new Pair<>(words, base);
 
@@ -34,7 +33,6 @@ public class LinAlgChain {
             while (candsIndex < currentBaseSize) {
                 Rational[] baseVector = base.get(candsIndex);
                 String baseWord = words.get(candsIndex);
-                // System.out.println("word: " + baseWord);
                 for (int k = 0; k < automaton.getK(); k++) {
                     char a = AutomatonHelper.TRANSITIONS_LETTERS[k];
                     Rational[] newVector = AlgebraicModule.matMul(baseVector,
@@ -51,7 +49,6 @@ public class LinAlgChain {
             for (int i = 0; i < base.size(); i++)
                 base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
 
-        // System.out.println("result length: " + words.size());
         return new Pair<ArrayList<String>, ArrayList<Rational[]>>(words, base);
     }
 
@@ -60,15 +57,9 @@ public class LinAlgChain {
             AbstractNFA automaton, Rational[] weights, boolean normalize, boolean eigenVectorPreprocess,
             boolean eigenVectorPostprocess, boolean eigenVectorZeroSum, boolean increaseDecrease) {
 
-        System.out.println("normalize: " + normalize + " eigenVectorPre: " + eigenVectorPreprocess + " eigenVectorPost"
-                + eigenVectorPostprocess + " eigenVectorZeroSum" + eigenVectorZeroSum + " increaseDecrease:"
-                + increaseDecrease);
-        System.out.println("weights: ");
-
         boolean weighted = !Objects.isNull(weights);
         if (!weighted)
             weights = AlgebraicModule.ones(automaton.getN());
-        AlgebraicModule.printArray(weights);
 
         ArrayList<String> words = new ArrayList<>();
         ArrayList<Rational[]> base = new ArrayList<>();
@@ -128,13 +119,7 @@ public class LinAlgChain {
 
         if (eigenVectorPostprocess) {
             for (int i = 0; i < base.size(); i++) {
-                System.out.println("weights: ");
-                AlgebraicModule.printArray(weights);
-                System.out.println("*: ");
-                AlgebraicModule.printArray(base.get(i));
-                System.out.println("=:");
                 base.set(i, AlgebraicModule.vectorMultiply(weights, base.get(i)));
-                AlgebraicModule.printArray(base.get(i));
             }
         }
         return new Pair<ArrayList<String>, ArrayList<Rational[]>>(words, base);
@@ -143,7 +128,6 @@ public class LinAlgChain {
     public static ArrayList<Rational[]> getAllSubsets(AbstractNFA automaton, Rational[] weights, boolean zeroSum,
             boolean eigenVectorPreprocess, boolean eigenVectorZeroSum) {
         ArrayList<Rational[]> result = new ArrayList<>();
-        // System.out.println("subsets processed:");
         for (int[] subset : automaton.getSelectedStatesByColor()) {
             Rational[] rationalSubset = AlgebraicModule.toRationalArray(subset);
 
@@ -154,10 +138,9 @@ public class LinAlgChain {
             if (eigenVectorZeroSum)
                 rationalSubset = AlgebraicModule.normalize(rationalSubset, weights);
 
-            if (AlgebraicModule.leadingZerosCount(rationalSubset) < rationalSubset.length) {
+            if (AlgebraicModule.leadingZerosCount(rationalSubset) < rationalSubset.length)
                 result.add(rationalSubset);
-                // AlgebraicModule.printArray(rationalSubset);
-            }
+
         }
         return result;
     }
@@ -187,7 +170,6 @@ public class LinAlgChain {
                     : (vectorWeight.compareTo(baseVectorWeight) < 0)))
                 return b;
         }
-        // System.out.println("heavier letter not found");
         return null;
     }
 
