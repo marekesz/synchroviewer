@@ -59,9 +59,9 @@ public class SplitPane extends JSplitPane {
         ShortestResetWordToolbar resetWordToolbar = new ShortestResetWordToolbar("Shortest reset word", true,
                 automaton);
         ShortestWordForSubsetToolbar shortestWordSubsetToolbar = new ShortestWordForSubsetToolbar(
-                "Shortest word for subset", false, automaton);
+                "Shortest word for subset", true, automaton);
         AlgebraicChainForSubsetToolbar algebraicChainForSubsetToolbar = new AlgebraicChainForSubsetToolbar(
-                "Linear-algebraic ascending chain for subset", true, automaton, new InverseAutomaton(automaton));
+                "Linear-algebraic ascending chain for subset", false, automaton, new InverseAutomaton(automaton));
         BasicPropertiesToolbar basicPropertiesToolbar = new BasicPropertiesToolbar("Basic properties", false,
                 automaton);
         ProbabilityDistributionToolbar probabilityDistributionToolbar = new ProbabilityDistributionToolbar(
