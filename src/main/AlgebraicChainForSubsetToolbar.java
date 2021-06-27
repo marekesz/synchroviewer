@@ -86,13 +86,13 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         directionComboBox.addItem("Image");
         directionComboBox.addItem("Preimage");
         preprocessComboBox = new JComboBox<String>();
-        preprocessComboBox.addItem("--");
+        preprocessComboBox.addItem("Raw");
         preprocessComboBox.addItem("0-sum");
         preprocessComboBox.addItem("Eigenvector");
         preprocessComboBox.addItem("0-sum for eigenvector");
 
         postprocessComboBox = new JComboBox<String>();
-        postprocessComboBox.addItem("--");
+        postprocessComboBox.addItem("Raw");
         postprocessComboBox.addItem("Eigenvector");
 
         sumComboBox = new JComboBox<String>();

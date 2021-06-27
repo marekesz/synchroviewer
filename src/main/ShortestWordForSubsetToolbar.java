@@ -27,6 +27,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import algorithms.NotStronglyConnectedException;
 import algorithms.Rational;
 import algorithms.ShortestCompressingWord;
 import algorithms.ShortestExtendingWord;
@@ -37,11 +38,11 @@ import models.InverseAutomaton;
 
 public class ShortestWordForSubsetToolbar extends DockToolbar {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	private final int MAX_STATES = 25; // max number of states in automaton
+    private final int MAX_STATES = 25; // max number of states in automaton
 
     private final JTextPane textPane;
     private final JLabel lengthLabel;
@@ -138,6 +139,7 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
 
     private void recalculate() {
         int[] subset = getAutomaton().getSelectedStates();
+        boolean notStronglyConnectedMessage = false;
         try {
             ArrayList<Integer> transitions = new ArrayList<>();
             if (comboBox.getSelectedIndex() == 0)// compressing
@@ -154,10 +156,12 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
                 Collections.reverse(transitions);
             } else if (comboBox.getSelectedIndex() == 4) { // weighted by steady-state
                 Rational[] weights = getAutomaton().getEigenVector();
-
-                transitions = ShortestExtendingWord.findWeighted(getAutomaton(), inverseAutomaton, subset, weights,
-                        getAutomaton().getSelectedStates());
-                Collections.reverse(transitions);
+                if (weights != null) {
+                    transitions = ShortestExtendingWord.findWeighted(getAutomaton(), inverseAutomaton, subset, weights,
+                            getAutomaton().getSelectedStates());
+                    Collections.reverse(transitions);
+                } else
+                    throw new NotStronglyConnectedException();
             }
 
             textPane.setText("");
@@ -168,9 +172,9 @@ public class ShortestWordForSubsetToolbar extends DockToolbar {
             }
             super.setTitle(this.getName() + String.format(" (length: %d)", transitions.size()));
             // lengthLabel.setText(String.format("%nLength: %d", transitions.size()));
-        } catch (WordNotFoundException ex) {
+        } catch (WordNotFoundException | NotStronglyConnectedException ex) {
             textPane.setText("");
-            insertStringToTextPane("Word not found", Color.BLACK);
+            insertStringToTextPane(ex.getMessage(), Color.BLACK);
             // lengthLabel.setText("Length: -");
             super.setTitle(this.getName() + String.format(" (length: --)"));
         }

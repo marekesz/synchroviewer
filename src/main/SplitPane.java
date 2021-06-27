@@ -21,10 +21,10 @@ import models.InverseAutomaton;
 
 public class SplitPane extends JSplitPane {
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private final Automaton automaton;
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private final Automaton automaton;
     private PaintPanel paintPanel;
 
     private final AutomatonCodeToolbar codeToolbar;
@@ -38,8 +38,8 @@ public class SplitPane extends JSplitPane {
 
         setBackground(new Color(224, 224, 224));
 
-        automaton = new Automaton("2 5 1 0 2 1 3 2 4 3 0 0");//
-        // "4 7 1 0 0 0 0 2 1 1 3 1 2 2 2 3 4 3 5 4 4 3 4 6 5 5 6 5 6 6");
+        automaton = new Automaton(// "2 5 1 0 2 1 3 2 4 3 0 0");//
+                "4 7 1 0 0 0 0 2 1 1 3 1 2 2 2 3 4 3 5 4 4 3 4 6 5 5 6 5 6 6");
         paintPanel = new PaintPanel(automaton);
         setTopComponent(paintPanel);
 
@@ -127,7 +127,7 @@ public class SplitPane extends JSplitPane {
         PropertyChangeListener showActionListener = new PropertyChangeListener() {
 
             @SuppressWarnings("unchecked")
-			@Override
+            @Override
             public void propertyChange(PropertyChangeEvent ev) {
                 if (ev.getOldValue() == null) {
                     if (ev.getSource().equals(computeImageToolbar))
@@ -135,7 +135,8 @@ public class SplitPane extends JSplitPane {
                     else
                         computeImageToolbar.actionCheckBoxSetSelected(false);
 
-                    HashMap<Integer, ArrayList<Integer>> actions = (HashMap<Integer, ArrayList<Integer>>) ev.getNewValue();
+                    HashMap<Integer, ArrayList<Integer>> actions = (HashMap<Integer, ArrayList<Integer>>) ev
+                            .getNewValue();
                     paintPanel.showAction(actions);
                 } else
                     paintPanel.setShowAction(false);
