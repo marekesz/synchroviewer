@@ -53,7 +53,6 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         textPane.setEditable(false);
         textPane.setFont(getDeafultFont().deriveFont(Font.BOLD));
 
-        // textPane.setPreferredSize(new Dimension(0, 60));
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem menuItemCopy;
         menuItemCopy = new JMenuItem("Copy");
@@ -99,16 +98,6 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         sumComboBox.addItem("--");
         sumComboBox.addItem("Increase");
         sumComboBox.addItem("Decrease");
-
-        // imageComboBox = new JComboBox<String>();
-        // normalizationComboBox = new JComboBox<String>();
-        // imageComboBox.addItem("Image");
-        // imageComboBox.addItem("Preimage");
-        // normalizationComboBox.addItem("Raw");
-        // normalizationComboBox.addItem("Normalized to 0-sum");
-        // normalizationComboBox.addItem("Weighted by steady state");
-        // normalizationComboBox.addItem("Normalized by steady state");
-        // imageComboBox.setPreferredSize(new Dimension(200, 20));
 
         directionComboBox.addItemListener(new ItemListener() {
 
@@ -262,7 +251,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         boolean zeroSum = preprocessComboBox.getSelectedIndex() == 1; // 0-sum
         boolean eigenVectorPre = preprocessComboBox.getSelectedIndex() == 2; // eigenvector
         boolean eigenVectorZeroSum = preprocessComboBox.getSelectedIndex() == 3; // eigenvector 0-sum
-        boolean eigenVectorPost = postprocessComboBox.getSelectedIndex() == 1; // weighted by steady-state
+        boolean eigenVectorPost = postprocessComboBox.getSelectedIndex() == 1; // eigenvector
         boolean rotateWords = preImageSelected;
         boolean increasingSum = sumComboBox.getSelectedIndex() == 1; // increasing
         boolean decreasingSum = sumComboBox.getSelectedIndex() == 2; // decreasing
@@ -270,7 +259,6 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
         AbstractNFA automaton = imageSelected ? getAutomaton() : new InverseAutomaton(getAutomaton());
 
         Rational[] weights = null;
-        // int[] subset = getAutomaton().getSelectedStates();
 
         if (eigenVectorPost || eigenVectorPre || eigenVectorZeroSum) {
             weights = getAutomaton().getEigenVector();
@@ -291,15 +279,6 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             return;
         }
 
-        // Pair<ArrayList<String>, ArrayList<Rational[]>> resultsBlueSubset = null;
-        // if (imageSelected || preImageSelected)
-        // resultsBlueSubset = LinAlgChain.linAlgChain(automaton, subset, weights,
-        // zeroSum, eigenVector,
-        // eigenVectorZeroSum);
-        // else
-        // resultsBlueSubset = LinAlgChain.linAlgChainExtendSum(automaton, subset,
-        // weights, zeroSum, eigenVector,
-        // eigenVectorZeroSum);
         Pair<ArrayList<String>, ArrayList<Rational[]>> results = null;
         if (!increasingSum && !decreasingSum)
             results = LinAlgChain.linAlgChainForManySubsets(automaton, weights, zeroSum, eigenVectorPre,

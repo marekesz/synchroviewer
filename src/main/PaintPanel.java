@@ -207,8 +207,7 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
         return 0;
     }
 
-    public void setSelectedStateColor(Color color) { // TODO
-        // int colorId = getColorId(color);
+    public void setSelectedStateColor(Color color) {
 
         if (color.equals(unselectedStateColor)) {
             JOptionPane.showMessageDialog(this, "Color 1 and Color 2 must be different.");
@@ -711,9 +710,6 @@ public class PaintPanel extends JPanel implements MouseListener, MouseMotionList
             if (highlighted != -1 && highlighted == n)
                 g.setColor(g.getColor().brighter());
 
-            // g.fillOval((int) (vertices[n].x - VERTEX_RADIUS), (int) (vertices[n].y -
-            // VERTEX_RADIUS), VERTEX_RADIUS * 2,
-            // VERTEX_RADIUS * 2);
             fillMultiColorState(g, (int) (vertices[n].x - VERTEX_RADIUS), (int) (vertices[n].y - VERTEX_RADIUS),
                     VERTEX_RADIUS * 2, VERTEX_RADIUS * 2, getColorsOf(n));
 

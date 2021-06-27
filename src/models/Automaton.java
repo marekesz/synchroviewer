@@ -326,7 +326,6 @@ public class Automaton extends AbstractNFA {
         this.eigenVector = Connectivity.isStronglyConnected(this, new InverseAutomaton(this))
                 ? MarkovChains.getStationaryDistribution(this)
                 : null;
-        // automatonChanged();
     }
 
     public void automatonChanged() {
