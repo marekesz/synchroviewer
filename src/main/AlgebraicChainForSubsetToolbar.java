@@ -188,7 +188,7 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
     }
 
     private Pair<ArrayList<Integer>, String> getChainDescription(ArrayList<String> words, ArrayList<Rational[]> vectors,
-            boolean showVectors, boolean inverseWords, boolean isExtendingWord) {
+            boolean showVectors, boolean inverseWords, int changeSumSign) {
         if (words.size() == 0)
             return new Pair<ArrayList<Integer>, String>(new ArrayList<>(), "");
         String text = "";
@@ -233,8 +233,10 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
                         + AlgebraicModule.sumOfVector(vectors.get(i)) + "\n";
             }
         }
-        if (!foundExtendingWord && isExtendingWord)
-            text += "\nExtending word not found";
+        if (!foundExtendingWord) {
+        	if (changeSumSign > 0) text += "\nIncreasing-sum word not found"; else
+        	if (changeSumSign < 0) text += "\nDecreasing-sum word not found";
+        }
         return new Pair<ArrayList<Integer>, String>(dimensions, text);
     }
 
@@ -287,8 +289,11 @@ public class AlgebraicChainForSubsetToolbar extends DockToolbar {
             results = LinAlgChain.linAlgChainChangeSumForManySubsets(automaton, weights, zeroSum, eigenVectorPre,
                     eigenVectorPost, eigenVectorZeroSum, increasingSum);
 
+        int changeSumSign = 0;
+        if (increasingSum) changeSumSign = 1; else
+        if (decreasingSum) changeSumSign = -1;
         Pair<ArrayList<Integer>, String> chainDescriptionManySubs = getChainDescription(results.first, results.second,
-                showVectorsButton.isSelected() == true, rotateWords, increasingSum || decreasingSum);
+                showVectorsButton.isSelected() == true, rotateWords, changeSumSign);
         ArrayList<Integer> dimensions = chainDescriptionManySubs.first;
 
         super.setTitle("LinAlg chain (length: " + Integer.toString(dimensions.size()) + ", maxdim: "
